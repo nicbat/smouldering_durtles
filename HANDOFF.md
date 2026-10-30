@@ -12,7 +12,7 @@
 - The user approved developing a personal fork named **Smoky Durtles**, including a substantial UI overhaul, bug fixes, performance work, and widgets.
 - The user explicitly wants completed work pushed to their fork. Current origin: `git@github.com:nicbat/smouldering_durtles.git`.
 - Working branch: `smoky-durtles/foundation`. Do not push to upstream or force-push. No request to merge into main yet.
-- Emulator testing is available. The user connected a Pixel 9 Pro and the dashboard build was installed successfully; they confirmed launcher visibility. The settings update is not installed on the phone yet. Never run instrumentation tests on their account-bearing phone.
+- Emulator testing is available. The user connected a Pixel 9 Pro and the dashboard build was installed successfully; they confirmed launcher visibility. The Material settings update (4472ee8) was subsequently installed with adb install -r; installation succeeded, preserving app data. Settings behavior on the phone has not yet been confirmed by the user. Never run instrumentation tests on their account-bearing phone.
 - Keep review grading, scheduling, local custom colors, and pending submissions intact while changing presentation.
 - No secrets, API tokens, signing keys, or user-data fixtures in commits. No real review submissions during automated tests.
 
@@ -70,7 +70,7 @@ A first focused run had a dialog-window focus race; the bounded-number test now
 executes the pending fragment transaction before interacting, and the full run
 passes.
 
-Phone evidence is installation/launcher visibility only, for the dashboard build.
+Phone evidence: dashboard launcher visibility confirmed by the user; settings build 4472ee8 installed successfully afterward with adb install -r. Settings behavior on the phone is not yet user-verified.
 Settings validation used the isolated emulator, no credentials or real account
 submissions. Full account-backed study flows, dashboard Classic switching,
 pre-Android-12 devices, larger-font settings, and actual wallpaper changes remain

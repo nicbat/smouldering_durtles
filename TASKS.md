@@ -53,6 +53,7 @@ Start with the first item below. No build/test blocker remains; emulator is stop
 - [ ] Measured startup/scroll/audio optimizations.
 - [ ] Review/lesson presentation migration after behavior coverage is established.
 - [x] Install the dashboard milestone on the Pixel 9 Pro; user confirmed launcher visibility.
+- [x] Install Material settings build 4472ee8 on the Pixel 9 Pro as an update, preserving app data.
 - [ ] Physical-device validation of settings, search keyboard, study flows, and launcher widgets.
 - [ ] Durable release signing and update delivery; do not commit signing keys.
 
