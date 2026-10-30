@@ -37,9 +37,19 @@ Do not wipe or overwrite the user's AVD.
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`. The old Gradle HTML report at
 `test-reports/connected/debug/index.html` covers the 32-test dashboard milestone;
-the current 42-test run is `test-results/settings-full-instrumentation.txt`.
+the current 48-test run is `test-results/panels-full-instrumentation.txt`.
 
-With the user's phone also attached, use explicit emulator targeting for tests:
+With the user's phone also attached, use explicit emulator targeting for tests.
+Disable test-device animations in the isolated, unsaved emulator session (never on
+the user's phone); Espresso otherwise races newly opened windows:
+
+```sh
+/home/nicbat/Android/Sdk/platform-tools/adb -s emulator-5580 shell settings put global window_animation_scale 0
+/home/nicbat/Android/Sdk/platform-tools/adb -s emulator-5580 shell settings put global transition_animation_scale 0
+/home/nicbat/Android/Sdk/platform-tools/adb -s emulator-5580 shell settings put global animator_duration_scale 0
+```
+
+Build/install/run:
 
 ```sh
 ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest
@@ -52,38 +62,46 @@ Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debu
 
 ## Latest evidence
 
-Foundation `0b6b531`, reliability `4780982`, and Compose overview `713d144` are
-pushed. The Material settings follow-up passes **42 instrumentation tests, 0
-failures on Android 16**, including the prior 32 tests and ten settings tests.
-Debug and release APKs build successfully; aapt confirms minimum API 21 and target
-36. The full run used explicit emulator-targeted adb instrumentation. Its output
-is `test-results/settings-full-instrumentation.txt` (ignored), also available at
-`/tmp/smoky-settings-full-tests.log`. A subsequent focused dark-mode test adds an
-assertion for light-on-dark system-bar icons and passes (1/1). Screenshots wait for
-window transitions before capture; these transitions initially made the status
-icons appear dark in an early screenshot despite the correct window flags.
+Foundation `0b6b531`, reliability `4780982`, Compose overview `713d144`, and
+Material settings `4472ee8` are pushed. The overflow/dashboard panels milestone
+passes **48 instrumentation tests, 0 failures on Android 16**. Debug and release
+APKs build successfully; aapt confirms minimum API 21 and target 36. Current logs:
+`/tmp/smoky-panels-final-build.log`, `/tmp/smoky-panels-full-tests.log`, and the copy
+`test-results/panels-full-instrumentation.txt` (ignored). The old Gradle HTML report
+is not the current test result.
 
-Light/dark settings, choice/edit dialogs, and overflow menus were visually
-inspected. Regeneratable captures are in `captures/smoky-settings/`; earlier
-synthetic dashboard captures remain in `captures/smoky-dashboard/` (both ignored).
-A first focused run had a dialog-window focus race; the bounded-number test now
-executes the pending fragment transaction before interacting, and the full run
-passes.
+New tests cover populated chart counts and colors, SRS/level search callbacks,
+hidden panels taking no space, large/dark layouts, original Classic layouts, real
+MainActivity modern-to-Classic recreation, and overflow navigation into Settings.
+Real recreation exposed a MaterialButton SavedState mismatch on the retry button;
+the modern dashboard theme now explicitly uses AppCompatViewInflater and the
+legacy button style. This keeps view classes stable across appearance changes.
+An initial full run had two UI-window timing failures; settings editor tests now
+select dialog roots explicitly, the overflow test selects its popup root, and the
+passing full run disabled animations in the isolated emulator.
 
-Phone evidence: dashboard launcher visibility confirmed by the user; settings build 4472ee8 installed successfully afterward with adb install -r. Settings behavior on the phone is not yet user-verified.
-Settings validation used the isolated emulator, no credentials or real account
-submissions. Full account-backed study flows, dashboard Classic switching,
-pre-Android-12 devices, larger-font settings, and actual wallpaper changes remain
-to test. The emulator started for this work is stopped at handoff.
+Synthetic screenshots in `captures/smoky-dashboard-panels/` cover light/dark,
+forecast, SRS, and level rows at 1x/2x text. Level-panel captures draw the entire
+measured view so all rows/legend can be inspected. The overflowing large-text
+level legend was replaced with ConstraintLayout Flow wrapping. These fixtures
+inflate the real dashboard layout in an AboutActivity host; they are not live
+account screenshots. Earlier captures remain under `captures/smoky-settings/`
+and `captures/smoky-dashboard/`. Captures are ignored and regeneratable.
+
+Phone: the dashboard launcher and settings-build installation were confirmed in
+prior turns. The newest overflow/chart build has **not** been installed there.
+No account credentials or submissions were used for this milestone. Actual
+review/lesson navigation, pre-Android-12 devices, and wallpaper-change integration
+still need coverage. The emulator used for this work is stopped at handoff.
 
 ## Architecture boundaries
 
 The initial Compose migration adds `dashboard/DashboardController.kt` (LiveData
 adapter) and `DashboardOverview.kt` (pure UI/state/theme). MainActivity passes its
-existing callbacks and interaction guard. The Compose overview replaces only the
-legacy header; custom charts/statistics remain below it. Display settings expose
-Modern dashboard and Wallpaper colors. Do not describe this as a full dashboard
-or review-screen rewrite.
+existing callbacks and interaction guard. The Compose overview replaces the legacy header; existing chart/statistics Views
+remain below it with a new presentation layer. Display settings expose
+Modern dashboard and Wallpaper colors. The latest milestone also styles the
+existing charts, but does not replace their models or rewrite study workflows.
 
 Kotlin/compiler plugin: 2.2.21. Compose BOM: 2025.04.01, deliberately pinned to an
 API 21-compatible generation. AndroidX Test 1.7 / Espresso 3.7 fixes reflection on
@@ -92,12 +110,14 @@ SDK compatibility. `.kotlin/` is generated and ignored.
 
 MainActivity owns dashboard bindings and existing launch handlers. SessionActivity
 and Session still own study workflows. ActiveTheme owns semantic/custom palettes;
-ThemeUtil resolves legacy application-level colors. Compose should use its own
-UI color scheme, leaving subject colors and legacy activity themes independent.
+ThemeUtil still supports application-level colors and now has a context overload
+for screen-local colors. Dashboard chart chrome uses the scoped view context;
+subject/SRS colors still come from ActiveTheme arrays. Compose owns overview UI
+state and its color scheme; legacy study activities keep their own themes.
 
 Settings use Material Components Views **1.12.0** to preserve API 21 compatibility
 and the existing AndroidX Preferences tree. `AbstractActivity.customizeActivityTheme`
-is a no-op outside PreferencesActivity. That activity applies a scoped Material 3
+is overridden by PreferencesActivity and modern MainActivity only. That activity applies a scoped Material 3
 DayNight theme and optional DynamicColors before view inflation, and tints legacy
 menu icons for the new surface. The application-level ActiveTheme remains intact.
 `modern_settings` and `settings_dynamic_color` are independent of dashboard flags.
@@ -110,10 +130,34 @@ AndroidX List/Edit dialog lifecycle, listeners and persistence. The custom range
 dialogs use its `CustomDialog` shell but keep their original inner layouts. Standard
 editors use an outlined TextInputEditText; numeric/password binding stays with the
 existing Preference classes. Material switches reuse SwitchPreferenceCompat binding
-through the original `switchWidget` ID. Sliders and menus outside settings remain
-future work. `MaterialSettingsTest` covers changes, veto/cancel, drafts on recreation,
+through the original `switchWidget` ID. Sliders and contextual menus remain future work; toolbar overflow is now shared
+Material presentation across activities. `MaterialSettingsTest` covers changes, veto/cancel, drafts on recreation,
 Classic fallback, dark contrast, and nested navigation. It does not prove encrypted
 credential entry on a physical device or a real wallpaper-change refresh.
+
+The overflow/dashboard follow-up adds `ui/MaterialToolbar.java`,
+`dashboard/DashboardStyle.java`, `modern_dashboard_styles.xml`, and alternate SRS/
+level layouts. `AbstractActivity` configures popup appearance before menu inflation
+and recreates after relevant appearance preferences change. Main uses dashboard
+flags for its popup; other activities use settings flags. The popup theme is a
+complete Material3 DayNight or DynamicColors theme, so it also works over legacy
+AppCompat activities without changing their activity theme. AppCompat keeps menu
+selection/submenu behavior. No reflection or custom replacement menu model.
+
+Modern MainActivity uses a scoped Material theme. DashboardStyle adds surfaces and
+titles while preserving original chart instances/IDs, observers and callbacks.
+Titled panels measure zero height when their data view is GONE. Timeline labels
+scale with font size and wrap their legend, and time labels reduce density to
+avoid overlap. Level rows show counts from the existing buckets and retain the
+90% marker logic and browse filters. SRS rows use stage swatches rather than filled
+tiles. Other statistics receive surface styling only; subject tables still need
+further design work. DashboardOverview includes days at the current level again.
+
+`DashboardAppearanceTest` posts synthetic objects through the real LiveData and
+restores previous preferences/values. It intercepts browse callbacks via an Actment
+proxy; it never stores subjects or account fixtures. `ToolbarAppearanceTest` uses
+a monitor to block the no-token redirect while exercising real MainActivity;
+notification prompts are suppressed through a restored test preference.
 
 Historical migration schemas 48–67 are available in commit `b36c696` under
 `app/schemas/com.the_tinkering.wk.db.AppDatabase/`; use original bytes under the

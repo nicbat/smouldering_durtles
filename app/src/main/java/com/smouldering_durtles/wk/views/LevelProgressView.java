@@ -21,6 +21,7 @@ import android.util.AttributeSet;
 import android.widget.TableLayout;
 
 import com.smouldering_durtles.wk.Actment;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
@@ -73,10 +74,10 @@ public final class LevelProgressView extends TableLayout {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), R.layout.level_progress, this);
+            inflate(getContext(), DashboardStyle.isModern(getContext()) ? R.layout.level_progress_modern : R.layout.level_progress, this);
             setColumnStretchable(0, true);
             setColumnShrinkable(0, true);
-            setBackgroundColor(ThemeUtil.getColor(R.attr.tileColorBackground));
+            setBackgroundColor(ThemeUtil.getColor(getContext(), R.attr.tileColorBackground));
 
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket0));
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket1));

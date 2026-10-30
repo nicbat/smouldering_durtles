@@ -46,6 +46,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -148,15 +149,15 @@ public class MaterialSettingsTest {
                 assertTrue(input instanceof TextInputEditText);
                 assertEquals(InputType.TYPE_CLASS_NUMBER, input.getInputType() & InputType.TYPE_MASK_CLASS);
             });
-            onView(withId(android.R.id.edit)).perform(replaceText("17"));
+            onView(withId(android.R.id.edit)).inRoot(isDialog()).perform(replaceText("17"));
             scenario.recreate();
-            onView(withId(android.R.id.edit)).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("17")));
+            onView(withId(android.R.id.edit)).inRoot(isDialog()).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("17")));
             screenshot("settings-edit");
-            onView(withText(android.R.string.cancel)).perform(click());
+            onView(withText(android.R.string.cancel)).inRoot(isDialog()).perform(click());
             assertEquals("5", prefs.getString("max_lesson_session_size", ""));
             onView(withText("Max. # of lessons per session")).perform(click());
-            onView(withId(android.R.id.edit)).perform(replaceText("12"));
-            onView(withText(android.R.string.ok)).perform(click());
+            onView(withId(android.R.id.edit)).inRoot(isDialog()).perform(replaceText("12"));
+            onView(withText(android.R.string.ok)).inRoot(isDialog()).perform(click());
             assertEquals("12", prefs.getString("max_lesson_session_size", ""));
         }
     }
@@ -167,8 +168,8 @@ public class MaterialSettingsTest {
                     fragment(activity).findPreference("previous_level_progression_limit_amount")));
             scenario.onActivity(activity -> activity.getSupportFragmentManager().executePendingTransactions());
             idle();
-            onView(withId(android.R.id.edit)).perform(replaceText("61"));
-            onView(withText(android.R.string.ok)).perform(click());
+            onView(withId(android.R.id.edit)).inRoot(isDialog()).perform(replaceText("61"));
+            onView(withText(android.R.string.ok)).inRoot(isDialog()).perform(click());
             assertEquals("1", prefs.getString("previous_level_progression_limit_amount", ""));
         }
     }
@@ -218,12 +219,12 @@ public class MaterialSettingsTest {
                 fragment(activity).onDisplayPreferenceDialog(preference);
                 activity.getSupportFragmentManager().executePendingTransactions();
             });
-            onView(withId(R.id.tagInput)).perform(replaceText("Test engine"));
-            onView(withId(R.id.urlInput)).perform(replaceText("https://example.com/%s"));
+            onView(withId(R.id.tagInput)).inRoot(isDialog()).perform(replaceText("Test engine"));
+            onView(withId(R.id.urlInput)).inRoot(isDialog()).perform(replaceText("https://example.com/%s"));
             scenario.recreate();
-            onView(withId(R.id.tagInput)).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("Test engine")));
-            onView(withId(R.id.urlInput)).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("https://example.com/%s")));
-            onView(withText(android.R.string.cancel)).perform(click());
+            onView(withId(R.id.tagInput)).inRoot(isDialog()).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("Test engine")));
+            onView(withId(R.id.urlInput)).inRoot(isDialog()).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("https://example.com/%s")));
+            onView(withText(android.R.string.cancel)).inRoot(isDialog()).perform(click());
             scenario.onActivity(activity -> {
                 TaggedUrlPreference preference = fragment(activity).findPreference("search_engine_1");
                 assertEquals(before[0], preference.getTag());
@@ -242,12 +243,12 @@ public class MaterialSettingsTest {
                 fragment(activity).onDisplayPreferenceDialog(preference);
                 activity.getSupportFragmentManager().executePendingTransactions();
             });
-            onView(withId(R.id.minInput)).perform(replaceText("2"));
-            onView(withId(R.id.maxInput)).perform(replaceText("8"));
+            onView(withId(R.id.minInput)).inRoot(isDialog()).perform(replaceText("2"));
+            onView(withId(R.id.maxInput)).inRoot(isDialog()).perform(replaceText("8"));
             scenario.recreate();
-            onView(withId(R.id.minInput)).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("2")));
-            onView(withId(R.id.maxInput)).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("8")));
-            onView(withText(android.R.string.cancel)).perform(click());
+            onView(withId(R.id.minInput)).inRoot(isDialog()).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("2")));
+            onView(withId(R.id.maxInput)).inRoot(isDialog()).check(androidx.test.espresso.assertion.ViewAssertions.matches(withText("8")));
+            onView(withText(android.R.string.cancel)).inRoot(isDialog()).perform(click());
             scenario.onActivity(activity -> {
                 NumberRangePreference preference = fragment(activity).findPreference("lesson_subjects_current");
                 assertEquals(before[0], preference.getMin());

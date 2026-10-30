@@ -39,6 +39,8 @@ import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.db.model.Subject;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
+import com.google.android.material.color.MaterialColors;
 import com.smouldering_durtles.wk.enums.SubjectType;
 import com.smouldering_durtles.wk.livedata.LiveTimeLine;
 import com.smouldering_durtles.wk.livedata.LiveVacationMode;
@@ -73,6 +75,8 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     private int colorPrimaryTonedDown = 0;
     private int colorWaterfall = 0;
     private float density = 1.0f;
+    private float labelDensity = 1.0f;
+    private boolean modern;
     private float originX = 0;
     private float originY = 0;
     private float axisSizeX = 0;
@@ -119,11 +123,18 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     public TimeLineBarChart(final Context context, final @Nullable AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
         safe(() -> {
-            colorPrimary = ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary);
-            colorPrimaryTonedDown = ThemeUtil.getColor(R.attr.colorPrimaryTonedDown);
-            colorWaterfall = ThemeUtil.getColor(R.attr.colorWaterfallLine);
+            colorPrimary = ThemeUtil.getColor(getContext(), androidx.appcompat.R.attr.colorPrimary);
+            colorPrimaryTonedDown = ThemeUtil.getColor(getContext(), R.attr.colorPrimaryTonedDown);
+            colorWaterfall = ThemeUtil.getColor(getContext(), R.attr.colorWaterfallLine);
             density = context.getResources().getDisplayMetrics().density;
+            modern = DashboardStyle.isModern(context);
+            labelDensity = modern ? context.getResources().getDisplayMetrics().scaledDensity * 1.1f : density;
+            if (modern) {
+                colorPrimary = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface);
+                colorPrimaryTonedDown = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurfaceVariant);
+            }
             arrowIcon = ContextCompat.getDrawable(getContext(), ActiveTheme.getCurrentTheme().getLevelUpArrowDrawableId());
+            if (modern && arrowIcon != null) arrowIcon.mutate().setTint(colorPrimaryTonedDown);
             init();
         });
     }
@@ -219,7 +230,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
         paint.setStrokeWidth(0);
         canvas.drawLine(originX, originY, originX, originY - axisSizeY, paint);
 
-        paint.setTextSize(density * 10);
+        paint.setTextSize(labelDensity * 10);
         paint.setTextAlign(Paint.Align.RIGHT);
 
         if (axisIntervalY == 0) {
@@ -258,7 +269,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     private void drawBars(final Canvas canvas) {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(0);
-        paint.setTextSize(density * 10);
+        paint.setTextSize(labelDensity * 10);
         paint.setTextAlign(Paint.Align.CENTER);
 
         // The actual bars
@@ -316,7 +327,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             labels.add(rectf);
         }
 
-        paint.setTextSize(density * 9);
+        paint.setTextSize(labelDensity * 9);
         paint.setColor(colorPrimaryTonedDown);
 
         // The count of level-up items, including the arrow icons
@@ -354,10 +365,11 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
         }
 
         paint.setColor(colorPrimary);
-        paint.setTextSize(density * 10);
+        paint.setTextSize(labelDensity * 10);
 
         // The time labels on the X axis
-        for (int i=0; i<entries.size(); i+=numShownBars/6) {
+        int labelStep = modern ? Math.max(1, (int) Math.ceil(labelDensity * 46 / barAdvance)) : numShownBars / 6;
+        for (int i=0; i<entries.size(); i+=labelStep) {
             final String label = getBarLabel(i);
             final float x = originX + barAdvance * i + barAdvance / 2 - scrollOffset;
             if (x < originX || x > originX + axisSizeX) {
@@ -398,14 +410,20 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
         final float boxSize = density * 8;
         final float gapSize = density * 5;
 
-        paint.setTextSize(density * 10);
+        paint.setTextSize(labelDensity * 10);
         paint.setTextAlign(Paint.Align.LEFT);
 
-        float x = density * 8;
-        final float boxY = originY + density * 18;
-        final float textY = originY + density * 26;
+        float x = getPaddingLeft() + density * 8;
+        float boxY = originY + labelDensity * 20;
+        float textY = boxY + density * 8;
 
         for (int i=0; i<segmentColors.length; i++) {
+            float itemWidth = boxSize + gapSize * 2 + paint.measureText(legendLabels[i]);
+            if (modern && x + itemWidth > getWidth() - getPaddingRight() && x > getPaddingLeft() + density * 8) {
+                x = getPaddingLeft() + density * 8;
+                boxY += labelDensity * 16;
+                textY += labelDensity * 16;
+            }
             paint.setColor(segmentColors[i]);
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setStrokeWidth(0);
@@ -428,7 +446,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
 
         if (totalCount == 0) {
             paint.setColor(colorPrimary);
-            paint.setTextSize(density * FONT_SIZE_NORMAL);
+            paint.setTextSize(labelDensity * FONT_SIZE_NORMAL);
             final String s = "No upcoming reviews";
             paint.getTextBounds(s, 0, s.length(), rect);
             final float x = getPaddingLeft() + (baseWidth - rect.width()) / 2;
@@ -437,10 +455,21 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             return;
         }
 
-        paint.setTextSize(density * 10);
+        paint.setTextSize(labelDensity * 10);
 
-        originY = getPaddingTop() + baseHeight - density * 30;
-        axisSizeY = baseHeight - density * 45;
+        float bottomSpace = density * 30;
+        if (modern) {
+            int rows = 1;
+            float width = density * 8;
+            for (String label : legendLabels) {
+                float itemWidth = density * 18 + paint.measureText(label);
+                if (width + itemWidth > baseWidth && width > density * 8) { rows++; width = density * 8; }
+                width += itemWidth;
+            }
+            bottomSpace = labelDensity * (20 + rows * 16);
+        }
+        originY = getPaddingTop() + baseHeight - bottomSpace;
+        axisSizeY = baseHeight - bottomSpace - labelDensity * 15;
         if (axisSizeY <= 0) {
             return;
         }

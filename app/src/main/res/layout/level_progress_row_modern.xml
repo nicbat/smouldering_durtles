@@ -1,0 +1,12 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_span="2" android:orientation="vertical" android:paddingTop="8dp" android:paddingBottom="8dp">
+        <TextView android:id="@+id/label" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+        <TextView android:id="@+id/levelProgressCount" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="2dp" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"/>
+        <com.smouldering_durtles.wk.views.LevelProgressBarView android:id="@+id/bar"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
+    </LinearLayout>
+</merge>

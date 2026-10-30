@@ -26,6 +26,7 @@ import android.util.AttributeSet;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.smouldering_durtles.wk.Actment;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.db.Converters;
@@ -79,7 +80,8 @@ public final class SrsBreakDownView extends ConstraintLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), R.layout.srs_breakdown, this);
+        final boolean modern = DashboardStyle.isModern(getContext());
+        inflate(getContext(), modern ? R.layout.srs_breakdown_modern : R.layout.srs_breakdown, this);
         setBackgroundResource(R.drawable.main_activity_view_background);
 
         counts.add(new ViewProxy(this, R.id.breakdownBucket0Count));
@@ -95,6 +97,11 @@ public final class SrsBreakDownView extends ConstraintLayout {
         views.add(new ViewProxy(this, R.id.breakdownBucket4View));
 
         for (int i=0; i<5; i++) {
+            if (modern) {
+                int[] swatches = {R.id.stageSwatch0, R.id.stageSwatch1, R.id.stageSwatch2, R.id.stageSwatch3, R.id.stageSwatch4};
+                findViewById(swatches[i]).setBackgroundColor(ActiveTheme.getShallowStageBucketColors5()[i]);
+                continue;
+            }
             Drawable background = views.get(i).getBackground();
             if (background != null) {
                 background.setColorFilter(new PorterDuffColorFilter(

@@ -21,6 +21,8 @@ import android.util.AttributeSet;
 import android.widget.TableRow;
 
 import com.smouldering_durtles.wk.Actment;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
+import android.widget.TextView;
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.db.Converters;
 import com.smouldering_durtles.wk.enums.SearchSortOrder;
@@ -68,7 +70,12 @@ public final class LevelProgressRowView extends TableRow {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), R.layout.level_progress_row, this);
+            inflate(getContext(), DashboardStyle.isModern(getContext()) ? R.layout.level_progress_row_modern : R.layout.level_progress_row, this);
+            if (DashboardStyle.isModern(getContext())) {
+                android.util.TypedValue background = new android.util.TypedValue();
+                getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.selectableItemBackground, background, true);
+                setBackgroundResource(background.resourceId);
+            }
             label.setDelegate(this, R.id.label);
             barView.setDelegate(this, R.id.bar);
         });
@@ -83,6 +90,16 @@ public final class LevelProgressRowView extends TableRow {
     public void setEntry(final @Nullable WeakLcoRef<? extends Actment> actmentRef, final LevelProgress.BarEntry entry) {
         safe(() -> {
             label.setTextFormat("Lvl %d %s", entry.getLevel(), entry.getType().getLevelProgressLabel());
+            if (DashboardStyle.isModern(getContext())) {
+                label.setText(getContext().getString(R.string.dashboard_level_progress_row,
+                        entry.getLevel(), entry.getType().getDescriptionPlural()));
+                int total = 0;
+                for (int count : entry.getBuckets()) total += count;
+                TextView counts = findViewById(R.id.levelProgressCount);
+                counts.setText(getContext().getString(R.string.dashboard_passed_count, entry.getBuckets()[0], total));
+                setContentDescription(label.getText() + ", " + counts.getText());
+                setFocusable(true);
+            }
             barView.setValues(entry.getBuckets());
             barView.setShowTarget(LiveLevelDuration.getInstance().get().getLevel() == entry.getLevel() && entry.getType().hasLevelUpTarget());
             setOnClickListener(v -> safe(() -> {

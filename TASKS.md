@@ -5,9 +5,9 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Material 3 settings controls and menus, following the Compose dashboard overview.
-Development and emulator testing are authorized. The previous dashboard build was
-installed on the user's Pixel 9 Pro; the user confirmed it appears in the launcher.
+Rounded toolbar overflow menus and modern dashboard chart/level panels.
+Development and emulator testing are authorized. The settings milestone was installed on the user's Pixel 9 Pro.
+The new overflow/chart milestone is not installed on the phone yet.
 Do not run instrumentation tests on that phone or use its account data.
 Push tested milestones to the user's fork on the current feature branch.
 
@@ -38,18 +38,32 @@ Push tested milestones to the user's fork on the current feature branch.
 - [x] Inspect light/dark settings, choice/edit dialogs, and overflow menu screenshots; focused system-bar contrast test passes.
 - [x] Update handoff and push the settings milestone to the fork.
 
+## Overflow and dashboard panels milestone
+
+- [x] Rounded, padded Material overflow popups, including legacy activities; light/dark and optional wallpaper colors.
+- [x] Scoped dashboard Material theme, readable toolbar icons, and matching system bars.
+- [x] Titled review forecast with larger scalable labels and wrapping chart legends.
+- [x] SRS distribution rows retain stage colors and existing search filters.
+- [x] Level rows show passed/total counts; time on level returns to the overview; keep 90% target logic.
+- [x] Updated surfaces for level/Post-60/Jōyō/JLPT/breakdown panels; Classic remains selectable.
+- [x] Offline synthetic fixtures cover counts/colors/search callbacks, hidden panels, dark/large text, and original layouts.
+- [x] Real MainActivity recreation and overflow navigation tests; fix MaterialButton saved-state mismatch on return to Classic.
+- [x] Debug/release builds succeed; **48 instrumentation tests pass, 0 failures on Android 16**.
+- [x] Inspect light/dark, populated charts, 2x text, and rounded overflow screenshots; update docs and push.
+
 ## Next
 
 Start with the first item below. No build/test blocker remains; emulator is stopped at handoff.
 
-- [ ] Test a fully populated dashboard and actual review/lesson navigation using controlled offline fixtures (no real account submissions).
-- [ ] Verify Classic switching across recreation, API 21/30 fallback, and wallpaper changes on API 31+.
-- [ ] Continue Material styling into toolbar, dashboard statistics, and configurable sections; the current change modernizes the overview only.
+- [ ] Test actual review/lesson navigation and populated session state using controlled offline fixtures (no real account submissions). Chart fixtures now cover populated statistics without database/account data.
+- [x] Verify modern-to-Classic dashboard switching across real activity recreation.
+- [ ] Verify API 21/30 fallback, real wallpaper changes on API 31+, and Classic-to-modern round trips during a study session.
+- [ ] Refine dashboard subject lists, table density, and configurable section ordering. Current charts retain their original data models and drawing logic.
 
 - [ ] Session fixtures and recovery tests: interruption, process death, pending offline submissions.
 - [ ] Reproduce offline audio delays and audit cancellation/focus behavior.
 - [ ] Modern widgets: inspect upstream PR #153, then implement and test one useful widget.
-- [ ] Further settings/search redesign: grouping, Material sliders, custom two-field layouts, and menus outside settings.
+- [ ] Further settings/search redesign: grouping, Material sliders, custom two-field layouts, and contextual menus beyond toolbar overflow.
 - [ ] Measured startup/scroll/audio optimizations.
 - [ ] Review/lesson presentation migration after behavior coverage is established.
 - [x] Install the dashboard milestone on the Pixel 9 Pro; user confirmed launcher visibility.

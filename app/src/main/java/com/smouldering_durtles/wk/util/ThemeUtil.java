@@ -38,7 +38,12 @@ public final class ThemeUtil {
      * @return the color as an ARGB int
      */
     public static int getColor(final int id) {
-        final @Nullable Resources.Theme theme = WkApplication.getInstance().getTheme();
+        return getColor(WkApplication.getInstance(), id);
+    }
+
+    /** Resolve colors from a view/activity theme when a screen has a scoped appearance. */
+    public static int getColor(final android.content.Context context, final int id) {
+        final @Nullable Resources.Theme theme = context.getTheme();
         if (theme == null) {
             return 0xFFFF0000;
         }

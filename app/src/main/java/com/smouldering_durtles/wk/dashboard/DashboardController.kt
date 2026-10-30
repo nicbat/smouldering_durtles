@@ -46,6 +46,8 @@ class DashboardController private constructor() {
                     activeSession = !session.isInactive,
                     vacation = LiveVacationMode.getInstance().get(),
                     level = LiveLevelDuration.getInstance().get().level,
+                    daysAtLevel = LiveLevelDuration.getInstance().get().daysAtCurrentLevel.toDouble()
+                        .takeIf { GlobalSettings.getFirstTimeSetup() != 0 && it.isFinite() && it >= 0 },
                     upcoming = upcoming,
                     syncing = !LiveTaskCounts.getInstance().get().isEmpty,
                     syncError = LiveApiState.getInstance().get() in listOf(ApiState.ERROR, ApiState.API_KEY_REJECTED)

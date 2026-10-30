@@ -88,7 +88,7 @@ public final class LevelProgressBarView extends View {
 
         colors = ActiveTheme.getLevelProgressionBucketColors();
 
-        targetColor = ThemeUtil.getColor(R.attr.colorLevelProgressTarget);
+        targetColor = ThemeUtil.getColor(getContext(), R.attr.colorLevelProgressTarget);
 
         total = 0;
         for (final int value: values) {

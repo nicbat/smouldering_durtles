@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019-2020 Ernst Jan Plugge <rmc@dds.nl>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:gravity="start"
+            android:text="Level progression"
+            android:paddingBottom="12dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnSurface"/>
+    </TableRow>
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:paddingTop="12dp">
+        <LinearLayout android:id="@+id/levelLegendPassed" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <View android:id="@+id/legendBucket0" android:layout_width="8dp" android:layout_height="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="6dp" android:text="Passed"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/levelLegendApprentice" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <View android:id="@+id/legendBucket1" android:layout_width="8dp" android:layout_height="8dp"/>
+<View android:id="@+id/legendBucket2" android:layout_width="8dp" android:layout_height="8dp"/>
+<View android:id="@+id/legendBucket3" android:layout_width="8dp" android:layout_height="8dp"/>
+<View android:id="@+id/legendBucket4" android:layout_width="8dp" android:layout_height="8dp"/>
+<View android:id="@+id/legendBucket5" android:layout_width="8dp" android:layout_height="8dp"/>
+<View android:id="@+id/legendBucket6" android:layout_width="8dp" android:layout_height="8dp"/>
+<View android:id="@+id/legendBucket7" android:layout_width="8dp" android:layout_height="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="6dp" android:text="Apprentice"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/levelLegendInitiate" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <View android:id="@+id/legendBucket8" android:layout_width="8dp" android:layout_height="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="6dp" android:text="Initiate"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/levelLegendLocked" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <View android:id="@+id/legendBucket9" android:layout_width="8dp" android:layout_height="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="6dp" android:text="Locked"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
+        </LinearLayout>
+        <androidx.constraintlayout.helper.widget.Flow android:layout_width="match_parent" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
+            app:constraint_referenced_ids="levelLegendPassed,levelLegendApprentice,levelLegendInitiate,levelLegendLocked"
+            app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0"
+            app:flow_horizontalGap="12dp" app:flow_verticalGap="8dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</merge>

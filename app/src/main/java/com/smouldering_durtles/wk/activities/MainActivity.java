@@ -98,6 +98,31 @@ public final class MainActivity extends AbstractActivity {
     }
 
     @Override
+    protected boolean useModernOverflow() { return GlobalSettings.Display.getModernDashboard(); }
+
+    @Override
+    protected boolean useDynamicOverflow() { return GlobalSettings.Display.getDashboardDynamicColor(); }
+
+    @Override
+    protected void customizeActivityTheme(android.content.res.Resources.Theme theme) {
+        theme.applyStyle(R.style.SmokyClassicSettingsOverlay, true);
+        if (GlobalSettings.Display.getModernDashboard()) {
+            theme.applyStyle(R.style.SmokyDashboardTheme, true);
+            if (GlobalSettings.Display.getDashboardDynamicColor()) {
+                com.google.android.material.color.DynamicColors.applyToActivityIfAvailable(this);
+            }
+        }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(android.view.Menu menu) {
+        if (GlobalSettings.Display.getModernDashboard() && getToolbar() != null) {
+            com.smouldering_durtles.wk.ui.MaterialToolbar.tintIcons(getToolbar(), menu);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher = registerForActivityResult(
@@ -106,6 +131,9 @@ public final class MainActivity extends AbstractActivity {
         }
 
         modernDashboard = GlobalSettings.Display.getModernDashboard();
+        if (modernDashboard) {
+            com.smouldering_durtles.wk.dashboard.DashboardStyle.apply(this);
+        }
         dynamicDashboard = GlobalSettings.Display.getDashboardDynamicColor();
         findViewById(R.id.classicDashboardHeader).setVisibility(modernDashboard ? View.GONE : View.VISIBLE);
         final ComposeView dashboard = findViewById(R.id.modernDashboard);

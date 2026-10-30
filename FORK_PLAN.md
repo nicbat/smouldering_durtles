@@ -6,6 +6,17 @@ Status: implementation started with user authorization. The fork is named **Smok
 
 ## Current milestone
 
+Overflow/dashboard follow-up: shared toolbar popup styling, scoped Material theme
+for modern MainActivity, and refreshed forecast/SRS/level panels. Existing chart
+models, search callbacks, custom semantic palettes, and Classic layouts are retained.
+Level progress adds passed/total labels and the overview again shows time on level.
+`DashboardStyle` provides presentation only; `ThemeUtil` can resolve scoped view
+colors without replacing the application theme. Synthetic fixtures exercise the
+real chart observers without account data. Real MainActivity recreation exposed a
+MaterialButton saved-state mismatch; retaining AppCompat inflation in the modern
+dashboard theme fixes switching back to Classic. See TASKS/HANDOFF for validation.
+
+
 Settings follow-up: add Material Components for Android 1.12.0 to reuse the existing
 AndroidX Preferences model. Only PreferencesActivity receives the Material 3 theme;
 AbstractActivity exposes a no-op theme hook for this purpose. Modern settings and

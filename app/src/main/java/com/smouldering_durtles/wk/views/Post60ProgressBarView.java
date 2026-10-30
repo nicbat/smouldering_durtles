@@ -101,8 +101,8 @@ public final class Post60ProgressBarView extends View {
         for (int i=0; i<colors.length; i++) {
             final boolean light = ThemeUtil.isLightColor(colors[i]);
             textColors[i] = light
-                    ? ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimaryDark)
-                    : ThemeUtil.getColor(R.attr.colorPrimaryLight);
+                    ? ThemeUtil.getColor(getContext(), androidx.appcompat.R.attr.colorPrimaryDark)
+                    : ThemeUtil.getColor(getContext(), R.attr.colorPrimaryLight);
             textShadow[i] = !light;
         }
     }

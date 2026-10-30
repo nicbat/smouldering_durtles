@@ -99,6 +99,8 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
     private final boolean mainActivity;
     private @Nullable Timer tickTimer = null;
     private @Nullable ActiveTheme creationTheme = null;
+    private boolean creationModernOverflow;
+    private boolean creationDynamicOverflow;
     private @Nullable Resources.Theme createdTheme = null;
 
     /**
@@ -182,12 +184,21 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
         }
     }
 
+    protected boolean useModernOverflow() { return GlobalSettings.Display.getModernSettings(); }
+
+    protected boolean useDynamicOverflow() { return GlobalSettings.Display.getSettingsDynamicColor(); }
+
     private void onCreateBase() {
         creationTheme = ActiveTheme.getCurrentTheme();
+        creationModernOverflow = useModernOverflow();
+        creationDynamicOverflow = useDynamicOverflow();
         setContentView(layoutId);
 
         final Toolbar toolbar = getToolbar();
         if (toolbar != null) {
+            if (useModernOverflow()) {
+                com.smouldering_durtles.wk.ui.MaterialToolbar.styleOverflow(toolbar, useDynamicOverflow());
+            }
             final int initialPaddingTop = toolbar.getPaddingTop();
 
             ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
@@ -286,7 +297,9 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
         safe(() -> {
             super.onResume();
 
-            if (creationTheme != null && creationTheme != ActiveTheme.getCurrentTheme()) {
+            if (creationTheme != null && (creationTheme != ActiveTheme.getCurrentTheme()
+                    || creationModernOverflow != useModernOverflow()
+                    || creationDynamicOverflow != useDynamicOverflow())) {
                 recreate();
                 return;
             }

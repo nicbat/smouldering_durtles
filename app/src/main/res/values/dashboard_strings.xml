@@ -14,4 +14,9 @@
     <string name="dashboard_sync_error">Sync needs attention. Use the message above to retry or check your API settings.</string>
     <string name="dashboard_syncing">Updating your study data…</string>
     <string name="dashboard_browse">Browse subjects</string>
+    <string name="dashboard_forecast_title">Review forecast</string>
+    <string name="dashboard_srs_title">SRS distribution</string>
+    <string name="dashboard_days_at_level">%1$.1f days on this level</string>
+    <string name="dashboard_level_progress_row">Level %1$d · %2$s</string>
+    <string name="dashboard_passed_count">%1$d of %2$d passed</string>
 </resources>

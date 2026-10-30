@@ -24,6 +24,7 @@ data class DashboardState(
     val vacation: Boolean = false,
     val level: Int = 0,
     val upcoming: String = "",
+    val daysAtLevel: Double? = null,
     val syncing: Boolean = false,
     val syncError: Boolean = false
 )
@@ -43,13 +44,17 @@ fun DashboardTheme(dynamicColor: Boolean, dark: Boolean = isSystemInDarkTheme(),
 fun DashboardOverview(state: DashboardState, enabled: Boolean,
                       onReviews: () -> Unit, onLessons: () -> Unit,
                       onResume: () -> Unit, onBrowse: () -> Unit) {
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold)
             if (state.level > 0) {
                 Text(stringResource(R.string.dashboard_level, state.level),
-                    style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                state.daysAtLevel?.let { days ->
+                    Text(stringResource(R.string.dashboard_days_at_level, days),
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
             if (!state.ready) {
                 Text(stringResource(R.string.dashboard_loading))
