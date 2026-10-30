@@ -83,6 +83,18 @@
         app:key="display_settings"
         app:title="Display settings">
 
+        <SwitchPreferenceCompat
+            app:key="modern_dashboard"
+            app:title="Modern dashboard"
+            app:summary="Material 3 study overview. Turn off to use Classic."
+            app:defaultValue="true"/>
+        <SwitchPreferenceCompat
+            app:key="dashboard_dynamic_color"
+            app:title="Wallpaper colors"
+            app:summary="Use wallpaper colors in the modern overview on Android 12 and later"
+            app:dependency="modern_dashboard"
+            app:defaultValue="true"/>
+
         <ListPreference
             app:key="theme"
             app:title="Light Theme"

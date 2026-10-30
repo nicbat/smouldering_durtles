@@ -781,11 +781,16 @@ public final class GlobalSettings {
             //
         }
 
-        /**
-         * The user's selected theme.
-         *
-         * @return the value
-         */
+        /** Whether to show the Compose study overview instead of the Classic header. */
+        public static boolean getModernDashboard() {
+            return prefs().getBoolean("modern_dashboard", true);
+        }
+
+        public static boolean getDashboardDynamicColor() {
+            return prefs().getBoolean("dashboard_dynamic_color", true);
+        }
+
+        /** The user's selected legacy theme, respecting system night mode. */
         public static ActiveTheme getTheme() {
             final @Nullable String value = prefs().getString("theme", "LIGHT");
             ActiveTheme theme = ActiveTheme.LIGHT;

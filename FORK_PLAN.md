@@ -2,9 +2,15 @@
 
 Recorded 2026-10-30. Baseline: upstream `main` at `c11758c`.
 
-Status: implementation started with user authorization. The fork is named **Smoky Durtles**. This note preserves the investigation and the personal-fork roadmap. Work is on `smoky-durtles/foundation`; a public GitHub fork has not been created.
+Status: implementation started with user authorization. The fork is named **Smoky Durtles**. This note preserves the investigation and the personal-fork roadmap. Work is on `smoky-durtles/foundation`; completed milestones are pushed to `nicbat/smouldering_durtles`.
 
 ## Current milestone
+
+Progress update: reliability fixtures and Guru palette fixes are complete. The
+initial Compose Material 3 overview now uses real LiveData counts and the original
+session callbacks, with Classic and wallpaper-color preferences. Existing charts
+and study screens remain in Views. The full suite now passes 32 instrumentation tests on Android 16; debug and release builds succeed. See TASKS and HANDOFF for current validation
+and remaining work; earlier estimates below are historical planning context.
 
 - Independent application IDs: `com.smoky_durtles.wk` and `com.smoky_durtles.wk.debug`, distinct provider authorities, automatic variant-specific test ID, and `smoky-durtles://` subject links.
 - Updated launcher/About/Support identity with upstream credits; Java namespace and database schema identity retained.

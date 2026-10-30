@@ -3,9 +3,17 @@
 For ongoing development, start with [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md).
 
 Smoky Durtles is a personal fork of Smouldering Durtles. The initial work adds an
-independent installation identity and fixes toolbar search; the Material 3
-dashboard, widget improvements, and reliability work are tracked in
+independent installation identity, fixes toolbar search, and introduces a Material 3
+dashboard overview. Further dashboard work, widgets, and reliability tasks are tracked in
 [FORK_PLAN.md](FORK_PLAN.md).
+
+## Dashboard appearance
+
+The study overview uses Compose Material 3 and wallpaper colors on Android 12+,
+with static light/dark palettes on older devices. Go to **Settings → Display
+settings** to turn off **Modern dashboard** for the Classic header, or disable
+**Wallpaper colors**. Charts, subject colors, and review/lesson screens retain
+existing behavior. This is the first UI migration step, not a complete redesign.
 
 ## Local development build
 
@@ -29,8 +37,8 @@ running overlapping study sessions while offline submissions are pending.
 
 Development APKs use the local debug signing key. Keep that key for subsequent
 development updates. A durable release signing/update process is still to be set
-up; the inherited release build currently also uses debug signing. No public
-Smoky Durtles repository, support address, or store listing is configured yet.
+up; the inherited release build currently also uses debug signing. Development is tracked in [the personal fork](https://github.com/nicbat/smouldering_durtles).
+No dedicated support address or store listing is configured.
 
 Run the focused identity and toolbar regression tests on a connected emulator/device:
 
@@ -38,8 +46,8 @@ Run the focused identity and toolbar regression tests on a connected emulator/de
 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smouldering_durtles.wk.test.SearchExpansionTest,com.smouldering_durtles.wk.test.ForkIdentityTest
 ```
 
-The historical migration fixtures have been restored from Git history. All 25
-instrumentation tests pass on Android 16 at the reliability milestone. See TASKS
+The historical migration fixtures have been restored from Git history. All 32
+instrumentation tests pass on Android 16 at the Compose overview milestone. See TASKS
 for the latest results as further tests are added.
 
 ## Upstream project

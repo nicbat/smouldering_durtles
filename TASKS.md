@@ -5,7 +5,7 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Reliability baseline, then an optional Compose Material 3 dashboard overview.
+Optional Compose Material 3 dashboard overview; reliability baseline is complete.
 Development and emulator testing are authorized; the user will test on a phone later.
 Push tested milestones to the user's fork on the current feature branch.
 
@@ -16,16 +16,22 @@ Push tested milestones to the user's fork on the current feature branch.
 - [x] Three foundation instrumentation tests; debug/release builds; side-by-side install.
 - [x] Push foundation to `origin/smoky-durtles/foundation` (`0b6b531`).
 
-## In progress
+## Latest completed milestone
 
 - [x] Restore original Room schemas 48–67 from `b36c696`; full suite passes (25 tests, Android 16).
 - [x] Fix DARK and NORD Guru customization slots; all-theme palette regression test passes.
-- [ ] Add a Compose dashboard overview with real counts and existing session actions.
-- [ ] Keep Classic selectable and semantic subject colors unchanged.
-- [ ] Verify loading, no-work, vacation, active-session, large-text, light/dark states.
-- [ ] Build APK, update these documents, commit and push the milestone.
+- [x] Add a Compose dashboard overview with real counts and existing session actions.
+- [x] Keep Classic selectable and semantic subject colors unchanged.
+- [x] Exercise loading, no-work, vacation, active-session, disabled controls and large text in Compose tests; inspect light/dark/large-text screenshots.
+- [x] Build debug/release APKs and pass the full suite: **32 tests, 0 failures on Android 16**. Commit/push this milestone with the updated handoff.
 
 ## Next
+
+Start with the first item below. No build/test blocker remains; emulator is stopped at handoff.
+
+- [ ] Test a fully populated dashboard and actual review/lesson navigation using controlled offline fixtures (no real account submissions).
+- [ ] Verify Classic switching across recreation, API 21/30 fallback, and wallpaper changes on API 31+.
+- [ ] Continue Material styling into toolbar, dashboard statistics, and configurable sections; the current change modernizes the overview only.
 
 - [ ] Session fixtures and recovery tests: interruption, process death, pending offline submissions.
 - [ ] Reproduce offline audio delays and audit cancellation/focus behavior.

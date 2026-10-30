@@ -67,6 +67,9 @@ import com.smouldering_durtles.wk.views.TimeLineBarChart;
 import com.smouldering_durtles.wk.views.UpcomingReviewsView;
 
 import javax.annotation.Nullable;
+import android.view.View;
+import androidx.compose.ui.platform.ComposeView;
+import com.smouldering_durtles.wk.dashboard.DashboardController;
 
 /**
  * The dashboard activity.
@@ -78,6 +81,10 @@ import javax.annotation.Nullable;
  * </p>
  */
 public final class MainActivity extends AbstractActivity {
+    private @Nullable DashboardController dashboardController;
+    private boolean modernDashboard;
+    private boolean dynamicDashboard;
+
     private final ViewProxy apiErrorView = new ViewProxy();
     private final ViewProxy apiKeyRejectedView = new ViewProxy();
     private final ViewProxy keyboardHelpView = new ViewProxy();
@@ -96,6 +103,18 @@ public final class MainActivity extends AbstractActivity {
             notificationPermissionLauncher = registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),
                     isGranted -> GlobalSettings.Tutorials.setNotificationPermissionAsked(true));
+        }
+
+        modernDashboard = GlobalSettings.Display.getModernDashboard();
+        dynamicDashboard = GlobalSettings.Display.getDashboardDynamicColor();
+        findViewById(R.id.classicDashboardHeader).setVisibility(modernDashboard ? View.GONE : View.VISIBLE);
+        final ComposeView dashboard = findViewById(R.id.modernDashboard);
+        dashboard.setVisibility(modernDashboard ? View.VISIBLE : View.GONE);
+        if (modernDashboard) {
+            dashboardController = DashboardController.attach(
+                    dashboard, this, this::startReviewSession, this::startLessonSession, this::resumeSession,
+                    () -> goToActivity(BrowseActivity.class), dynamicDashboard);
+            dashboardController.setInteractionEnabled(interactionEnabled);
         }
 
         apiErrorView.setDelegate(this, R.id.apiErrorView);
@@ -208,6 +227,11 @@ public final class MainActivity extends AbstractActivity {
 
     @Override
     protected void onResumeLocal() {
+        if (modernDashboard != GlobalSettings.Display.getModernDashboard()
+                || dynamicDashboard != GlobalSettings.Display.getDashboardDynamicColor()) {
+            recreate();
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && notificationPermissionLauncher != null
                 && !GlobalSettings.Tutorials.getNotificationPermissionAsked()
@@ -245,6 +269,7 @@ public final class MainActivity extends AbstractActivity {
 
     @Override
     protected void enableInteractionLocal() {
+        if (dashboardController != null) dashboardController.setInteractionEnabled(true);
         final @Nullable SessionButtonsView view = findViewById(R.id.sessionButtonsView);
         if (view != null) {
             view.enableInteraction();
@@ -253,6 +278,7 @@ public final class MainActivity extends AbstractActivity {
 
     @Override
     protected void disableInteractionLocal() {
+        if (dashboardController != null) dashboardController.setInteractionEnabled(false);
         final @Nullable SessionButtonsView view = findViewById(R.id.sessionButtonsView);
         if (view != null) {
             view.disableInteraction();

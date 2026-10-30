@@ -41,12 +41,32 @@ Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debu
 
 ## Latest evidence
 
-Foundation commit `0b6b531` is pushed. Three focused tests passed on Android 16;
-debug/release built and installed alongside upstream. Historical schemas have now been restored byte-for-byte from Git history.
-The full suite passes: 25 tests on Android 16, including all 20 database migrations
-and a regression test for Guru palette slots in every theme.
+Foundation `0b6b531` and reliability `4780982` are pushed. The Compose overview
+milestone passes **32 instrumentation tests, 0 failures on Android 16**, including
+all database migrations, search/identity/palette regressions, six Compose UI state
+tests, and an actual controller bridge hosted in an existing AppCompat activity.
+Both debug and release APKs build successfully. Static light/dark and 2x-font
+screenshots were visually inspected using synthetic data. Local captures are in
+`captures/smoky-dashboard/` (ignored by Git; tests can regenerate them).
+
+The user has not tested on their phone yet. Full account-backed study flows,
+Classic switching, pre-Android-12 devices, and wallpaper changes still need
+integration coverage. No real account credentials were used. The emulator started
+for this work is stopped at handoff. See TASKS for the next work item.
 
 ## Architecture boundaries
+
+The initial Compose migration adds `dashboard/DashboardController.kt` (LiveData
+adapter) and `DashboardOverview.kt` (pure UI/state/theme). MainActivity passes its
+existing callbacks and interaction guard. The Compose overview replaces only the
+legacy header; custom charts/statistics remain below it. Display settings expose
+Modern dashboard and Wallpaper colors. Do not describe this as a full dashboard
+or review-screen rewrite.
+
+Kotlin/compiler plugin: 2.2.21. Compose BOM: 2025.04.01, deliberately pinned to an
+API 21-compatible generation. AndroidX Test 1.7 / Espresso 3.7 fixes reflection on
+the Android 16 emulator. Do not upgrade the BOM blindly without reviewing minimum
+SDK compatibility. `.kotlin/` is generated and ignored.
 
 MainActivity owns dashboard bindings and existing launch handlers. SessionActivity
 and Session still own study workflows. ActiveTheme owns semantic/custom palettes;

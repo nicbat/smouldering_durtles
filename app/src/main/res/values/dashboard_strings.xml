@@ -1,0 +1,17 @@
+<resources>
+    <string name="dashboard_title">Your next session</string>
+    <string name="dashboard_level">Level %1$d</string>
+    <string name="dashboard_loading">Getting your study queue ready…</string>
+    <string name="dashboard_reviews">Reviews ready</string>
+    <string name="dashboard_lessons">Lessons ready</string>
+    <string name="dashboard_session_waiting">Pick up where you left off.</string>
+    <string name="dashboard_resume">Resume session</string>
+    <string name="dashboard_start_reviews">Start reviews</string>
+    <string name="dashboard_start_lessons">Start lessons</string>
+    <string name="dashboard_vacation">Vacation mode is active. Your study queue is paused.</string>
+    <string name="dashboard_caught_up">You’re caught up for now.</string>
+    <string name="dashboard_next_review">Next reviews: %1$s at %2$s</string>
+    <string name="dashboard_sync_error">Sync needs attention. Use the message above to retry or check your API settings.</string>
+    <string name="dashboard_syncing">Updating your study data…</string>
+    <string name="dashboard_browse">Browse subjects</string>
+</resources>
