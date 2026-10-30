@@ -2,18 +2,17 @@ apply plugin: 'com.android.application'
 
 android {
     defaultConfig {
-        applicationId "com.smouldering_durtles.wk"
+        applicationId "com.smoky_durtles.wk"
         minSdkVersion 21
         targetSdkVersion 36
         compileSdk = 36
         versionCode 89
-        versionName '1.2.8'
+        versionName '1.2.8-smoky.1'
         multiDexEnabled true
 
         vectorDrawables.useSupportLibrary = true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testApplicationId "com.smouldering_durtles.wk.test"
         testHandleProfiling true
         testFunctionalTest true
 
@@ -26,18 +25,18 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            resValue 'string', 'fileprovider_authority', 'com.smouldering_durtles.wk.fileprovider'
-            resValue 'string', 'searchprovider_authority', 'com.smouldering_durtles.wk.db.SubjectContentProvider'
+            resValue 'string', 'fileprovider_authority', 'com.smoky_durtles.wk.fileprovider'
+            resValue 'string', 'searchprovider_authority', 'com.smoky_durtles.wk.db.SubjectContentProvider'
             resValue 'string', 'applabel', '@string/label'
-            buildConfigField 'String', 'FILEPROVIDER_AUTHORITY', '"com.smouldering_durtles.wk.fileprovider"'
+            buildConfigField 'String', 'FILEPROVIDER_AUTHORITY', '"com.smoky_durtles.wk.fileprovider"'
             signingConfig signingConfigs.debug
         }
         debug {
             applicationIdSuffix '.debug'
-            resValue 'string', 'fileprovider_authority', 'com.smouldering_durtles.wk.debug.fileprovider'
-            resValue 'string', 'searchprovider_authority', 'com.smouldering_durtles.wk.debug.db.SubjectContentProvider'
+            resValue 'string', 'fileprovider_authority', 'com.smoky_durtles.wk.debug.fileprovider'
+            resValue 'string', 'searchprovider_authority', 'com.smoky_durtles.wk.debug.db.SubjectContentProvider'
             resValue 'string', 'applabel', '@string/labelDebug'
-            buildConfigField 'String', 'FILEPROVIDER_AUTHORITY', '"com.smouldering_durtles.wk.debug.fileprovider"'
+            buildConfigField 'String', 'FILEPROVIDER_AUTHORITY', '"com.smoky_durtles.wk.debug.fileprovider"'
         }
     }
     sourceSets {

@@ -1,7 +1,7 @@
 <resources>
-    <string name="about_label">About Smouldering Durtles</string>
-    <string name="label">Smouldering Durtles</string>
-    <string name="labelDebug">Smoulder Durtles - Debug</string>
-    <string name="uri_scheme">smouldering-durtles</string>
-    <string name="subject_info_uri">smouldering-durtles://subject-info</string>
+    <string name="about_label">About Smoky Durtles</string>
+    <string name="label">Smoky Durtles</string>
+    <string name="labelDebug">Smoky Durtles - Dev</string>
+    <string name="uri_scheme">smoky-durtles</string>
+    <string name="subject_info_uri">smoky-durtles://subject-info</string>
 </resources>
