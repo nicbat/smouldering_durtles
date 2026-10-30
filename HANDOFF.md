@@ -99,8 +99,10 @@ captures cover browse, study, settings, details, dashboard statistics and utilit
 Real physical keyboard/insets, landscape, TalkBack, wallpaper-change refresh, prolonged
 study sessions and process-death/offline submission recovery remain validation work.
 
-Phone: search implementation **ab784d0** remains installed on Pixel 9 Pro, serial
-`4C191FDAP00202`. **The full UI pass has not been installed there.** Never run tests
+Phone: full UI implementation **6bbe197** was installed on Pixel 9 Pro, serial
+`4C191FDAP00202`, on 2026-10-30 using `adb install -r` (Success), preserving app data.
+MainActivity launched with `am start -W` (Status: ok). User behavior validation remains
+pending; no instrumentation or account actions were performed. Never run tests
 on that account-bearing phone. Install updates only with `adb -s 4C191FDAP00202 install -r`
 when requested; preserve its data and debug signing key.
 
@@ -163,7 +165,7 @@ commit `b36c696`; never fabricate migration fixtures.
 
 ## Next work
 
-1. Install this development build on the phone when requested; get feedback across browse,
+1. This build is installed and launched on the phone; get feedback across browse,
    details, lesson/review input, summary/log and settings. Keep Classic available.
 2. Address any reproducible bugs and usability issues; complete broader accessibility,
    landscape, wallpaper and recovery validation without submitting real test answers.

@@ -10,8 +10,9 @@ phone feedback, then begin measured refinement/optimization. Widgets remain last
 Modern interface covers browse/details/study/settings/tools; Modern dashboard remains
 independent. Classic and semantic subject/SRS palettes remain available.
 
-Search build ab784d0 is still installed on the user's Pixel 9 Pro. This full UI pass
-has not been installed there. Never run instrumentation on the account-bearing phone.
+Full UI build **6bbe197** was installed on the user's Pixel 9 Pro with `adb install -r`
+and launched successfully on 2026-10-30, preserving app data. Phone behavior feedback
+remains pending. Never run instrumentation on the account-bearing phone.
 Push tested milestones to `origin/smoky-durtles/foundation` and keep these notes current.
 
 ## Completed
@@ -117,8 +118,9 @@ real account sync, audio playback or process-death recovery. See HANDOFF for exa
 - [ ] Inspect upstream PR #153, then design and test widget support after the in-app work above.
 
 Installed milestones: dashboard, settings 4472ee8, overflow/charts b074d72 and search ab784d0,
-all preserving app data. Full UI implementation is newer than the phone build. Current
-build/test evidence and compatibility limitations are recorded in HANDOFF.md.
+followed by full UI build **6bbe197**, all preserving app data. The latest build launched
+successfully; user validation remains pending. Build/test evidence and compatibility
+limitations are recorded in HANDOFF.md.
 
 ## Open decisions
 
