@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="smokySettingsToolbarTheme" format="reference"/>
+    <attr name="smokySettingsPopupTheme" format="reference"/>
+
+    <style name="SmokyClassicSettingsOverlay" parent="">
+        <item name="smokySettingsToolbarTheme">@style/WKToolbarTheme</item>
+        <item name="smokySettingsPopupTheme">@style/ThemeOverlay.AppCompat.Dark</item>
+    </style>
+
+    <!-- Applied only to PreferencesActivity. Legacy semantic colors remain available. -->
+    <style name="SmokySettingsTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorBackground">?android:attr/colorBackground</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="smokySettingsToolbarTheme">@style/ThemeOverlay.Material3.Toolbar.Surface</item>
+        <item name="smokySettingsPopupTheme">@style/ThemeOverlay.Material3</item>
+        <item name="preferenceTheme">@style/SmokyPreferenceTheme</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+    </style>
+
+    <style name="SmokyPreferenceTheme" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="switchPreferenceCompatStyle">@style/SmokySwitchPreference</item>
+        <item name="editTextPreferenceStyle">@style/SmokyEditTextPreference</item>
+    </style>
+    <style name="SmokySwitchPreference" parent="Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/settings_switch</item>
+    </style>
+    <style name="SmokyEditTextPreference" parent="Preference.DialogPreference.EditTextPreference.Material">
+        <item name="dialogLayout">@layout/settings_edit_text</item>
+    </style>
+</resources>

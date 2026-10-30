@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
-import androidx.preference.PreferenceDialogFragmentCompat;
+import com.smouldering_durtles.wk.settings.MaterialPreferenceDialogs;
 
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 /**
  * A custom preference that combines two related edittext preferences: a URL and a name/tag describing it.
  */
-public final class TaggedUrlPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
+public final class TaggedUrlPreferenceDialogFragment extends MaterialPreferenceDialogs.CustomDialog {
     private static final String SAVE_STATE_TAG = "TaggedUrlPreferenceDialogFragment.tag";
     private static final String SAVE_STATE_URL = "TaggedUrlPreferenceDialogFragment.url";
 

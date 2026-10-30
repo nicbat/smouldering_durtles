@@ -4,7 +4,7 @@ For ongoing development, start with [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOF
 
 Smoky Durtles is a personal fork of Smouldering Durtles. The initial work adds an
 independent installation identity, fixes toolbar search, and introduces a Material 3
-dashboard overview. Further dashboard work, widgets, and reliability tasks are tracked in
+dashboard overview and Material 3 settings. Further dashboard work, widgets, and reliability tasks are tracked in
 [FORK_PLAN.md](FORK_PLAN.md).
 
 ## Dashboard appearance
@@ -14,6 +14,19 @@ with static light/dark palettes on older devices. Go to **Settings → Display
 settings** to turn off **Modern dashboard** for the Classic header, or disable
 **Wallpaper colors**. Charts, subject colors, and review/lesson screens retain
 existing behavior. This is the first UI migration step, not a complete redesign.
+
+## Settings appearance
+
+Settings use Material 3 Views while retaining AndroidX Preferences storage and
+validation. **Settings → Display settings → Modern settings** switches back to
+Classic independently of the dashboard. **Wallpaper colors in settings** enables
+dynamic color on supported Android 12+ devices; other devices use a static palette.
+Modern settings follow system light/dark mode. The Classic light/dark selectors
+still control legacy screens, study sessions, and custom subject palettes.
+
+The first settings pass covers switches, choice dialogs, outlined text editors,
+confirmation dialogs, and toolbar menus. Sliders and the inner layouts of custom
+two-field editors remain conventional Views. Other screens' menus are future work.
 
 ## Local development build
 
@@ -46,8 +59,8 @@ Run the focused identity and toolbar regression tests on a connected emulator/de
 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smouldering_durtles.wk.test.SearchExpansionTest,com.smouldering_durtles.wk.test.ForkIdentityTest
 ```
 
-The historical migration fixtures have been restored from Git history. All 32
-instrumentation tests pass on Android 16 at the Compose overview milestone. See TASKS
+The historical migration fixtures have been restored from Git history. All 42
+instrumentation tests pass on Android 16 at the Material settings milestone. See TASKS
 for the latest results as further tests are added.
 
 ## Upstream project

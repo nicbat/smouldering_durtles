@@ -23,6 +23,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
 import com.smouldering_durtles.wk.R;
+import com.google.android.material.color.MaterialColors;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
 import com.smouldering_durtles.wk.util.ThemeUtil;
 
@@ -95,7 +96,9 @@ public final class InfoPreference extends Preference {
             holder.itemView.setClickable(false);
             holder.itemView.setFocusable(false);
             final ViewProxy summary = new ViewProxy(holder.itemView, android.R.id.summary);
-            summary.setTextColor(ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary));
+            summary.setTextColor(MaterialColors.getColor(holder.itemView,
+                    com.google.android.material.R.attr.colorOnSurface,
+                    ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
             summary.setTextSize(FONT_SIZE_NORMAL);
             summary.setLinkMovementMethod();
             summary.setVisibility(true);

@@ -84,6 +84,18 @@
         app:title="Display settings">
 
         <SwitchPreferenceCompat
+            app:key="modern_settings"
+            app:title="@string/modern_settings_title"
+            app:summary="@string/modern_settings_summary"
+            app:defaultValue="true"/>
+        <SwitchPreferenceCompat
+            app:key="settings_dynamic_color"
+            app:title="@string/settings_dynamic_color_title"
+            app:summary="@string/settings_dynamic_color_summary"
+            app:dependency="modern_settings"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
             app:key="modern_dashboard"
             app:title="Modern dashboard"
             app:summary="Material 3 study overview. Turn off to use Classic."

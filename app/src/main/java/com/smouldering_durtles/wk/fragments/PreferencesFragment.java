@@ -36,6 +36,11 @@ import androidx.fragment.app.DialogFragment;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceGroup;
+import android.content.Context;
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.smouldering_durtles.wk.settings.MaterialPreferenceDialogs;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.TwoStatePreference;
 
@@ -87,6 +92,24 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(final @Nullable Bundle savedInstanceState, final @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
+        if (GlobalSettings.Display.getModernSettings()) {
+            removeIconSpace(getPreferenceScreen());
+            Preference lightTheme = findPreference("theme");
+            Preference darkTheme = findPreference("nightTheme");
+            Preference customColors = findPreference("theme_customization");
+            if (lightTheme != null) lightTheme.setTitle(R.string.classic_light_theme_title);
+            if (darkTheme != null) darkTheme.setTitle(R.string.classic_dark_theme_title);
+            if (customColors != null) customColors.setSummary(R.string.classic_theme_customization_summary);
+        }
+        for (String key : new String[] {"modern_settings", "settings_dynamic_color"}) {
+            Preference appearance = findPreference(key);
+            if (appearance != null) appearance.setOnPreferenceChangeListener((preference, value) -> {
+                // The change listener runs before persistence. Recreate after it returns.
+                requireView().post(() -> { if (isAdded()) requireActivity().recreate(); });
+                return true;
+            });
+        }
+
         // Add listener for always_hide_wk_mnemonic changes
         final @Nullable TwoStatePreference alwaysHideWKPref = findPreference("always_hide_wk_mnemonic");
         final @Nullable TwoStatePreference notAlwaysHideWKPref = findPreference("not_always_hide_wk_mnemonic");
@@ -105,14 +128,16 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
 
     private void onViewCreatedBase(final View view, final @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.setBackgroundColor(ThemeUtil.getColor(R.attr.colorBackground));
+        view.setBackgroundColor(GlobalSettings.Display.getModernSettings()
+                ? MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface)
+                : ThemeUtil.getColor(R.attr.colorBackground));
 
         final @Nullable Preference enableAdvanced = findPreference("enable_advanced");
         if (enableAdvanced != null) {
             enableAdvanced.setOnPreferenceChangeListener((preference, newValue) -> safe(false, () -> {
                 final boolean enabled = isTrue(newValue);
                 if (enabled && !GlobalSettings.getAdvancedEnabled()) {
-                    new AlertDialog.Builder(view.getContext())
+                    dialogBuilder(view.getContext())
                             .setTitle("Enable advanced settings?")
                             .setMessage(renderHtml(ENABLE_ADVANCED_WARNING))
                             .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -146,7 +171,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
         }
 
         setOnPreferenceClick("reset_database", preference -> safe(false, () -> {
-            new AlertDialog.Builder(preference.getContext())
+            dialogBuilder(preference.getContext())
                     .setTitle("Reset database?")
                     .setMessage(renderHtml(RESET_DATABASE_WARNING))
                     .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -161,7 +186,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
 
 
         setOnPreferenceClick("reset_tutorials", preference -> safe(false, () -> {
-            new AlertDialog.Builder(preference.getContext())
+            dialogBuilder(preference.getContext())
                     .setTitle("Reset confirmations and tutorials?")
                     .setMessage(renderHtml(RESET_TUTORIALS_WARNING))
                     .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -190,7 +215,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
         }
 
         setOnPreferenceClick("backup_settings", preference -> {
-            new AlertDialog.Builder(preference.getContext())
+            dialogBuilder(preference.getContext())
                     .setTitle("Backup settings?")
                     .setMessage("Are you sure you want to backup your settings?")
                     .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -206,7 +231,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
         });
 
         setOnPreferenceClick("restore_settings", preference -> {
-            new AlertDialog.Builder(preference.getContext())
+            dialogBuilder(preference.getContext())
                     .setTitle("Restore settings?")
                     .setMessage("Are you sure you want to restore your settings?")
                     .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -235,7 +260,9 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
             // Set the summary provider for night theme to update the summary when the preference changes
             nightThemePreference.setSummaryProvider(preference -> {
                 final CharSequence entry = Objects.requireNonNull(((ListPreference) preference).getEntry());
-                return entry + " is used in system wide dark mode";
+                return GlobalSettings.Display.getModernSettings()
+                        ? getString(R.string.classic_dark_theme_summary, entry)
+                        : entry + " is used in system wide dark mode";
             });
 
             // Listen for changes to update the summary for night theme accordingly
@@ -253,7 +280,9 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
             // Set the summary provider for theme to update the summary when the preference changes
             themePreference.setSummaryProvider(preference -> {
                 final CharSequence entry = Objects.requireNonNull(((ListPreference) preference).getEntry());
-                return entry + " theme is currently selected";
+                return GlobalSettings.Display.getModernSettings()
+                        ? getString(R.string.classic_light_theme_summary, entry)
+                        : entry + " theme is currently selected";
             });
 
             // Listen for changes to update the summary for theme accordingly
@@ -350,8 +379,32 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
                 return;
             }
 
+            if (GlobalSettings.Display.getModernSettings()
+                    && (preference instanceof ListPreference || preference instanceof EditTextPreference)) {
+                final String tag = "materialPreferenceDialog";
+                if (getParentFragmentManager().findFragmentByTag(tag) != null) return;
+                final DialogFragment dialog = preference instanceof ListPreference
+                        ? MaterialPreferenceDialogs.list(preference.getKey())
+                        : MaterialPreferenceDialogs.edit(preference.getKey());
+                dialog.setTargetFragment(this, 0);
+                dialog.show(getParentFragmentManager(), tag);
+                return;
+            }
             super.onDisplayPreferenceDialog(preference);
         });
+    }
+
+    private AlertDialog.Builder dialogBuilder(Context context) {
+        return GlobalSettings.Display.getModernSettings()
+                ? new MaterialAlertDialogBuilder(context) : new AlertDialog.Builder(context);
+    }
+
+    private void removeIconSpace(PreferenceGroup group) {
+        for (int i = 0; i < group.getPreferenceCount(); i++) {
+            Preference preference = group.getPreference(i);
+            preference.setIconSpaceReserved(false);
+            if (preference instanceof PreferenceGroup) removeIconSpace((PreferenceGroup) preference);
+        }
     }
 
     private void goToActivity(final Class<? extends AbstractActivity> clas) {
@@ -446,7 +499,9 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     // In PreferencesFragment
     public void updateTheme() {
         View view = requireView();
-        view.setBackgroundColor(ThemeUtil.getColor(R.attr.colorBackground));
+        view.setBackgroundColor(GlobalSettings.Display.getModernSettings()
+                ? MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface)
+                : ThemeUtil.getColor(R.attr.colorBackground));
     }
 
 

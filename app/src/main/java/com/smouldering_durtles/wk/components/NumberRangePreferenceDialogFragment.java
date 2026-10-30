@@ -19,7 +19,7 @@ package com.smouldering_durtles.wk.components;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.preference.PreferenceDialogFragmentCompat;
+import com.smouldering_durtles.wk.settings.MaterialPreferenceDialogs;
 
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
  * A custom preference that combines two non-negative number fields, each of which may be empty.
  * -1 is used as the special value for an empty field.
  */
-public final class NumberRangePreferenceDialogFragment extends PreferenceDialogFragmentCompat {
+public final class NumberRangePreferenceDialogFragment extends MaterialPreferenceDialogs.CustomDialog {
     private static final String SAVE_STATE_MIN = "NumberRangePreferenceDialogFragment.min";
     private static final String SAVE_STATE_MAX = "NumberRangePreferenceDialogFragment.max";
 

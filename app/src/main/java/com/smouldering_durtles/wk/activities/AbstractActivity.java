@@ -664,10 +664,16 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
                 createdTheme = super.getTheme();
                 if (createdTheme != null) {
                     createdTheme.applyStyle(ActiveTheme.getCurrentTheme().getStyleId(), true);
+                    customizeActivityTheme(createdTheme);
                 }
             });
         }
         return createdTheme;
+    }
+
+    /** Apply a screen-local theme before any views are inflated. */
+    protected void customizeActivityTheme(final Resources.Theme theme) {
+        // Legacy activities retain their selected ActiveTheme.
     }
 
     @Override

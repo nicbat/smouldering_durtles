@@ -790,6 +790,14 @@ public final class GlobalSettings {
             return prefs().getBoolean("dashboard_dynamic_color", true);
         }
 
+        public static boolean getModernSettings() {
+            return prefs().getBoolean("modern_settings", true);
+        }
+
+        public static boolean getSettingsDynamicColor() {
+            return prefs().getBoolean("settings_dynamic_color", true);
+        }
+
         /** The user's selected legacy theme, respecting system night mode. */
         public static ActiveTheme getTheme() {
             final @Nullable String value = prefs().getString("theme", "LIGHT");

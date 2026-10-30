@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="modern_settings_title">Modern settings</string>
+    <string name="modern_settings_summary">Material 3 controls using system light/dark mode. Turn off to use Classic settings.</string>
+    <string name="settings_dynamic_color_title">Wallpaper colors in settings</string>
+    <string name="settings_dynamic_color_summary">Use wallpaper colors on supported Android 12 and later devices</string>
+    <string name="classic_light_theme_title">Classic light theme</string>
+    <string name="classic_dark_theme_title">Classic dark theme</string>
+    <string name="classic_light_theme_summary">%1$s is used by Classic screens and study sessions in light mode</string>
+    <string name="classic_dark_theme_summary">%1$s is used by Classic screens and study sessions in dark mode</string>
+    <string name="classic_theme_customization_summary">Customize subject colors and colors used by Classic screens</string>
+</resources>

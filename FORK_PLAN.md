@@ -6,6 +6,19 @@ Status: implementation started with user authorization. The fork is named **Smok
 
 ## Current milestone
 
+Settings follow-up: add Material Components for Android 1.12.0 to reuse the existing
+AndroidX Preferences model. Only PreferencesActivity receives the Material 3 theme;
+AbstractActivity exposes a no-op theme hook for this purpose. Modern settings and
+wallpaper colors have independent preferences, while review/lesson screens keep
+ActiveTheme. Choice and edit dialog subclasses retain AndroidX listeners, persistence,
+and restoration. Custom range/URL editors receive Material dialog shells.
+See TASKS and HANDOFF for current validation and remaining work.
+
+This uses the official [Material Views integration](https://github.com/material-components/material-components-android/blob/1.12.0/docs/getting-started.md)
+and [MaterialSwitch](https://github.com/material-components/material-components-android/blob/1.12.0/docs/components/Switch.md)
+without converting the preference tree to Compose.
+
+
 Progress update: reliability fixtures and Guru palette fixes are complete. The
 initial Compose Material 3 overview now uses real LiveData counts and the original
 session callbacks, with Classic and wallpaper-color preferences. Existing charts
@@ -37,7 +50,7 @@ Extra AI capacity can help with implementation, test fixtures, comparisons, and 
 
 Keep the recognizable radical blue, kanji pink, and vocabulary purple independent of wallpaper accents. Preserve existing custom learning palettes. Keep Classic available during transition; permanent support for two complete interfaces is a separate maintenance decision.
 
-## Verified architecture
+## Verified architecture (upstream baseline)
 
 - [app/build.gradle](app/build.gradle): minimum SDK 21, compile/target SDK 36, Java 8 source compatibility; AppCompat 1.6.1, Preference 1.2.1, Room 2.6.1, WorkManager, ConstraintLayout, RecyclerView, Glide, Lottie, and Pikolo. No declared Material Components or Compose dependency. Main sources contain 363 Java files and no Kotlin files.
 - [build.gradle](build.gradle) and [Gradle wrapper](gradle/wrapper/gradle-wrapper.properties): AGP 9.2.1 and Gradle 9.4.1. [gradle.properties](gradle.properties) disables built-in Kotlin; Compose adoption needs deliberate Kotlin/compiler setup.

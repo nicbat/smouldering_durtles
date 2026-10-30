@@ -102,6 +102,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
     implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
     implementation 'androidx.preference:preference:1.2.1'
+    // Material Views for settings; retain the app's API 21 baseline.
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
     implementation 'com.airbnb.android:lottie:5.0.3'
     implementation 'androidx.work:work-runtime:2.9.0'
