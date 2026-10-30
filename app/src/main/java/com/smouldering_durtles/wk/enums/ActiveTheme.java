@@ -285,7 +285,7 @@ public enum ActiveTheme {
                 prePassed[i] = (color == 0) ? baseStagePrePassedBucketColors[i] : color;
             }
             for (int i=0; i<2; i++) {
-                final int color = custom.get(i+14);
+                final int color = custom.get(i+15);
                 passed[i] = (color == 0) ? baseStagePassedBucketColors[i] : color;
             }
             for (int i=0; i<10; i++) {
@@ -359,7 +359,7 @@ public enum ActiveTheme {
                 prePassed[i] = (color == 0) ? baseStagePrePassedBucketColors[i] : color;
             }
             for (int i=0; i<2; i++) {
-                final int color = custom.get(i+14);
+                final int color = custom.get(i+15);
                 passed[i] = (color == 0) ? baseStagePassedBucketColors[i] : color;
             }
             for (int i=0; i<10; i++) {

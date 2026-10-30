@@ -70,6 +70,11 @@ Sources: [MDC guidance](https://github.com/material-components/material-componen
 
 ## Build and test baseline
 
+Update: original schemas 48–67 have since been restored from commit `b36c696`.
+The full suite now passes (25 tests on Android 16), including the new all-theme
+Guru palette test. Both DARK and NORD shared the indexing defect and are fixed.
+The results below describe the original investigation baseline.
+
 The debug app and instrumentation APK built successfully using the existing tracked identification files. These were not replaced. See the [README](README.md) for the identification templates required when preparing a separately branded build.
 
 Commands used:

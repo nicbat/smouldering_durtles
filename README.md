@@ -1,5 +1,7 @@
 # Smoky Durtles
 
+For ongoing development, start with [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md).
+
 Smoky Durtles is a personal fork of Smouldering Durtles. The initial work adds an
 independent installation identity and fixes toolbar search; the Material 3
 dashboard, widget improvements, and reliability work are tracked in
@@ -36,8 +38,9 @@ Run the focused identity and toolbar regression tests on a connected emulator/de
 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smouldering_durtles.wk.test.SearchExpansionTest,com.smouldering_durtles.wk.test.ForkIdentityTest
 ```
 
-The existing full instrumentation suite has 20 known missing-schema fixture
-failures. See the planning note for the baseline and recovery work.
+The historical migration fixtures have been restored from Git history. All 25
+instrumentation tests pass on Android 16 at the reliability milestone. See TASKS
+for the latest results as further tests are added.
 
 ## Upstream project
 
