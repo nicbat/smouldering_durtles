@@ -4,6 +4,14 @@ Recorded 2026-10-30. Baseline: upstream `main` at `c11758c`.
 
 Status: implementation started with user authorization. The fork is named **Smoky Durtles**. This note preserves the investigation and the personal-fork roadmap. Work is on `smoky-durtles/foundation`; completed milestones are pushed to `nicbat/smouldering_durtles`.
 
+## Current direction
+
+Finish modern UI coverage across the entire in-app experience, then optimize and refine
+screen by screen. Widgets remain last. TASKS.md contains the current seven-batch coverage
+inventory and completion criteria. Correctness checks and regression fixes accompany each
+implementation batch; grading/scheduling/submission logic stays intact. No full Compose
+rewrite is required to reach this design goal.
+
 ## Current milestone
 
 Search results and shared appearance accents are implemented. Results use scoped

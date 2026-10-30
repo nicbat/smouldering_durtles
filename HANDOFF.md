@@ -123,8 +123,13 @@ remain independent. `SmokyMaterialTheme` plus `material_colors.xml` share static
 accent resources across Material Views and DashboardTheme; dynamic overlays still
 supply wallpaper colors when enabled. Semantic ActiveTheme colors remain independent.
 
-User priority: **widgets last**. Continue browsing/filter/detail and study-flow work
-before widget development. TASKS.md is the ordered backlog.
+User priority: complete a modern-design first pass across **all in-app screens**, then
+run a dedicated refinement/optimization phase; **widgets last**. TASKS.md now contains
+the ordered seven-batch coverage checklist (browse, details, study, dashboard, settings,
+utilities, global completion). Keep regression testing and correctness fixes within each
+batch rather than deferring them. Next implementation: browse overview and advanced filters.
+The latest roadmap update changes documentation only; the 52-test implementation baseline
+and phone build ab784d0 are unchanged.
 
 ## Architecture boundaries
 
