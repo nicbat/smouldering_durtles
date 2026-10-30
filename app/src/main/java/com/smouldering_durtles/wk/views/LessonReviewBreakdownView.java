@@ -86,7 +86,8 @@ public final class LessonReviewBreakdownView extends TableLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), R.layout.lesson_review_breakdown, this);
+        inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
+                ? R.layout.lesson_review_breakdown_modern : R.layout.lesson_review_breakdown, this);
         setColumnStretchable(0, true);
         setBackgroundResource(R.drawable.main_activity_view_background);
 

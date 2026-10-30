@@ -176,6 +176,7 @@ public final class SessionItemItemViewHolder extends LogItemViewHolder implement
             bgDrawable.setColorFilter(new SimpleColorFilter(subject.getButtonBackgroundColor()));
             itemView.setBackground(bgDrawable);
         }
+        com.smouldering_durtles.wk.study.StudyStyle.logRow(itemView, subject.getButtonBackgroundColor());
     }
 
     @Override

@@ -68,6 +68,18 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     }
 
     @Override
+    public View onCreateView(android.view.LayoutInflater inflater, @Nullable android.view.ViewGroup container,
+                             @Nullable Bundle state) {
+        if (com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()) {
+            final View view = inflater.cloneInContext(com.smouldering_durtles.wk.ui.ModernUi.context(requireContext()))
+                    .inflate(R.layout.fragment_subject_info_modern, container, false);
+            com.smouldering_durtles.wk.study.StudyStyle.page(view);
+            return view;
+        }
+        return super.onCreateView(inflater, container, state);
+    }
+
+    @Override
     protected void onCreateLocal() {
         //
     }
@@ -83,6 +95,10 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
         subjectInfo.setDelegate(view, R.id.subjectInfo);
 
         scrollView.setSwipeListener(this);
+        final View previous = view.findViewById(R.id.previousSubject);
+        final View next = view.findViewById(R.id.nextSubject);
+        if (previous != null) previous.setOnClickListener(v -> onSwipeLeft(view.findViewById(R.id.scrollView)));
+        if (next != null) next.setOnClickListener(v -> onSwipeRight(view.findViewById(R.id.scrollView)));
 
         final @Nullable Bundle args = getArguments();
         if (args != null) {
@@ -136,7 +152,29 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
             subjectInfo.setContainerType(SubjectInfoView.ContainerType.BROWSE);
             subjectInfo.setSubject(this, currentSubject);
         }
+        updateNavigation();
         updateCurrentSubject();
+    }
+
+    private void updateNavigation() {
+        final View view = getView();
+        if (view == null || view.findViewById(R.id.subjectNavigation) == null) return;
+        final Bundle args = getArguments();
+        final long[] ids = args == null ? null : args.getLongArray("ids");
+        int index = -1;
+        if (ids != null && currentSubject != null) {
+            for (int i = 0; i < ids.length; i++) if (ids[i] == currentSubject.getId()) { index = i; break; }
+        }
+        view.findViewById(R.id.subjectNavigation).setVisibility(index >= 0 && ids.length > 1 ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.previousSubject).setEnabled(index > 0);
+        view.findViewById(R.id.nextSubject).setEnabled(index >= 0 && index < ids.length - 1);
+    }
+
+    private void goToAdjacentSubject(AbstractActivity activity, long id, long[] ids,
+                                     FragmentTransitionAnimation animation) {
+        if (activity instanceof com.smouldering_durtles.wk.activities.BrowseActivity) {
+            ((com.smouldering_durtles.wk.activities.BrowseActivity) activity).pageSubjectInfoFragment(id, ids, animation);
+        } else activity.goToSubjectInfo(id, ids, animation);
     }
 
     @Override
@@ -152,7 +190,7 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
         }
         for (int i=1; i<ids.length; i++) {
             if (ids[i] == currentSubject.getId()) {
-                activity.goToSubjectInfo(ids[i-1], ids, FragmentTransitionAnimation.LTR);
+                goToAdjacentSubject(activity, ids[i-1], ids, FragmentTransitionAnimation.LTR);
                 break;
             }
         }
@@ -168,7 +206,7 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
         final long[] ids = Objects.requireNonNull(args.getLongArray("ids"));
         for (int i=0; i<ids.length-1; i++) {
             if (ids[i] == currentSubject.getId()) {
-                activity.goToSubjectInfo(ids[i+1], ids, FragmentTransitionAnimation.RTL);
+                goToAdjacentSubject(activity, ids[i+1], ids, FragmentTransitionAnimation.RTL);
                 break;
             }
         }

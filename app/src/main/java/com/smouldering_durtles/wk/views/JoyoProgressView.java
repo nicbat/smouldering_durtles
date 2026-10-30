@@ -71,7 +71,8 @@ public final class JoyoProgressView extends TableLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), R.layout.joyo_progress, this);
+        inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
+                ? R.layout.joyo_progress_modern : R.layout.joyo_progress, this);
 
         locked.add(new ViewProxy(this, R.id.joyoGrade1Locked));
         locked.add(new ViewProxy(this, R.id.joyoGrade2Locked));

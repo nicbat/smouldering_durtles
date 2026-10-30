@@ -245,6 +245,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
 
         final int textSize = GlobalSettings.Font.getFontSizeSubjectInfo();
         setTextSize(this, textSize);
+        com.smouldering_durtles.wk.study.StudyStyle.prepareDetails(this);
 
         contextSentenceEnglish.add(new ViewProxy(this, R.id.contextSentenceEnglish0));
         contextSentenceEnglish.add(new ViewProxy(this, R.id.contextSentenceEnglish1));
@@ -479,14 +480,32 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         }
 
         addSynonymButton.setClickableAndNotFocusable(true);
+        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
+            findViewById(R.id.addSynonymButton).setFocusable(true);
+        }
         addSynonymButton.setVisibility(showMeaningAnswers);
         addSynonymButton.setOnClickListener(v -> safe(() -> {
-            final EditText synonym = new EditText(getContext());
+            final boolean modern = com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext());
+            final EditText synonym;
+            final View editor;
+            if (modern) {
+                final com.google.android.material.textfield.TextInputLayout input = new com.google.android.material.textfield.TextInputLayout(getContext());
+                input.setBoxBackgroundMode(com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                input.setHint(getContext().getString(R.string.study_synonym_hint));
+                input.setPadding(dp2px(24), dp2px(8), dp2px(24), 0);
+                synonym = new com.google.android.material.textfield.TextInputEditText(input.getContext());
+                synonym.setSingleLine(true);
+                input.addView(synonym);
+                editor = input;
+            } else {
+                synonym = new EditText(getContext());
+                editor = synonym;
+            }
             synonym.setTag(false);
 
-            final AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+            final AlertDialog alertDialog = com.smouldering_durtles.wk.ui.ModernUi.dialog(getContext())
                     .setTitle("Add synonym")
-                    .setView(synonym)
+                    .setView(editor)
                     .setNegativeButton("Cancel", (dialog, which) -> {})
                     .setPositiveButton("Save", (dialog, which) -> safe(() -> {
                         final @Nullable CharSequence text = synonym.getText();
@@ -729,7 +748,10 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
      * @param sameSubject true if this is a re-layout of the same subject
      */
     public void layoutSubject(final boolean sameSubject) {
-        safe(() -> layoutSubjectImpl(sameSubject));
+        safe(() -> {
+            layoutSubjectImpl(sameSubject);
+            com.smouldering_durtles.wk.study.StudyStyle.details(this);
+        });
     }
 
     private void goToResurrectActivity(final long id) {

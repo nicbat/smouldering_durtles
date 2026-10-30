@@ -40,7 +40,7 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  *     be launched.
  * </p>
  */
-public final class NoApiKeyHelpActivity extends AbstractActivity {
+public final class NoApiKeyHelpActivity extends ModernActivity {
     private final ViewProxy saveButton = new ViewProxy();
     private final ViewProxy apiKey = new ViewProxy();
 

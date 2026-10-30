@@ -64,7 +64,13 @@ public final class StudyMaterialsActivity extends AbstractActivity {
     }
 
     @Override
+    protected void customizeActivityTheme(final android.content.res.Resources.Theme theme) {
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
+    }
+
+    @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        com.smouldering_durtles.wk.ui.ModernUi.style(findViewById(android.R.id.content));
         synonymViews.add(new ViewProxy(this, R.id.synonym0));
         synonymViews.add(new ViewProxy(this, R.id.synonym1));
         synonymViews.add(new ViewProxy(this, R.id.synonym2));

@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/toolbarColorBackground"
-        android:theme="@style/WKToolbarTheme"
+        android:theme="?attr/smokySettingsToolbarTheme"
         android:elevation="4dp"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
         tools:ignore="UnusedAttribute"/>
@@ -61,11 +61,13 @@
 
             <TableLayout
                 android:id="@+id/fontTable"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:shrinkColumns="0"/>
 
+            <TextView android:id="@+id/fontImportEmpty" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:text="@string/font_import_empty" android:visibility="gone" style="@style/WK.TextView.Normal"/>
         </LinearLayout>
 
     </ScrollView>

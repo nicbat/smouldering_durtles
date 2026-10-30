@@ -28,7 +28,7 @@ import static com.smouldering_durtles.wk.Constants.SUPPORT_DOCUMENT;
 /**
  * Simple activity that only shows a big TextView. Shows the app's 'about' information.
  */
-public final class SupportActivity extends AbstractActivity {
+public final class SupportActivity extends ModernActivity {
     /**
      * The constructor.
      */

@@ -1,0 +1,242 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="?attr/colorSurface">
+    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="?attr/colorSurface" android:theme="?attr/smokySettingsToolbarTheme" app:popupTheme="@style/SmokyOverflowTheme"/>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/custom_colors_explanation"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:textColor="?attr/colorOnSurface"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"
+                android:text="Subject types" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@+id/colorChoice0" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/radicalSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <TextView android:id="@+id/radicalSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true" android:text="亀" android:textSize="24sp" android:gravity="center"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice1" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/kanjiSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <TextView android:id="@+id/kanjiSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true" android:text="亀" android:textSize="24sp" android:gravity="center"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice2" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/vocabularySampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <TextView android:id="@+id/vocabularySample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true" android:text="亀" android:textSize="24sp" android:gravity="center"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice3" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/kanaVocabularySampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <TextView android:id="@+id/kanaVocabularySample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true" android:text="かな" android:textSize="24sp" android:gravity="center"/>
+                </FrameLayout>
+                <androidx.constraintlayout.helper.widget.Flow android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                    app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0" app:flow_horizontalGap="8dp" app:flow_verticalGap="8dp"
+                    app:constraint_referenced_ids="colorChoice0,colorChoice1,colorChoice2,colorChoice3"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"
+                android:text="SRS stages" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@+id/colorChoice4" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/lockedSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/lockedSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice5" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/initiateSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/initiateSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice6" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/apprenticeSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/apprenticeSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice7" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/guruSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/guruSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice8" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/masterSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/masterSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice9" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/enlightenedSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/enlightenedSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice10" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/burnedSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/burnedSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <androidx.constraintlayout.helper.widget.Flow android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                    app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0" app:flow_horizontalGap="8dp" app:flow_verticalGap="8dp"
+                    app:constraint_referenced_ids="colorChoice4,colorChoice5,colorChoice6,colorChoice7,colorChoice8,colorChoice9,colorChoice10"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"
+                android:text="Apprentice stages" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@+id/colorChoice11" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/prePassed1SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/prePassed1Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice12" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/prePassed2SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/prePassed2Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice13" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/prePassed3SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/prePassed3Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice14" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/prePassed4SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/prePassed4Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <androidx.constraintlayout.helper.widget.Flow android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                    app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0" app:flow_horizontalGap="8dp" app:flow_verticalGap="8dp"
+                    app:constraint_referenced_ids="colorChoice11,colorChoice12,colorChoice13,colorChoice14"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"
+                android:text="Guru stages" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@+id/colorChoice15" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/passed1SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/passed1Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice16" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/passed2SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/passed2Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <androidx.constraintlayout.helper.widget.Flow android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                    app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0" app:flow_horizontalGap="8dp" app:flow_verticalGap="8dp"
+                    app:constraint_referenced_ids="colorChoice15,colorChoice16"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"
+                android:text="Level progression" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@+id/colorChoice17" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression1SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression1Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice18" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression2SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression2Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice19" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression3SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression3Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice20" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression4SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression4Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice21" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression5SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression5Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice22" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression6SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression6Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice23" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression7SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression7Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice24" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression8SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression8Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice25" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression9SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression9Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice26" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/levelProgression10SampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/levelProgression10Sample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <androidx.constraintlayout.helper.widget.Flow android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                    app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0" app:flow_horizontalGap="8dp" app:flow_verticalGap="8dp"
+                    app:constraint_referenced_ids="colorChoice17,colorChoice18,colorChoice19,colorChoice20,colorChoice21,colorChoice22,colorChoice23,colorChoice24,colorChoice25,colorChoice26"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"
+                android:text="Study actions" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@+id/colorChoice27" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/ankiShowAnswerSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/ankiShowAnswerSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice28" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/ankiNextSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/ankiNextSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice29" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/ankiCorrectSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/ankiCorrectSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice30" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/ankiIncorrectSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/ankiIncorrectSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice31" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/ankiTextSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/ankiTextSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <FrameLayout android:id="@+id/colorChoice32" android:layout_width="64dp" android:layout_height="64dp">
+                    <View android:id="@+id/ankiAnswerSampleHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:background="@drawable/modern_color_selected"/>
+                    <View android:id="@+id/ankiAnswerSample" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="8dp"
+                        android:clickable="true" android:focusable="true"/>
+                </FrameLayout>
+                <androidx.constraintlayout.helper.widget.Flow android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                    app:flow_wrapMode="chain" app:flow_horizontalStyle="packed" app:flow_horizontalBias="0" app:flow_horizontalGap="8dp" app:flow_verticalGap="8dp"
+                    app:constraint_referenced_ids="colorChoice27,colorChoice28,colorChoice29,colorChoice30,colorChoice31,colorChoice32"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView android:id="@+id/selectionDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+                android:accessibilityLiveRegion="polite" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+            <FrameLayout android:layout_width="match_parent" android:layout_height="300dp">
+                <com.smouldering_durtles.wk.views.SelfishColorPicker android:id="@+id/colorPicker" android:layout_width="match_parent" android:layout_height="match_parent"
+                    app:arc_width="14dp" app:indicator_radius="12dp" app:indicator_stroke_width="4dp"/>
+                <ImageView android:id="@+id/colorPickerPreview" android:layout_width="100dp" android:layout_height="100dp" android:layout_gravity="center"
+                    android:background="@drawable/bg_circle" android:importantForAccessibility="no"/>
+            </FrameLayout>
+            <TextView android:id="@+id/rgbValues" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:textColor="?attr/colorOnSurface"/>
+            <Button android:id="@+id/resetColorButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:text="@string/custom_colors_reset" style="@style/WK.Button.Normal"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

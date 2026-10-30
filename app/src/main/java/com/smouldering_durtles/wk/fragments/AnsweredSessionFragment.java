@@ -148,10 +148,13 @@ public final class AnsweredSessionFragment extends AbstractSessionFragment imple
             }
         }
 
+        com.smouldering_durtles.wk.study.StudyStyle.roundCurrentColor(view.findViewById(R.id.questionEdit), 16, false);
         questionEdit.setSingleLine();
         questionEdit.setText(FloatingUiState.getCurrentAnswer());
         questionEdit.setTextSize(GlobalSettings.Font.getFontSizeQuestionEdit());
         questionEdit.setTextColor(ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary));
+        com.smouldering_durtles.wk.study.StudyStyle.answerFeedback(view.findViewById(R.id.questionEdit),
+                ThemeUtil.getColor(session.isCorrect() ? R.attr.correctColorBackground : R.attr.incorrectColorBackground));
         if (question.getType().isAscii()) {
             questionEdit.setRootLocale();
         }

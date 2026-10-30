@@ -102,7 +102,7 @@
             app:defaultValue="true"/>
         <SwitchPreferenceCompat
             app:key="dashboard_dynamic_color"
-            app:title="Wallpaper colors"
+            app:title="Wallpaper colors on dashboard"
             app:summary="Use wallpaper colors in the modern overview on Android 12 and later"
             app:dependency="modern_dashboard"
             app:defaultValue="true"/>
@@ -134,7 +134,7 @@
             app:singleLineTitle="false"
             app:defaultValue="false"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="anki_buttons_height"
             app:title="Vertical size of the Anki mode buttons"
             app:singleLineTitle="false"
@@ -145,7 +145,7 @@
             app:showSeekBarValue="true"
             app:adjustable="true"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="quiz_question_view_height"
             app:title="Fix height of main quiz question view"
             app:singleLineTitle="false"
@@ -443,7 +443,7 @@
             app:defaultValue="true"
             app:summary="Tap the diagram to toggle animation"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="stroke_order_size"
             app:title="Size of the stroke order diagrams"
             app:singleLineTitle="false"
@@ -687,7 +687,7 @@
             app:title="Import fonts for quiz questions"
             app:key="font_import"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="max_font_size_lesson"
             app:title="Max font size of subject title in lesson presentation"
             app:singleLineTitle="false"
@@ -699,7 +699,7 @@
             app:adjustable="true"
             app:summary="Set to 0 to hide the title"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="max_font_size_quiz"
             app:title="Max font size of subject title on the quiz screen"
             app:singleLineTitle="false"
@@ -711,7 +711,7 @@
             app:adjustable="true"
             app:summary="Set to 0 to hide the title"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="max_font_size_browse"
             app:title="Max font size of subject title on the browse screen"
             app:singleLineTitle="false"
@@ -723,7 +723,7 @@
             app:adjustable="true"
             app:summary="Set to 0 to hide the title"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="max_font_size_quiz_text"
             app:title="Max font size of main quiz question text"
             app:singleLineTitle="false"
@@ -735,7 +735,7 @@
             app:adjustable="true"
             app:summary="This is the large question text in the center of the quiz screen"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="font_size_question_edit"
             app:title="Font size of answer input text box"
             app:singleLineTitle="false"
@@ -746,7 +746,7 @@
             app:showSeekBarValue="true"
             app:adjustable="true"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="font_size_subject_info"
             app:title="Font size of subject info dump"
             app:singleLineTitle="false"
@@ -757,7 +757,7 @@
             app:showSeekBarValue="true"
             app:adjustable="true"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="font_size_live_subject_table"
             app:title="Font size of dashboard subject tables"
             app:singleLineTitle="false"
@@ -769,7 +769,7 @@
             app:adjustable="true"
             app:summary="Critical condition items, recent unlocks, and recently burned"/>
 
-        <SeekBarPreference
+        <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="font_size_anki_answer"
             app:title="Font size of Anki mode answers"
             app:singleLineTitle="false"

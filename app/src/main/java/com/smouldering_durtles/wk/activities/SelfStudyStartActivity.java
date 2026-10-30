@@ -26,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.ui.ModernUi;
 import com.smouldering_durtles.wk.WkApplication;
 import com.smouldering_durtles.wk.db.Converters;
 import com.smouldering_durtles.wk.db.model.SearchPreset;
@@ -80,7 +81,7 @@ public final class SelfStudyStartActivity extends AbstractActivity {
         if (selection instanceof String) {
             position = LiveSearchPresets.getInstance().getNames().indexOf(selection);
         }
-        final SpinnerAdapter adapter = new ArrayAdapter<>(this, R.layout.spinner_item, names);
+        final SpinnerAdapter adapter = new ArrayAdapter<>(this, ModernUi.isModern(this) ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, names);
         presetSpinner.setAdapter(adapter);
         if (position >= 0) {
             presetSpinner.setSelection(position);
@@ -88,7 +89,13 @@ public final class SelfStudyStartActivity extends AbstractActivity {
     }
 
     @Override
+    protected void customizeActivityTheme(final android.content.res.Resources.Theme theme) {
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
+    }
+
+    @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        com.smouldering_durtles.wk.ui.ModernUi.style(findViewById(android.R.id.content));
         if (!session.isInactive()) {
             finish();
             return;
@@ -178,7 +185,7 @@ public final class SelfStudyStartActivity extends AbstractActivity {
             final @Nullable Object selection = presetSpinner.getSelection();
             if (selection instanceof String) {
                 final String name = (String) selection;
-                new AlertDialog.Builder(v.getContext())
+                com.smouldering_durtles.wk.ui.ModernUi.dialog(v.getContext())
                         .setTitle("Delete preset?")
                         .setMessage(String.format(Locale.ROOT, "Are you sure you want to delete the preset named '%s'?", name))
                         .setIcon(R.drawable.ic_baseline_warning_24px)

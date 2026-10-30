@@ -19,7 +19,6 @@ package com.smouldering_durtles.wk.activities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.View;
 
 import com.airbnb.lottie.SimpleColorFilter;
@@ -59,11 +58,18 @@ public final class ThemeCustomizationActivity extends AbstractActivity {
      * The constructor.
      */
     public ThemeCustomizationActivity() {
-        super(R.layout.activity_theme_customization, R.menu.generic_options_menu);
+        super(GlobalSettings.Display.getModernSettings() ? R.layout.activity_theme_customization_modern
+                : R.layout.activity_theme_customization, R.menu.generic_options_menu);
+    }
+
+    @Override
+    protected void customizeActivityTheme(final android.content.res.Resources.Theme theme) {
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
     }
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        com.smouldering_durtles.wk.ui.ModernUi.styleActivity(this);
         selectionViews[0] = new ViewProxy(this, R.id.radicalSample);
         selectionViews[1] = new ViewProxy(this, R.id.kanjiSample);
         selectionViews[2] = new ViewProxy(this, R.id.vocabularySample);
@@ -203,6 +209,8 @@ public final class ThemeCustomizationActivity extends AbstractActivity {
 
         for (int i=0; i<NUM_THEME_CUSTOMIZATION_OPTIONS; i++) {
             selectionViews[i].setTag(R.id.themeCustomizationIndex, i);
+            final View sample = selectionViews[i].getDelegate();
+            if (sample != null) sample.setContentDescription(selectionDescriptions[i]);
             selectionViews[i].setOnClickListener(listener);
         }
 
@@ -244,9 +252,9 @@ public final class ThemeCustomizationActivity extends AbstractActivity {
     }
 
     @Override
-    public void onSaveInstanceState(final Bundle outState, final PersistableBundle outPersistentState) {
+    public void onSaveInstanceState(final Bundle outState) {
         safe(() -> {
-            super.onSaveInstanceState(outState, outPersistentState);
+            super.onSaveInstanceState(outState);
             outState.putInt("selection", selection);
         });
     }
@@ -333,10 +341,14 @@ public final class ThemeCustomizationActivity extends AbstractActivity {
     private void setSelection(final int newSelection) {
         if (selection >= 0 && selection < NUM_THEME_CUSTOMIZATION_OPTIONS) {
             selectionHighlights[selection].setVisibility(false);
+            final View previous = selectionViews[selection].getDelegate();
+            if (previous != null) previous.setSelected(false);
         }
         selection = newSelection;
         if (selection >= 0 && selection < NUM_THEME_CUSTOMIZATION_OPTIONS) {
             selectionHighlights[selection].setVisibility(true);
+            final View current = selectionViews[selection].getDelegate();
+            if (current != null) current.setSelected(true);
             updateSelection(selection);
             updateColor(selection, chosenColors[selection], false);
         }

@@ -37,7 +37,8 @@ Do not wipe or overwrite the user's AVD.
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`. The old Gradle HTML report at
 `test-reports/connected/debug/index.html` covers the 32-test dashboard milestone;
-the current 52-test run is `test-results/search-full-instrumentation.txt`.
+the previous 52-test run is `test-results/search-full-instrumentation.txt`.
+Current evidence is listed below; older reports are historical.
 
 With the user's phone also attached, use explicit emulator targeting for tests.
 Disable test-device animations in the isolated, unsaved emulator session (never on
@@ -60,149 +61,120 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest evidence
+## Latest evidence — full in-app modern pass
 
-The search/consistency milestone passes **52 instrumentation tests, 0 failures on
-Android 16** (33.965 seconds). Debug/release/test APK builds succeed. Logs:
-`/tmp/smoky-search-build.log`, `/tmp/smoky-search-focused-tests.log` (4 tests),
-`/tmp/smoky-search-full-tests.log`, and the ignored copy
-`test-results/search-full-instrumentation.txt`. Earlier Gradle HTML reports are stale.
+Debug, release and instrumentation APKs build successfully (including release vital lint).
+All 75 instrumentation tests pass on both Android 16 and Android 11. There is no separate
+`app/src/test` unit-test source set. This is 23 additional tests beyond the previous 52.
 
-`search/SearchAppearanceTest.kt` uses synthetic subjects held only in memory. It
-checks result grouping/counts, collapse/expand and IDs, both card/title click
-callbacks, unchanged shared card rendering outside search, dark/2x-font wrapping,
-and real BrowseActivity search prefill, back stack, and Modern/Classic recreation.
-The real activity test blocks the no-token redirect, runs a read-only local search,
-and restores changed preferences. No account credentials, DB fixture writes, or
-study submissions are used. Settings tests now locate the renamed appearance option
-by its string resource.
+- Android 16/API 36.1: **75 tests, 0 failures**, 59.932 seconds.
+- Android 11/API 30: **75 tests, 0 failures**, 57.546 seconds.
+- Android 5.0.2/API 21: three utility appearance tests pass, but the full run aborts
+  on Jackson ObjectMapper class initialization (existing jackson-databind 2.15.0).
+  Minimum SDK remains 21; full runtime compatibility there is **not verified**.
+- Build log: `/tmp/smoky-full-ui-build.log`.
+- Full-run logs: `/tmp/smoky-full-ui-api36-final-tests.log`,
+  `/tmp/smoky-full-ui-api30-final-tests.log`. Ignored local copies are
+  `test-results/full-ui-api36-instrumentation.txt` and `test-results/full-ui-api30-instrumentation.txt`.
+- API 21 logs: `/tmp/smoky-full-ui-api21-tests.log`, `/tmp/smoky-api21-logcat.txt`.
+- Captures: ignored/regeneratable `captures/smoky-full-ui/`,
+  `captures/smoky-full-ui-api30/`, `captures/smoky-settings-completion/`.
 
-Recreation tests exposed and fixed two bugs: a Material tutorial-button SavedState
-being restored to a Classic Button (distinct IDs now), and an old Classic toolbar
-receiving Material colors after the preference changed but before recreation
-(style using the inflated context, not the new preference). The initial fixture
-assumed four result groups; existing sorting combines vocabulary/kana vocabulary,
-so the test correctly expects three. Sorting behavior is unchanged.
+Tests use in-memory synthetic subjects/session items, restored preferences and LiveData,
+plus actual activity recreation/navigation. They do not write account fixtures or submit
+answers. Existing migration/database, palette, search, dashboard and settings tests remain.
+New coverage includes browse filter round trips, preset/level actions, utility layouts,
+font/color state, sliders, question draft retention, study mode binding, semantic feedback
+contrast, detail back navigation and populated/collapsible session logs. Study tests restore
+Session fields after temporarily injecting synthetic state; they do not exercise grading or
+server synchronization. An initial dashboard fixture failure on both modern platforms was
+fixed by explicitly restoring/posting the missing LiveFirstTimeSetup fixture value. The new
+session-log fixture also needed the existing enable_advanced gate alongside full_session_log;
+its first run failed until both preferences were set/restored. Review caught an overly broad
+detail-stack replacement, now restricted to explicit paging with a drilldown regression test.
 
-Visual QA: `captures/smoky-search/` contains light populated results, an empty result
-screen, and a dark card at 2x text. Full-screen fixtures use an AboutActivity host;
-the empty search uses the real BrowseActivity. Captures are ignored/regeneratable.
-The completed development milestone still needs phone validation and pre-Android-12
-coverage. The task emulator is stopped at handoff.
+Visual QA caught and fixed unreadable large-text statistics/metadata columns, summary
+feedback contrast and the cramped audio relocation row. Inspected light/dark and 2x-font
+captures cover browse, study, settings, details, dashboard statistics and utilities.
+Real physical keyboard/insets, landscape, TalkBack, wallpaper-change refresh, prolonged
+study sessions and process-death/offline submission recovery remain validation work.
 
-Phone: search/consistency implementation **ab784d0** was installed successfully on
-the Pixel 9 Pro with adb install -r at the user’s request, preserving app data.
-Physical-device behavior validation remains pending. Do not run instrumentation
-on that account-bearing device.
+Phone: search implementation **ab784d0** remains installed on Pixel 9 Pro, serial
+`4C191FDAP00202`. **The full UI pass has not been installed there.** Never run tests
+on that account-bearing phone. Install updates only with `adb -s 4C191FDAP00202 install -r`
+when requested; preserve its data and debug signing key.
 
-## Search presentation boundary
+Task emulator state: all three task-owned emulators stopped. Root used read-only unsaved `tg`
+on emulator-5580. Additional task-only API30 (5582) and API21 (5584) AVDs use
+`/tmp/smoky-api30-sdk` and `/home/nicbat/.cache/smoky-ui-api21`; no existing SDK/config
+or AVD was overwritten. Current host emulator binary 36.3.10 was used because the
+separately downloaded 37 binary crashed. Do not delete or reset the user's AVD/phone.
 
-`ui/SearchStyle.java` wraps only the result layout and browsing toolbar in a
-Material context; BrowseActivity itself keeps ActiveTheme. `ui/BrowseToolbar.java`
-uses that context for input/icons and keeps browsing chrome neutral when a legacy
-subject headline requests a subject-colored toolbar. The subject headline inside
-the page retains its semantic color. `AbstractActivity.refreshToolbarAppearance`
-is a no-op hook, overridden only by BrowseActivity and called after fragment title
-updates. Result cards use a scoped context marker; shared SubjectCardBinder remains
-unchanged for Classic screens and other callers. The default result layout is a
-full-width card with the existing subject renderer (including radical images),
-meaning, reading, level and SRS/wait information. Long titles fit to available width.
+## Current architecture boundaries
 
-Group headers and the adapter retain the existing result tree, sort order, filters,
-collapsed tags, and subject IDs. Header actions have accessible expand/collapse
-labels. Modern tutorial-dismiss has a distinct ID from Classic to avoid cross-class
-saved-state restoration. Advanced form rows explicitly inflate using the legacy
-activity context; migrate that editor as a separate next step, not by changing all
-of BrowseActivity's theme. Item-detail bodies and review/lesson activities remain
-legacy, and their presentation consistency is still unfinished.
+- `ui/ModernUi.java` and `modern_ui_styles.xml` provide scoped Material 3 context,
+  dynamic colors, neutral roles, rounded stable-class controls and toolbar/system-bar
+  appearance. `ModernActivity` applies this to utility pages. Regular AppCompat Button
+  inflation is intentional: switching Classic/Modern must not restore MaterialButton
+  state into a different class. Explicit MaterialButton layouts disable saved state or
+  use distinct IDs where needed. The pre-23 status bar/pre-26 navigation bar stay dark
+  because those versions cannot show dark icons.
+- **Modern interface** (`modern_settings`) and **Wallpaper colors in interface**
+  (`settings_dynamic_color`) now cover browse/details/study/settings/tools. Existing keys
+  and values are preserved. Dashboard flags remain independent. Modern uses system
+  light/dark; Classic uses existing selectors. `ActiveTheme` still owns subject/SRS
+  palettes. `wkTextColorPrimary` separates legacy neutral text from Material accent color.
+- `AbstractActivity` keeps lifecycle/interaction handling, menu configuration and the
+  theme hook. `refreshToolbarAppearance` applies scoped chrome after fragment titles;
+  `styleActivityContent` is opt-in, not a blanket study-content recoloring pass.
+- BrowseActivity itself retains ActiveTheme, while `SearchStyle`, `BrowseToolbar`, browse
+  overview/advanced form/detail layouts use wrapped contexts. `SubjectCardBinder` keeps
+  semantic renderers and IDs; related cards gain shapes only in a modern context. Explicit previous/next
+  paging replaces the current back-stack entry so one Back returns to results. Related-item
+  links still push their own entry; tests cover nested details and deep-linked roots.
+- `study/StudyStyle.java` styles lesson/review/Anki/summary pages **before semantic binding**,
+  then rounds subject/feedback surfaces with their actual colors. Correct/incorrect
+  feedback ink is selected for contrast. Subject metadata is stacked at runtime with
+  IDs/direct-parent visibility preserved. Study fragments, SessionActivity and Session
+  retain grading, scheduling, answer acceptance and submission behavior.
+- Session-log holders apply neutral headers and semantic rounded rows while retaining
+  SessionLogAdapter grouping, restricted-mode hiding and original navigation callbacks.
+  Font sizes, custom rich-text spans, audio handlers, stroke/pitch renderers and color
+  wheel behavior remain. Modern design does not mean rewriting these in Compose.
+- Dashboard overview remains Compose (`DashboardController.kt`, `DashboardOverview.kt`).
+  MainActivity passes original actions/interaction guards. `DashboardStyle` and modern
+  SRS/level/JLPT/Jōyō/breakdown layouts modernize existing models/observers. Recent/critical/
+  burned tables keep semantic labels and callbacks. Statistics use wrapping labeled
+  groups so 2x text is readable. No chart calculation/90% target logic changed.
+- Settings retain AndroidX Preferences persistence/validation. MaterialPreferenceDialogs
+  preserves positive/cancel/change-veto behavior. MaterialSliderPreference extends the
+  existing SeekBarPreference contract, including commit-on-release. Range/URL interiors
+  are outlined. Color/font tools retain original storage/import handlers; color selection
+  and repeated child-ID saved-state restoration bugs were fixed.
+- Utility pages reuse their original actions and stable view IDs. Modern audio-download
+  rows and activity layout reflow status/relocation/actions. Import/export/backup system
+  document pickers and external browser handoffs remain Android-owned UI.
 
-The existing `modern_settings` / `settings_dynamic_color` preferences cover search
-and browsing chrome too, now labeled **Modern settings and search** / **Wallpaper
-colors in settings and search**. No preference keys were renamed. Dashboard controls
-remain independent. `SmokyMaterialTheme` plus `material_colors.xml` share static
-accent resources across Material Views and DashboardTheme; dynamic overlays still
-supply wallpaper colors when enabled. Semantic ActiveTheme colors remain independent.
+Dependency versions remain Kotlin/compiler plugin 2.2.21, Compose BOM 2025.04.01 and
+Material Components Views 1.12.0. AndroidX Test 1.7 / Espresso 3.7 supports the Android 16
+emulator. Review minimum-SDK compatibility before upgrades; the Jackson issue above exists
+independently of this UI pass. Historical Room schemas 48–67 were restored from original
+commit `b36c696`; never fabricate migration fixtures.
 
-User priority: complete a modern-design first pass across **all in-app screens**, then
-run a dedicated refinement/optimization phase; **widgets last**. TASKS.md now contains
-the ordered seven-batch coverage checklist (browse, details, study, dashboard, settings,
-utilities, global completion). Keep regression testing and correctness fixes within each
-batch rather than deferring them. Next implementation: browse overview and advanced filters.
-The latest roadmap update changes documentation only; the 52-test implementation baseline
-and phone build ab784d0 are unchanged.
+## Next work
 
-## Architecture boundaries
-
-The initial Compose migration adds `dashboard/DashboardController.kt` (LiveData
-adapter) and `DashboardOverview.kt` (pure UI/state/theme). MainActivity passes its
-existing callbacks and interaction guard. The Compose overview replaces the legacy header; existing chart/statistics Views
-remain below it with a new presentation layer. Display settings expose
-Modern dashboard and Wallpaper colors. The latest milestone also styles the
-existing charts, but does not replace their models or rewrite study workflows.
-
-Kotlin/compiler plugin: 2.2.21. Compose BOM: 2025.04.01, deliberately pinned to an
-API 21-compatible generation. AndroidX Test 1.7 / Espresso 3.7 fixes reflection on
-the Android 16 emulator. Do not upgrade the BOM blindly without reviewing minimum
-SDK compatibility. `.kotlin/` is generated and ignored.
-
-MainActivity owns dashboard bindings and existing launch handlers. SessionActivity
-and Session still own study workflows. ActiveTheme owns semantic/custom palettes;
-ThemeUtil still supports application-level colors and now has a context overload
-for screen-local colors. Dashboard chart chrome uses the scoped view context;
-subject/SRS colors still come from ActiveTheme arrays. Compose owns overview UI
-state and its color scheme; legacy study activities keep their own themes.
-
-Settings use Material Components Views **1.12.0** to preserve API 21 compatibility
-and the existing AndroidX Preferences tree. `AbstractActivity.customizeActivityTheme`
-is overridden by PreferencesActivity and modern MainActivity only. That activity applies a scoped Material 3
-DayNight theme and optional DynamicColors before view inflation, and tints legacy
-menu icons for the new surface. The application-level ActiveTheme remains intact.
-`modern_settings` and `settings_dynamic_color` are independent of dashboard flags.
-Preference appearance changes post recreation after persistence; nested back-stack
-restoration is covered. Modern settings follow system light/dark mode; Classic
-selectors continue to affect study/legacy screens.
-
-`settings/MaterialPreferenceDialogs.java` supplies Material builders while retaining
-AndroidX List/Edit dialog lifecycle, listeners and persistence. The custom range/URL
-dialogs use its `CustomDialog` shell but keep their original inner layouts. Standard
-editors use an outlined TextInputEditText; numeric/password binding stays with the
-existing Preference classes. Material switches reuse SwitchPreferenceCompat binding
-through the original `switchWidget` ID. Sliders and contextual menus remain future work; toolbar overflow is now shared
-Material presentation across activities. `MaterialSettingsTest` covers changes, veto/cancel, drafts on recreation,
-Classic fallback, dark contrast, and nested navigation. It does not prove encrypted
-credential entry on a physical device or a real wallpaper-change refresh.
-
-The overflow/dashboard follow-up adds `ui/MaterialToolbar.java`,
-`dashboard/DashboardStyle.java`, `modern_dashboard_styles.xml`, and alternate SRS/
-level layouts. `AbstractActivity` configures popup appearance before menu inflation
-and recreates after relevant appearance preferences change. Main uses dashboard
-flags for its popup; other activities use settings flags. The popup theme is a
-complete Material3 DayNight or DynamicColors theme, so it also works over legacy
-AppCompat activities without changing their activity theme. AppCompat keeps menu
-selection/submenu behavior. No reflection or custom replacement menu model.
-
-Modern MainActivity uses a scoped Material theme. DashboardStyle adds surfaces and
-titles while preserving original chart instances/IDs, observers and callbacks.
-Titled panels measure zero height when their data view is GONE. Timeline labels
-scale with font size and wrap their legend, and time labels reduce density to
-avoid overlap. Level rows show counts from the existing buckets and retain the
-90% marker logic and browse filters. SRS rows use stage swatches rather than filled
-tiles. Other statistics receive surface styling only; subject tables still need
-further design work. DashboardOverview includes days at the current level again.
-
-`DashboardAppearanceTest` posts synthetic objects through the real LiveData and
-restores previous preferences/values. It intercepts browse callbacks via an Actment
-proxy; it never stores subjects or account fixtures. `ToolbarAppearanceTest` uses
-a monitor to block the no-token redirect while exercising real MainActivity;
-notification prompts are suppressed through a restored test preference.
-
-Historical migration schemas 48–67 are available in commit `b36c696` under
-`app/schemas/com.the_tinkering.wk.db.AppDatabase/`; use original bytes under the
-current database class directory. Never fabricate historical schema contents.
+1. Install this development build on the phone when requested; get feedback across browse,
+   details, lesson/review input, summary/log and settings. Keep Classic available.
+2. Address any reproducible bugs and usability issues; complete broader accessibility,
+   landscape, wallpaper and recovery validation without submitting real test answers.
+3. Profile startup, scroll, memory, chart and audio behavior before optimization. Do not
+   claim emulator/debug timing as a performance gain.
+4. Resolve minimum-SDK/Jackson compatibility and durable release signing/update delivery.
+5. Widgets last; inspect upstream PR #153 before porting overlapping work.
 
 ## Before ending a session
 
-- State what is implemented versus still proposed, and record exact test results.
-- Note unresolved build/test failures and any running processes.
-- Update TASKS and this file, commit coherent changes, push and verify remote HEAD.
-- Link the branch/commit and current APK in the user-facing update.
+- Record implemented vs proposed work, exact test results and remaining limitations.
+- Stop only task-owned emulators and note any remaining processes.
+- Update TASKS and this file, commit, push to the fork branch and verify remote HEAD.
+- Link the branch/commit and current APK; distinguish built from phone-installed versions.

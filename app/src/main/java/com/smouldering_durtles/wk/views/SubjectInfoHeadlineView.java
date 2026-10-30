@@ -155,7 +155,9 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
 
         if (toolbar != null) {
             toolbar.setTitle(subject.getInfoTitle("", ""));
-            toolbar.setBackgroundColor(subject.getBackgroundColor());
+            toolbar.setBackgroundColor(com.smouldering_durtles.wk.ui.ModernUi.isModern(toolbar.getContext())
+                    ? com.google.android.material.color.MaterialColors.getColor(toolbar, com.google.android.material.R.attr.colorSurface)
+                    : subject.getBackgroundColor());
         }
 
         final boolean showPitchInfo = GlobalSettings.SubjectInfo.getShowPitchInfo() && subject.hasPitchInfo() && showReadingAnswers;
@@ -200,6 +202,8 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
             button.setMaxSize(maxWidthPx, sp2px(maxFontSize));
             button.setVisibility(true);
         }
+
+        com.smouldering_durtles.wk.study.StudyStyle.headline(this);
 
         // Title text
         title.setText(subject.getSimpleInfoTitle());
@@ -262,6 +266,7 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
                 final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, 0);
                 layoutParams.width = WRAP_CONTENT;
                 layoutParams.height = WRAP_CONTENT;
+                com.smouldering_durtles.wk.ui.ModernUi.style(playButton);
                 buttonsColumn.addView(playButton, layoutParams);
             } else {
                 for (final Reading r : subject.getReadings()) {
@@ -274,6 +279,7 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
                     final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, 0);
                     layoutParams.width = WRAP_CONTENT;
                     layoutParams.height = WRAP_CONTENT;
+                    com.smouldering_durtles.wk.ui.ModernUi.style(playButton);
                     buttonsColumn.addView(playButton, layoutParams);
                 }
             }

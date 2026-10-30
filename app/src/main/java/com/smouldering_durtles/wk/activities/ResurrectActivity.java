@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
 /**
  * An activity for resurrecting one or more subjects.
  */
-public final class ResurrectActivity extends AbstractActivity {
+public final class ResurrectActivity extends ModernActivity {
     private List<Long> subjectIds = Collections.emptyList();
     private int todo = 0;
     private int success = 0;

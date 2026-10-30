@@ -79,12 +79,21 @@ public final class DownloadAudioBracketView extends LinearLayout {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), R.layout.download_audio_bracket, this);
+            inflate(getContext(), com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
+                    ? R.layout.download_audio_bracket_modern : R.layout.download_audio_bracket, this);
             setOrientation(VERTICAL);
             setPadding(0, 0, 0, 0);
             label.setDelegate(this, R.id.label);
             rangeLabel.setDelegate(this, R.id.rangeLabel);
             downloadButton.setDelegate(this, R.id.downloadButton);
+            if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
+                int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(this, 16);
+                setPadding(padding, padding, padding, padding);
+                setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
+                        com.google.android.material.color.MaterialColors.getColor(this,
+                                com.google.android.material.R.attr.colorSurfaceContainerLow), 24));
+                com.smouldering_durtles.wk.ui.ModernUi.style(this);
+            }
         });
     }
 

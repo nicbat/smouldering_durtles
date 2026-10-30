@@ -29,7 +29,7 @@ import static com.smouldering_durtles.wk.Constants.DIGRAPH_HELP_DOCUMENT_2;
 /**
  * Simple activity that only shows a big TextView. Shows the app's 'about' information.
  */
-public final class DigraphHelpActivity extends AbstractActivity {
+public final class DigraphHelpActivity extends ModernActivity {
     /**
      * The constructor.
      */

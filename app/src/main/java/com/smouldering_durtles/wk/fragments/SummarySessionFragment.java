@@ -32,6 +32,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.ui.ModernUi;
 import com.smouldering_durtles.wk.WkApplication;
 import com.smouldering_durtles.wk.db.AppDatabase;
 import com.smouldering_durtles.wk.db.model.SessionItem;
@@ -281,7 +282,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         }
 
         final String[] names = {"☆ ☆ ☆ ☆ ☆", "★ ☆ ☆ ☆ ☆", "★ ★ ☆ ☆ ☆", "★ ★ ★ ☆ ☆", "★ ★ ★ ★ ☆", "★ ★ ★ ★ ★"};
-        final SpinnerAdapter adapter = new ArrayAdapter<>(view.getContext(), R.layout.spinner_item, names);
+        final SpinnerAdapter adapter = new ArrayAdapter<>(view.getContext(), ModernUi.isModern(view.getContext()) ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, names);
         incorrectStarSpinner.setAdapter(adapter);
         correctStarSpinner.setAdapter(adapter);
 
@@ -318,6 +319,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
 
         scrollView.setDelegate(view, R.id.scrollView);
         scrollView.setSwipeListener(this);
+        com.smouldering_durtles.wk.study.StudyStyle.summary(view);
     }
 
     @Override
@@ -511,7 +513,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         final String message = String.format(Locale.ROOT, "Do you want to set the star rating for %d subject%s to %d star%s?",
                 subjects.size(), subjects.size() == 1 ? "" : "s", newNumStars, newNumStars == 1 ? "" : "s");
 
-        new AlertDialog.Builder(requireContext())
+        com.smouldering_durtles.wk.ui.ModernUi.dialog(requireContext())
                 .setTitle("Set star ratings?")
                 .setMessage(message)
                 .setNegativeButton("No", (dialog, which) -> {})
@@ -534,7 +536,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         final String message = String.format(Locale.ROOT, "Do you want to set the star rating for %d subject%s to %d star%s?",
                 subjects.size(), subjects.size() == 1 ? "" : "s", newNumStars, newNumStars == 1 ? "" : "s");
 
-        new AlertDialog.Builder(requireContext())
+        com.smouldering_durtles.wk.ui.ModernUi.dialog(requireContext())
                 .setTitle("Set star ratings?")
                 .setMessage(message)
                 .setNegativeButton("No", (dialog, which) -> {})

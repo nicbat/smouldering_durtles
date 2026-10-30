@@ -74,7 +74,14 @@ public final class FontSelectionRowView extends ConstraintLayout {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), R.layout.font_selection_row_view, this);
+            inflate(getContext(), com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
+                    ? R.layout.font_selection_row_modern : R.layout.font_selection_row_view, this);
+            if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
+                int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(this, 16);
+                setPadding(padding, padding, padding, padding);
+                setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
+                        com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow), 24));
+            }
             fontName.setDelegate(this, R.id.fontName);
             fontSample.setDelegate(this, R.id.fontSample);
             fontSwitch.setDelegate(this, R.id.fontSwitch);
@@ -101,7 +108,10 @@ public final class FontSelectionRowView extends ConstraintLayout {
      * @param name the name
      */
     public void setFontName(final CharSequence name) {
-        safe(() -> fontName.setText(name));
+        safe(() -> {
+            fontName.setText(name);
+            findViewById(R.id.fontSwitch).setContentDescription(getContext().getString(R.string.font_use_name, name));
+        });
     }
 
     /**
@@ -111,5 +121,12 @@ public final class FontSelectionRowView extends ConstraintLayout {
      */
     public void setTypeface(final Typeface typeface) {
         safe(() -> fontSample.setTypeface(typeface));
+    }
+    // Selection is persisted per font; repeated child IDs must not overwrite it during recreation.
+    @Override protected void dispatchSaveInstanceState(android.util.SparseArray<android.os.Parcelable> state) {
+        dispatchFreezeSelfOnly(state);
+    }
+    @Override protected void dispatchRestoreInstanceState(android.util.SparseArray<android.os.Parcelable> state) {
+        dispatchThawSelfOnly(state);
     }
 }

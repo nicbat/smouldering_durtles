@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/toolbarColorBackground"
         android:elevation="4dp"
-        android:theme="@style/WKToolbarTheme"
+        android:theme="?attr/smokySettingsToolbarTheme"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="UnusedAttribute" />

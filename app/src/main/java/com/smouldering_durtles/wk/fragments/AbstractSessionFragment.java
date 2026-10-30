@@ -65,6 +65,14 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
         super(layoutId);
     }
 
+    @Override
+    public View onCreateView(android.view.LayoutInflater inflater, @Nullable android.view.ViewGroup container,
+                             @Nullable android.os.Bundle state) {
+        final View view = super.onCreateView(inflater, container, state);
+        if (view != null) com.smouldering_durtles.wk.study.StudyStyle.page(view);
+        return view;
+    }
+
     /**
      * Show the soft keyboard.
      *
@@ -153,6 +161,7 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
         questionType.setBackgroundColor(question.getType().getHintColor());
         questionType.setTextColor(question.getType().getHintContrastColor());
         questionType.setVisibility(!isLandscape() || !(this instanceof UnansweredSessionFragment));
+        com.smouldering_durtles.wk.study.StudyStyle.question(view, subject.getBackgroundColor());
 
         specialButton1.setOnClickListener(v -> safe(() -> {
             if (!interactionEnabled) {

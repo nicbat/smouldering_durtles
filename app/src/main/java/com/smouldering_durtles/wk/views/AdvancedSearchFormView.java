@@ -24,6 +24,7 @@ import android.widget.TableLayout;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.ui.SearchStyle;
 import com.smouldering_durtles.wk.enums.SearchSortOrder;
 import com.smouldering_durtles.wk.enums.SubjectType;
 import com.smouldering_durtles.wk.model.AdvancedSearchParameters;
@@ -92,7 +93,8 @@ public final class AdvancedSearchFormView extends TableLayout {
      * Initialize the instance.
      */
     private void init() {
-        inflate(getContext(), R.layout.advanced_search, this);
+        final boolean modern = SearchStyle.isModern(getContext()) || com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext());
+        inflate(getContext(), modern ? R.layout.advanced_search_modern : R.layout.advanced_search, this);
         setShrinkAllColumns(true);
 
         starRatingSwitches.add(new ViewProxy(this, R.id.starRating0));
@@ -184,7 +186,7 @@ public final class AdvancedSearchFormView extends TableLayout {
         searchButton2.setText(searchButtonLabel);
 
         final SpinnerAdapter adapter =
-                new ArrayAdapter<>(getContext(), R.layout.spinner_item, SearchSortOrder.descriptionValues());
+                new ArrayAdapter<>(getContext(), modern ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, SearchSortOrder.descriptionValues());
         sortOrder.setAdapter(adapter);
         sortOrder.setSelection(0);
         sortOrder.setParentVisibility(sortOrderVisibility);

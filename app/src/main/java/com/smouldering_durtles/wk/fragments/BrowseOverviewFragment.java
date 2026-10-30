@@ -23,6 +23,13 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.content.res.ColorStateList;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.smouldering_durtles.wk.ui.SearchStyle;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
@@ -85,6 +92,23 @@ public final class BrowseOverviewFragment extends AbstractFragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle state) {
+        if (GlobalSettings.Display.getModernSettings()) {
+            return inflater.cloneInContext(SearchStyle.context(requireContext()))
+                    .inflate(R.layout.fragment_browse_overview_modern, container, false);
+        }
+        return super.onCreateView(inflater, container, state);
+    }
+
+    private Context presentationContext() {
+        return getView() == null ? requireContext() : requireView().getContext();
+    }
+
+    private AlertDialog.Builder dialogBuilder(Context context) {
+        return SearchStyle.isModern(context) ? new MaterialAlertDialogBuilder(context) : new AlertDialog.Builder(context);
+    }
+
+    @Override
     protected void onCreateLocal() {
         //
     }
@@ -119,7 +143,8 @@ public final class BrowseOverviewFragment extends AbstractFragment {
             position = LiveSearchPresets.getInstance().getNames().indexOf(selection);
         }
         final SpinnerAdapter adapter =
-                new ArrayAdapter<>(requireContext(), R.layout.spinner_item, names);
+                new ArrayAdapter<>(presentationContext(), SearchStyle.isModern(presentationContext())
+                        ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, names);
         presetSpinner.setAdapter(adapter);
         if (position >= 0) {
             presetSpinner.setSelection(position);
@@ -158,7 +183,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
             return false;
         }));
 
-        queryField.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        queryField.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 
         queryButton.setOnClickListener(v -> safe(() -> submitQuery(queryField.getText())));
 
@@ -219,7 +244,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
             final @Nullable Object selection = presetSpinner.getSelection();
             if (selection instanceof String) {
                 final String name = (String) selection;
-                new AlertDialog.Builder(v.getContext())
+                dialogBuilder(v.getContext())
                         .setTitle("Delete preset?")
                         .setMessage(String.format(Locale.ROOT, "Are you sure you want to delete the preset named '%s'?", name))
                         .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -296,7 +321,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
     }
 
     private void render(final int maxLevel) {
-        final @Nullable Context context = getContext();
+        final @Nullable Context context = getView() == null ? getContext() : requireView().getContext();
         if (context == null) {
             return;
         }
@@ -305,7 +330,9 @@ public final class BrowseOverviewFragment extends AbstractFragment {
 
         final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         final float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        int numColumns = Math.round(dpWidth / Constants.BROWSE_OVERVIEW_COLUMN_WIDTH);
+        final boolean modern = SearchStyle.isModern(context);
+        int numColumns = Math.round((dpWidth - (modern ? 32 : 0)) /
+                (modern ? Math.max(64, 56 * displayMetrics.scaledDensity / displayMetrics.density) : Constants.BROWSE_OVERVIEW_COLUMN_WIDTH));
         if (numColumns < 1) {
             numColumns = 1;
         }
@@ -326,7 +353,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 currentRow.setId(ViewCompat.generateViewId());
                 rowLayoutParams = new TableLayout.LayoutParams(0, 0);
                 rowLayoutParams.setMargins(0, dp2px(6), 0, 0);
-                rowLayoutParams.width = WRAP_CONTENT;
+                rowLayoutParams.width = modern ? MATCH_PARENT : WRAP_CONTENT;
                 rowLayoutParams.height = WRAP_CONTENT;
                 levelTable.addView(currentRow, rowLayoutParams);
             }
@@ -341,20 +368,32 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 }
             });
 
-            final TextView button = new TextView(context, null, R.attr.WK_TextView_BrowseLevelButton);
+            final TextView button = modern ? new MaterialButton(context, null, com.google.android.material.R.attr.materialButtonOutlinedStyle)
+                    : new TextView(context, null, R.attr.WK_TextView_BrowseLevelButton);
             button.setText(Integer.toString(level));
             button.setPadding(dp2px(6), dp2px(6), dp2px(6), dp2px(6));
             button.setClickable(true);
-            button.setFocusable(false);
+            button.setFocusable(modern);
+            button.setContentDescription("Browse level " + level);
             button.setOnClickListener(onClick);
-            button.setGravity(Gravity.CENTER_HORIZONTAL);
-            button.setShadowLayer(3, 1, 1, Color.BLACK);
+            button.setGravity(modern ? Gravity.CENTER : Gravity.CENTER_HORIZONTAL);
+            if (!modern) button.setShadowLayer(3, 1, 1, Color.BLACK);
+            if (modern) {
+                button.setMinimumWidth(0);
+                button.setMinWidth(0);
+                button.setMinimumHeight(dp2px(48));
+            }
             if (level == LiveLevelDuration.getInstance().get().getLevel()) {
-                button.setBackgroundColor(ThemeUtil.getColor(R.attr.buttonHighlightColor));
+                if (modern) {
+                    ((MaterialButton) button).setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(button,
+                            com.google.android.material.R.attr.colorSecondaryContainer)));
+                    button.setTextColor(MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSecondaryContainer));
+                } else button.setBackgroundColor(ThemeUtil.getColor(R.attr.buttonHighlightColor));
             }
             cellLayoutParams = new TableRow.LayoutParams(0, 0);
             cellLayoutParams.setMargins(dp2px(2), dp2px(2), 0, 0);
-            cellLayoutParams.width = MATCH_PARENT;
+            cellLayoutParams.width = modern ? 0 : MATCH_PARENT;
+            if (modern) cellLayoutParams.weight = 1;
             cellLayoutParams.height = WRAP_CONTENT;
             currentRow.addView(button, cellLayoutParams);
         }

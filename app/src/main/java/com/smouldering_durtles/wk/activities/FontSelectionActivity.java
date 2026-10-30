@@ -47,9 +47,15 @@ public final class FontSelectionActivity extends AbstractActivity {
         super(R.layout.activity_font_selection, R.menu.generic_options_menu);
     }
 
+    @Override
+    protected void customizeActivityTheme(final android.content.res.Resources.Theme theme) {
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
+    }
+
     @SuppressLint("NewApi")
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        com.smouldering_durtles.wk.ui.ModernUi.styleActivity(this);
         fontList.setDelegate(this, R.id.fontList);
 
         while (fontList.getChildCount() > 1) {

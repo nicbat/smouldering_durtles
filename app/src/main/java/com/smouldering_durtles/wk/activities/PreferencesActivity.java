@@ -64,7 +64,7 @@ public final class PreferencesActivity extends AbstractActivity implements Prefe
 
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
-        if (GlobalSettings.Display.getModernSettings()) {
+        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
             final int color = MaterialColors.getColor(this,
                     com.google.android.material.R.attr.colorOnSurface, "settings toolbar");
             for (int i = 0; i < menu.size(); i++) {
@@ -77,7 +77,7 @@ public final class PreferencesActivity extends AbstractActivity implements Prefe
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
-        if (GlobalSettings.Display.getModernSettings() && getToolbar() != null) {
+        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this) && getToolbar() != null) {
             getToolbar().setElevation(0);
             final int surface = MaterialColors.getColor(this,
                     com.google.android.material.R.attr.colorSurface, "settings surface");

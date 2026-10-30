@@ -64,12 +64,16 @@ public final class HeaderItemViewHolder extends LogItemViewHolder implements Vie
         final int icon = item.isCollapsed() ? R.drawable.ic_expand_less : R.drawable.ic_expand_more;
         final @Nullable Drawable drawable = ContextCompat.getDrawable(itemView.getContext(), icon);
         if (drawable != null) {
-            drawable.setColorFilter(new SimpleColorFilter(ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
+            final int ink = com.smouldering_durtles.wk.ui.ModernUi.isModern(itemView.getContext())
+                    ? com.google.android.material.color.MaterialColors.getColor(itemView, com.google.android.material.R.attr.colorOnSurface)
+                    : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary);
+            drawable.setColorFilter(new SimpleColorFilter(ink));
             arrowHead.setImageDrawable(drawable);
         }
 
         title.setText(item.getTitleText());
         details.setText(item.getDetailsText());
+        com.smouldering_durtles.wk.study.StudyStyle.logHeader(itemView);
     }
 
     @Override

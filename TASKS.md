@@ -5,13 +5,14 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Complete modern design across the whole in-app experience before the dedicated
-optimization/refinement phase. Next implementation batch: browse overview and advanced filters,
-then item details and study flows. Widgets remain last. See the ordered coverage checklist below.
-Development and emulator testing are authorized. Search build ab784d0 is installed on the user's
-Pixel 9 Pro with adb install -r; physical-device behavior validation remains pending.
-Do not run instrumentation tests on that phone or use its account data.
-Push tested milestones to the user's fork on the current feature branch.
+The full in-app modern design pass is implemented. Finish cross-version validation and
+phone feedback, then begin measured refinement/optimization. Widgets remain last.
+Modern interface covers browse/details/study/settings/tools; Modern dashboard remains
+independent. Classic and semantic subject/SRS palettes remain available.
+
+Search build ab784d0 is still installed on the user's Pixel 9 Pro. This full UI pass
+has not been installed there. Never run instrumentation on the account-bearing phone.
+Push tested milestones to `origin/smoky-durtles/foundation` and keep these notes current.
 
 ## Completed
 
@@ -20,7 +21,7 @@ Push tested milestones to the user's fork on the current feature branch.
 - [x] Three foundation instrumentation tests; debug/release builds; side-by-side install.
 - [x] Push foundation to `origin/smoky-durtles/foundation` (`0b6b531`).
 
-## Latest completed milestone
+## Dashboard foundation (historical)
 
 - [x] Restore original Room schemas 48–67 from `b36c696`; full suite passes (25 tests, Android 16).
 - [x] Fix DARK and NORD Guru customization slots; all-theme palette regression test passes.
@@ -67,62 +68,40 @@ Push tested milestones to the user's fork on the current feature branch.
 
 ## Phase 1 — complete modern UI coverage
 
-User direction: finish a coherent first pass across **all in-app screens**, then optimize and
-adjust them as a whole. Deliver and push testable batches; do not postpone correctness fixes,
-behavior regression tests, or basic accessibility until Phase 2. No implementation blocker;
-the task emulator is stopped at handoff. Existing Classic fallback remains during migration.
+The first presentation pass is implemented across app-owned screens. Existing Java Views,
+models and callbacks remain; Compose is confined to the dashboard overview. Custom charts,
+subject renderers, the color wheel, Android document pickers and keyboard retain their
+specialized behavior. This is coverage completion, not a claim that every device/flow has
+been exhaustively tested.
 
-1. **Browse and filters**
-   - [ ] Browse overview, level navigation, saved searches, preset management.
-   - [ ] Advanced search fields, selectors, sorting, filter actions and refine/back navigation.
-   - [ ] Result action dialogs: saving presets, star ratings and confirmations.
-   - Source: `BrowseOverviewFragment`, `AdvancedSearchFormView`, `SearchResultFragment`,
-     `fragment_browse_overview.xml`, `advanced_search.xml`, `search_result_form.xml`.
-2. **Item details and study materials**
-   - [ ] Subject headline, meanings/readings, mnemonics, examples, related subjects, pitch information.
-   - [ ] Audio, copy/link actions, synonyms/notes editors and contextual dialogs.
-   - [ ] Previous/next item navigation and returning to the same results/scroll position.
-   - Source: `SubjectInfoFragment`, `SubjectInfoView`, `SubjectInfoHeadlineView`,
-     `StudyMaterialsActivity`, `subject_info*.xml`, `activity_study_materials.xml`, `synonym.xml`.
-   - Shared subject Views also appear in lessons/reviews: scope styling and verify both consumers.
-3. **Entire study flow**
-   - [ ] Establish offline fixtures for question/answer navigation, interruption/resume and pending submissions.
-   - [ ] Lesson presentation and lesson-to-quiz transition.
-   - [ ] Review answer entry, keyboard/focus, correct/incorrect feedback and answer actions.
-   - [ ] Anki mode, self-study setup, session controls, wrap-up/abandon confirmations.
-   - [ ] Session log/history and completion summary, including result filtering/actions.
-   - Source: `SessionActivity`, `SelfStudyStartActivity`, `AbstractSessionFragment` and its
-     Lesson/Unanswered/Answered/Anki/Summary subclasses, `SessionLogFragment`, `session_buttons.xml`.
-   - Preserve grading, scheduling, answer overrides, audio and submission behavior.
-4. **Finish the dashboard**
-   - [ ] Recent, critical and burned subject tables and their navigation.
-   - [ ] Remaining Post-60/Jōyō/JLPT/breakdown interiors; these received surfaces, not a full redesign.
-   - [ ] Setup, loading, sync/error/retry and empty states outside the new overview.
-   - Source: `MainActivity`, `LiveSubjectTableView`, dashboard custom Views and `activity_main.xml`.
-5. **Finish settings and customization**
-   - [ ] Sliders, number-range/URL editor interiors, remaining contextual menus.
-   - [ ] Theme/custom-color editor, font selection/import and custom preference rows.
-   - [ ] Explain appearance controls consistently across all migrated screens; preserve existing preference values.
-   - Source: `PreferencesFragment`, `ThemeCustomizationActivity`, `FontSelectionActivity`,
-     `FontImportActivity`, `pref_number_range.xml`, `pref_tagged_url.xml` and `preferences.xml`.
-6. **Utility and help screens**
-   - [ ] API-key/setup help, About/Support, keyboard and digraph help.
-   - [ ] Audio downloads, data import/export and their progress/error/confirmation UI.
-   - [ ] Burn/resurrect screens and confirmations; preserve their safeguards and behavior.
-   - [ ] Check backup/restore handoffs; Android-owned file pickers retain system UI.
-   - Source: corresponding `activities/*Activity.java` and `activity_*.xml`; `BackupActivity`
-     launches system document pickers rather than providing a custom page.
-7. **App-wide completion check**
-   - [ ] One consistent set of surfaces, typography, spacing, corners and action hierarchy.
-   - [ ] Toolbar/navigation, dropdowns, dialogs, inputs, progress/error/empty states and transitions.
-   - [ ] Touch targets, accessibility labels, large fonts, landscape, keyboard and system-bar insets.
-   - [ ] Light/dark, static/dynamic color, custom subject/SRS colors, API 21/30 fallback and API 31+ wallpaper changes.
-   - [ ] Classic/modern switching, back stack and recreation across the complete study/browse flow.
+- [x] Browse overview, level navigation, saved searches, preset dialogs, advanced fields,
+  switches/selectors, sorting, refine/back navigation and result action dialogs.
+- [x] Subject headline, metadata, meanings/readings, mnemonics, examples, related cards,
+  pitch/stroke chrome, synonyms and contextual actions. Metadata wraps at 2x text.
+- [x] Detail previous/next replaces one detail back-stack entry; one Back returns to results.
+- [x] Lesson, unanswered/answered review, Anki, self-study setup, session controls,
+  confirmation dialogs, log rows/groups and summary presentation.
+- [x] Offline in-memory presentation fixtures, question draft preservation across recreation
+  and Modern/Classic switching; log collapse/click behavior. No grading/submission writes.
+- [x] Recent/critical/burned subject tables, remaining Jōyō/JLPT/lesson-review statistics,
+  setup/help/error panels and existing dashboard navigation. Statistics reflow at large text.
+- [x] Sliders, outlined range/URL editors, theme/color customization, font selection/import,
+  contextual menus and consistent appearance labels; existing preference keys preserved.
+- [x] About/Support/setup help, keyboard/digraph help, audio downloads, import/export,
+  burn/resurrect and confirmation/progress presentation. System file pickers remain native.
+- [x] Shared Material surfaces, stable-class buttons, neutral text, toolbar/dialog/dropdown
+  appearance and fallback system-bar contrast. Subject/SRS colors stay independent.
+- [x] Modern interface / Wallpaper colors in interface labels; independent dashboard switches.
+- [x] Debug/release builds and full suite: **75 tests, 0 failures on Android 16 and Android 11**.
+  API 21 utility tests pass (3); the complete suite hits the existing Jackson blocker below.
+- [ ] Physical-phone long review/lesson sessions, keyboard/insets, landscape and accessibility review.
+- [ ] Actual wallpaper-change refresh on Android 12+, TalkBack and broader custom-palette checks.
+- [ ] Process death/offline recovery and pending-submission parity fixtures (not covered by UI tests).
+- [ ] Resolve pre-existing API 21 Jackson ObjectMapper initialization failure or decide supported minimum.
 
-Phase 1 is complete when every user-facing app-owned screen/action has been checked and uses
-the shared modern design when enabled, with any intentional exceptions recorded. A rounded
-menu alone does not mean the underlying screen is migrated. Preserve custom charts and Views
-where appropriate; modern design does not require rewriting every screen in Compose.
+Automated checks cover static/dynamic theme paths, light/dark, 2x font fixtures, synthetic
+semantic colors, callbacks, navigation and recreation. They do not prove network submissions,
+real account sync, audio playback or process-death recovery. See HANDOFF for exact platform results.
 
 ## Phase 2 — refine, fix and optimize
 
@@ -138,8 +117,8 @@ where appropriate; modern design does not require rewriting every screen in Comp
 - [ ] Inspect upstream PR #153, then design and test widget support after the in-app work above.
 
 Installed milestones: dashboard, settings 4472ee8, overflow/charts b074d72 and search ab784d0,
-all preserving app data. Current baseline: **52 passing instrumentation tests**, debug/release
-builds successful. This roadmap update changes documentation only.
+all preserving app data. Full UI implementation is newer than the phone build. Current
+build/test evidence and compatibility limitations are recorded in HANDOFF.md.
 
 ## Open decisions
 

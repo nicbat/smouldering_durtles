@@ -90,6 +90,24 @@ public final class LiveSubjectTableRowView extends TableRow {
             rowText.setText(renderHtml(subject.getCharactersHtml()));
             rowText.setJapaneseLocale();
             rowExtra.setText(extraTextFunction.apply(subject));
+            if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())) {
+                int pad = com.smouldering_durtles.wk.dashboard.DashboardStyle.dp(this, 8);
+                setMinimumHeight(com.smouldering_durtles.wk.dashboard.DashboardStyle.dp(this, 56));
+                setPadding(0, pad, 0, pad);
+                android.util.TypedValue ripple = new android.util.TypedValue();
+                getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.selectableItemBackground, ripple, true);
+                setBackgroundResource(ripple.resourceId);
+                setFocusable(true);
+                android.widget.TextView label = findViewById(R.id.rowText);
+                android.widget.TextView detail = findViewById(R.id.rowExtra);
+                label.setPadding(pad, pad, pad, pad);
+                label.setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(label, subject.getBackgroundColor(), 8));
+                detail.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                detail.setTextColor(com.google.android.material.color.MaterialColors.getColor(this,
+                        com.google.android.material.R.attr.colorOnSurfaceVariant));
+                detail.setShadowLayer(0, 0, 0, 0);
+                setContentDescription(subject.getOneMeaning() + ", " + extraTextFunction.apply(subject));
+            }
         });
     }
 }

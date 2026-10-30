@@ -186,8 +186,8 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
                 return new SubjectItemViewHolder(this, view, binder, fragmentRef.get());
             }
             if (viewType == R.id.viewTypeResultSearchForm) {
-                // The advanced editor retains its legacy theme until its own migration.
-                final LayoutInflater inflater = LayoutInflater.from(fragmentRef.get().requireContext());
+                // The form uses the result screen context, including its scoped Material theme.
+                final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
                 final View view = inflater.inflate(R.layout.search_result_form, parent, false);
                 return new SearchFormItemViewHolder(this, view, requireNonNull(parameters), fragmentRef.get());
             }

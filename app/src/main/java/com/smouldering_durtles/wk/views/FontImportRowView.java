@@ -71,7 +71,13 @@ public final class FontImportRowView extends TableRow {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), R.layout.font_import_row, this);
+            inflate(getContext(), com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
+                    ? R.layout.font_import_row_modern : R.layout.font_import_row, this);
+            com.smouldering_durtles.wk.ui.ModernUi.style(this);
+            if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
+                setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
+                        com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow), 24));
+            }
             setVisibility(GONE);
             fontName.setDelegate(this, R.id.fontName);
             fontSample.setDelegate(this, R.id.fontSample);

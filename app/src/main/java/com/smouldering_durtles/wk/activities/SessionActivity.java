@@ -84,6 +84,11 @@ public final class SessionActivity extends AbstractActivity {
     }
 
     @Override
+    protected void customizeActivityTheme(final android.content.res.Resources.Theme theme) {
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
+    }
+
+    @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
         LiveSessionProgress.getInstance().observe(this, t -> safe(() -> {
             new ViewProxy(this, R.id.progress).setText(session.getProgressText());

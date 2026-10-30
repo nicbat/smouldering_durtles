@@ -91,7 +91,8 @@ public final class NumberRangePreference extends DialogPreference {
     private void init() {
         safe(() -> {
             setPersistent(false);
-            setDialogLayoutResource(R.layout.pref_number_range);
+            setDialogLayoutResource(com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()
+                    ? R.layout.pref_number_range_modern : R.layout.pref_number_range);
             setSummaryProvider((SummaryProvider<NumberRangePreference>) preference -> {
                 if (preference.getMin() == -1) {
                     return preference.getMax() == -1

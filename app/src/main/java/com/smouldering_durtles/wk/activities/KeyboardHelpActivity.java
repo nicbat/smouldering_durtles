@@ -37,7 +37,7 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
 /**
  * Simple activity that shows some keyboard-related help.
  */
-public final class KeyboardHelpActivity extends AbstractActivity {
+public final class KeyboardHelpActivity extends ModernActivity {
     /**
      * The constructor.
      */
@@ -122,7 +122,7 @@ public final class KeyboardHelpActivity extends AbstractActivity {
             GlobalSettings.Keyboard.setEnableAutoCorrectMeaning(false);
             GlobalSettings.Keyboard.setEnableAutoCorrectReading(false);
             GlobalSettings.Keyboard.setEnableNoLearning(false);
-            new AlertDialog.Builder(this)
+            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                     .setTitle("Keyboard settings updated")
                     .setMessage("Your settings have been updated.")
                     .setPositiveButton("OK", (dialog, which) -> {}).create().show();
@@ -139,7 +139,7 @@ public final class KeyboardHelpActivity extends AbstractActivity {
             GlobalSettings.Keyboard.setEnableAutoCorrectMeaning(false);
             GlobalSettings.Keyboard.setEnableAutoCorrectReading(false);
             GlobalSettings.Keyboard.setEnableNoLearning(true);
-            new AlertDialog.Builder(this)
+            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                     .setTitle("Keyboard settings updated")
                     .setMessage("Your settings have been updated.")
                     .setPositiveButton("OK", (dialog, which) -> {}).create().show();
@@ -153,7 +153,7 @@ public final class KeyboardHelpActivity extends AbstractActivity {
         safe(() -> {
             GlobalSettings.Keyboard.setForceVisiblePasswordMeaning(false);
             GlobalSettings.Keyboard.setForceVisiblePasswordReading(false);
-            new AlertDialog.Builder(this)
+            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                     .setTitle("Keyboard settings updated")
                     .setMessage("Your settings have been updated.")
                     .setPositiveButton("OK", (dialog, which) -> {}).create().show();
@@ -166,7 +166,7 @@ public final class KeyboardHelpActivity extends AbstractActivity {
     private void doIt4() {
         safe(() -> {
             GlobalSettings.Keyboard.setForceAsciiMeaning(false);
-            new AlertDialog.Builder(this)
+            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                     .setTitle("Keyboard settings updated")
                     .setMessage("Your settings have been updated.")
                     .setPositiveButton("OK", (dialog, which) -> {}).create().show();

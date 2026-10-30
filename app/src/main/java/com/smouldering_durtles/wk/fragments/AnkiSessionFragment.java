@@ -313,6 +313,11 @@ public final class AnkiSessionFragment extends AbstractSessionFragment {
         synonyms.setTextSize(GlobalSettings.Font.getFontSizeAnkiAnswer());
         synonyms.setTextColor(ActiveTheme.getAnkiColors()[4]);
         synonyms.setBackgroundColor(ActiveTheme.getAnkiColors()[5]);
+        if (getView() != null) {
+            for (int id : new int[]{R.id.ankiShowAnswerButton, R.id.ankiNextButton, R.id.ankiCorrectButton, R.id.ankiIncorrectButton}) {
+                com.smouldering_durtles.wk.study.StudyStyle.roundCurrentColor(requireView().findViewById(id), 20, true);
+            }
+        }
 
         // Show or hide the subject info dump
         subjectInfo.setVisibility(session.isAnswered());

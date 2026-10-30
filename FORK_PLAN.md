@@ -14,12 +14,15 @@ rewrite is required to reach this design goal.
 
 ## Current milestone
 
-Search results and shared appearance accents are implemented. Results use scoped
-Material cards and group headers, preserve subject colors and navigation callbacks,
-and offer Classic through the existing settings appearance preference. Browsing
-chrome is modern; advanced filters, browse overview, and detail bodies are next.
-The user explicitly prioritizes app flow and UI consistency; **widgets are last**.
-The full Android 16 suite passes 52 tests. TASKS/HANDOFF hold current evidence.
+The first complete in-app modern design pass is implemented: browse/filters, details,
+lesson/review/Anki/self-study/summary/log UI, remaining dashboard tables, settings tools,
+font/color customization and utility/help pages. Shared Material Views styling preserves
+existing classes/state and callbacks; the dashboard overview remains Compose.
+
+The app-wide switch is **Modern interface**, with independent wallpaper-color and dashboard
+controls. Classic remains selectable. Subject/SRS colors, grading and submission engines
+are retained. TASKS/HANDOFF record current build/test evidence, the API 21 Jackson blocker,
+and remaining phone/recovery validation. Next is refinement/optimization; **widgets last**.
 
 ### Previous milestones
 
@@ -201,7 +204,7 @@ RemoteViews is the shortest path to improving the existing implementation. [Jetp
 - Improved offline audio management and a clear indication of what is downloaded.
 - Later: tablet layouts, high-contrast/e-ink appearance, and richer subject browsing. Keep learning/answer acceptance changes separate from visual redesign.
 
-## Proposed personal-fork milestones
+## Original proposed personal-fork milestones (historical)
 
 1. **Independent development build and regression baseline.** Choose name/application ID; audit provider authorities, URI schemes, test IDs, and signing for side-by-side installation. Keep secrets and signing keys outside Git. Confirm backup/export/import behavior and use fixture data or a controlled test account for automated session tests. Recover migration fixtures and add review/session regression tests. Planning estimate: 3–7 focused engineering days, excluding unavailable historical fixtures.
 2. **One modern dashboard screen.** Add Kotlin/Compose and a small explicit dashboard state/action adapter. Preserve SessionActivity and existing launch logic. Implement static/dynamic colors, semantic learning colors, error/offline/setup states, and an easy return to Classic. Estimate: 1–2 weeks including device validation.
@@ -221,10 +224,10 @@ This remains the smaller upstream-friendly option; it is not a required detour b
 
 - Actual phone/tablet models, Android versions, and launcher; whether API 21–22 support matters for personal use.
 - Public distribution and signing/update process. Name and application IDs are now chosen above.
-- Compose dashboard versus the smaller Views prototype.
+- Future selective Compose use; the current implementation uses Compose only for the dashboard overview.
 - Whether Classic remains permanently or only during migration.
 - Which custom themes/palettes must carry forward exactly.
-- Priority among a new dashboard, useful widgets, and reliability fixes.
+- Specific optimization targets after phone feedback; widgets are explicitly last.
 - A safe fixture/test-account strategy and how to migrate local data into the separately installed fork.
 
-Agreed implementation direction: **a separately installable personal build with regression coverage, followed by one complete Compose dashboard that launches the existing study workflow.** Progress in independently validated changes; preserve the broader backlog rather than folding everything into the first build.
+Agreed implementation direction: **a separately installable personal build with a complete modern in-app presentation pass, followed by refinement and measured optimization, with widgets last.** Preserve existing study logic and independently test changes. Earlier estimates above are historical, not remaining-work estimates.

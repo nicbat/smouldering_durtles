@@ -33,7 +33,7 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 /**
  * Simple activity that only shows a big TextView. Shows the app's 'about' information.
  */
-public final class AboutActivity extends AbstractActivity {
+public final class AboutActivity extends ModernActivity {
     /**
      * The constructor.
      */

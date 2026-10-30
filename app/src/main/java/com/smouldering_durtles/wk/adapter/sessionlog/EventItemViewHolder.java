@@ -98,6 +98,7 @@ public final class EventItemViewHolder extends LogItemViewHolder implements View
             bgDrawable.setColorFilter(new SimpleColorFilter(bgColor));
             itemView.setBackground(bgDrawable);
         }
+        com.smouldering_durtles.wk.study.StudyStyle.logRow(itemView, bgColor);
     }
 
     @Override

@@ -415,14 +415,18 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
         paint.setColor(ThemeUtil.getColor(R.attr.strokeDiagramGhostColor));
         textPaint.setColor(paint.getColor());
         strokes.stream().skip(finishedStrokes).forEach(stroke -> canvas.drawPath(stroke.path, paint));
-        paint.setColor(ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary));
+        paint.setColor((com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
+                ? com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
+                : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
         textPaint.setColor(paint.getColor());
         strokes.stream().limit(finishedStrokes).forEach(stroke -> canvas.drawPath(stroke.path, paint));
 
         textPaint.setColor(ThemeUtil.getColor(R.attr.strokeDiagramGhostColor));
         strokes.stream().skip(finishedStrokes+1)
                 .forEach(stroke -> canvas.drawText(Integer.toString(stroke.strokeNumber), stroke.labelX, stroke.labelY, textPaint));
-        textPaint.setColor(ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary));
+        textPaint.setColor((com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
+                ? com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
+                : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
         strokes.stream().limit(finishedStrokes+1)
                 .forEach(stroke -> canvas.drawText(Integer.toString(stroke.strokeNumber), stroke.labelX, stroke.labelY, textPaint));
 

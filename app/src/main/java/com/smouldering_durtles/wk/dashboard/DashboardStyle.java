@@ -37,6 +37,66 @@ public final class DashboardStyle {
             View view = activity.findViewById(id);
             if (view != null) card(view);
         }
+        for (int id : new int[] {R.id.joyoProgressView, R.id.jlptProgressView, R.id.lessonReviewBreakdownView}) {
+            statisticsTable((android.widget.TableLayout) activity.findViewById(id));
+        }
+        ViewGroup post60 = activity.findViewById(R.id.post60ProgressView);
+        if (post60 != null && post60.getChildAt(0) instanceof TextView) heading((TextView) post60.getChildAt(0));
+        for (int id : new int[] {R.id.keyboardHelpView, R.id.firstTimeSetupView}) {
+            View view = activity.findViewById(id);
+            card(view);
+            com.smouldering_durtles.wk.ui.ModernUi.style(view);
+        }
+        for (int id : new int[] {R.id.apiErrorView, R.id.apiKeyRejectedView}) errorPanel((LinearLayout) activity.findViewById(id));
+    }
+
+    private static void heading(TextView title) {
+        title.setTextAppearance(title.getContext(), com.google.android.material.R.style.TextAppearance_Material3_TitleLarge);
+        title.setTextColor(MaterialColors.getColor(title, com.google.android.material.R.attr.colorOnSurface));
+        title.setGravity(android.view.Gravity.START);
+        title.setPadding(0, 0, 0, dp(title, 12));
+        ViewCompat.setAccessibilityHeading(title, true);
+    }
+
+    /** Tables remain tables: preserve IDs/data and give dense statistics a readable type/spacing scale. */
+    private static void statisticsTable(android.widget.TableLayout table) {
+        if (table == null) return;
+        for (int i = 0; i < table.getChildCount(); i++) {
+            View child = table.getChildAt(i);
+            if (!(child instanceof android.widget.TableRow)) continue;
+            android.widget.TableRow row = (android.widget.TableRow) child;
+            row.setMinimumHeight(dp(row, 48));
+            row.setPadding(0, dp(row, 4), 0, dp(row, 4));
+            for (int j = 0; j < row.getChildCount(); j++) {
+                View cell = row.getChildAt(j);
+                if (!(cell instanceof TextView)) continue;
+                TextView text = (TextView) cell;
+                if (i == 0 && row.getChildCount() == 1) heading(text);
+                else {
+                    text.setTextSize(14);
+                    text.setPadding(dp(text, 4), dp(text, 8), dp(text, 4), dp(text, 8));
+                    text.setGravity(j == 0 ? android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL
+                            : android.view.Gravity.CENTER);
+                }
+            }
+        }
+    }
+
+    private static void errorPanel(LinearLayout panel) {
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(panel, 16), dp(panel, 12), dp(panel, 16), dp(panel, 12));
+        panel.setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(panel,
+                MaterialColors.getColor(panel, com.google.android.material.R.attr.colorErrorContainer), 20));
+        for (int i = 0; i < panel.getChildCount(); i++) {
+            View child = panel.getChildAt(i);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) child.getLayoutParams();
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.weight = 0;
+            if (child instanceof android.widget.Button) com.smouldering_durtles.wk.ui.ModernUi.button((android.widget.Button) child);
+            else if (child instanceof TextView) ((TextView) child).setTextColor(
+                    MaterialColors.getColor(panel, com.google.android.material.R.attr.colorOnErrorContainer));
+        }
     }
 
     public static boolean isModern(Context context) {
@@ -101,7 +161,7 @@ public final class DashboardStyle {
             setPadding(dp(this, 16), dp(this, 28), dp(this, 16), dp(this, 16));
             TextView heading = new TextView(getContext());
             heading.setText(title);
-            heading.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_TitleLarge);
+            heading.setTextAppearance(getContext(), com.google.android.material.R.style.TextAppearance_Material3_TitleLarge);
             heading.setTextColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface));
             heading.setPadding(0, 0, 0, dp(this, 12));
             ViewCompat.setAccessibilityHeading(heading, true);

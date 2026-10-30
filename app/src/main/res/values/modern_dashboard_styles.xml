@@ -1,6 +1,8 @@
 <resources>
     <attr name="smokyModernDashboard" format="boolean"/>
     <style name="SmokyDashboardTheme" parent="SmokyMaterialTheme">
+        <item name="smokyModernUi">true</item>
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
         <item name="smokyModernDashboard">true</item>
         <!-- Keep legacy button saved-state types stable when switching back to Classic. -->
         <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>

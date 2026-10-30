@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="modern_settings_title">Modern settings and search</string>
-    <string name="modern_settings_summary">Material 3 settings, search results, and browsing toolbar using system light/dark mode. Turn off to use Classic.</string>
-    <string name="settings_dynamic_color_title">Wallpaper colors in settings and search</string>
+    <string name="modern_settings_title">Modern interface</string>
+    <string name="modern_settings_summary">Material 3 browsing, study screens, settings and tools. Turn off to use Classic. Dashboard appearance has its own switch.</string>
+    <string name="settings_dynamic_color_title">Wallpaper colors in interface</string>
     <string name="settings_dynamic_color_summary">Use wallpaper colors on supported Android 12 and later devices</string>
     <string name="classic_light_theme_title">Classic light theme</string>
     <string name="classic_dark_theme_title">Classic dark theme</string>

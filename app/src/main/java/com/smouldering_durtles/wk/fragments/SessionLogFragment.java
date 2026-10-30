@@ -61,6 +61,20 @@ public final class SessionLogFragment extends AbstractFragment {
     }
 
     @Override
+    public View onCreateView(android.view.LayoutInflater inflater, @Nullable android.view.ViewGroup container,
+                             @Nullable Bundle state) {
+        if (GlobalSettings.Display.getModernSettings()) {
+            final View view = inflater.cloneInContext(com.smouldering_durtles.wk.ui.ModernUi.context(requireContext()))
+                    .inflate(R.layout.fragment_session_log, container, false);
+            com.smouldering_durtles.wk.study.StudyStyle.page(view);
+            view.setPadding(com.smouldering_durtles.wk.ui.ModernUi.dp(view, 16), 0,
+                    com.smouldering_durtles.wk.ui.ModernUi.dp(view, 16), 0);
+            return view;
+        }
+        return super.onCreateView(inflater, container, state);
+    }
+
+    @Override
     protected void onCreateLocal() {
         //
     }

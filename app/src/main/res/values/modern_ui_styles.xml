@@ -1,0 +1,27 @@
+<resources>
+    <attr name="smokyModernUi" format="boolean"/>
+    <attr name="wkTextColorPrimary" format="color|reference"/>
+    <!-- Bridge legacy neutral roles to Material surfaces without changing subject/SRS palettes. -->
+    <style name="SmokyUiTheme" parent="SmokyMaterialTheme">
+        <item name="smokyModernUi">true</item>
+        <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
+        <item name="smokySettingsToolbarTheme">@style/ThemeOverlay.Material3.Toolbar.Surface</item>
+        <item name="smokySettingsPopupTheme">@style/SmokyOverflowTheme</item>
+        <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
+        <item name="WK_TextView_Large">@style/WK.TextView.Large</item>
+        <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
+        <item name="WK_Button_Borderless">@style/WK.Button.Borderless</item>
+    </style>
+</resources>

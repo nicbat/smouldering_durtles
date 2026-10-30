@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="?attr/colorSurface">
+    <com.smouldering_durtles.wk.views.SwipingScrollView
+        android:id="@+id/scrollView" android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:fillViewport="true">
+        <com.smouldering_durtles.wk.views.SubjectInfoView
+            android:id="@+id/subjectInfo" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:padding="16dp"/>
+    </com.smouldering_durtles.wk.views.SwipingScrollView>
+    <LinearLayout android:id="@+id/subjectNavigation" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="horizontal"
+        android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="8dp" android:paddingBottom="8dp"
+        android:background="?attr/colorSurfaceContainerLow" android:visibility="gone">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/previousSubject" style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="@string/study_previous_subject"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/nextSubject" style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="@string/study_next_subject"/>
+    </LinearLayout>
+</LinearLayout>

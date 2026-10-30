@@ -53,7 +53,7 @@ import javax.annotation.Nullable;
  * An activity for importing and exporting some data that is not stored on the WK servers, and would
  * be lost during a database reset.
  */
-public final class DataImportExportActivity extends AbstractActivity {
+public final class DataImportExportActivity extends ModernActivity {
     private final ViewProxy exportSearchPresets = new ViewProxy();
     private final ViewProxy importSearchPresets = new ViewProxy();
     private final ViewProxy exportStarRatings = new ViewProxy();

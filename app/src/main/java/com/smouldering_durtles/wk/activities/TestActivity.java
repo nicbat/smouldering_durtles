@@ -49,7 +49,7 @@ import javax.annotation.Nullable;
  * get here.
  */
 @SuppressWarnings("JavaDoc")
-public final class TestActivity extends AbstractActivity {
+public final class TestActivity extends ModernActivity {
     private static final Logger LOGGER = Logger.get(TestActivity.class);
 
     private static boolean activePitchInfoDownload = false;

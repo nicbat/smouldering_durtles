@@ -10,6 +10,8 @@
 
     <!-- Applied only to PreferencesActivity. Legacy semantic colors remain available. -->
     <style name="SmokySettingsTheme" parent="SmokyMaterialTheme">
+        <item name="smokyModernUi">true</item>
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
         <item name="colorBackground">?android:attr/colorBackground</item>
         <item name="toolbarColorBackground">?attr/colorSurface</item>
         <item name="smokySettingsToolbarTheme">@style/ThemeOverlay.Material3.Toolbar.Surface</item>

@@ -189,7 +189,17 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
     protected boolean useDynamicOverflow() { return GlobalSettings.Display.getSettingsDynamicColor(); }
 
     /** Screen-specific chrome, reapplied after a fragment changes its toolbar title/color. */
-    public void refreshToolbarAppearance() { }
+    public void refreshToolbarAppearance() { com.smouldering_durtles.wk.ui.ModernUi.chrome(this); }
+
+    /** Opt-in styling for utility content; study screens control semantic presentation themselves. */
+    protected void styleActivityContent() { }
+
+    @Override
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        boolean prepared = super.onPrepareOptionsMenu(menu);
+        refreshToolbarAppearance();
+        return prepared;
+    }
 
     private void onCreateBase() {
         creationTheme = ActiveTheme.getCurrentTheme();
@@ -292,6 +302,8 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
         safe(() -> {
             onCreateBase();
             onCreateLocal(savedInstanceState);
+            styleActivityContent();
+            refreshToolbarAppearance();
         });
     }
 
@@ -335,6 +347,8 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
             onResumeLocal();
+            styleActivityContent();
+            refreshToolbarAppearance();
             enableInteraction();
         });
     }
@@ -527,7 +541,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
                 if (numNotStarted > 0) {
                     message += String.format(Locale.ROOT, "\n- %d unquizzed items will not be reported", numNotStarted);
                 }
-                new AlertDialog.Builder(this)
+                com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                         .setTitle("Abandon session?")
                         .setMessage(message)
                         .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -561,7 +575,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
                 if (numNotStarted > 0) {
                     message += String.format(Locale.ROOT, "\n- %d unquizzed items will be removed from the session", numNotStarted);
                 }
-                new AlertDialog.Builder(this)
+                com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                         .setTitle("Wrap up session?")
                         .setMessage(message)
                         .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -604,7 +618,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             }
         }
         if (itemId == R.id.action_flush_tasks) {
-            new AlertDialog.Builder(this)
+            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                     .setTitle("Flush background tasks?")
                     .setMessage(renderHtml(FLUSH_TASKS_WARNING))
                     .setIcon(R.drawable.ic_baseline_warning_24px)

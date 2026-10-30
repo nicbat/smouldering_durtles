@@ -91,7 +91,8 @@ public final class TaggedUrlPreference extends DialogPreference {
     private void init(final @Nullable AttributeSet attrs) {
         safe(() -> {
             setPersistent(false);
-            setDialogLayoutResource(R.layout.pref_tagged_url);
+            setDialogLayoutResource(com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()
+                    ? R.layout.pref_tagged_url_modern : R.layout.pref_tagged_url);
             setSummaryProvider((SummaryProvider<TaggedUrlPreference>) preference -> getTag());
 
             final TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.TaggedUrlPreference, 0, 0);

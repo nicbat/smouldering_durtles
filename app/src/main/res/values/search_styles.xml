@@ -2,6 +2,8 @@
     <attr name="smokyModernSearch" format="boolean"/>
     <!-- Scoped to result Views and the browsing toolbar, never the study activity. -->
     <style name="SmokySearchTheme" parent="SmokyMaterialTheme">
+        <item name="smokyModernUi">true</item>
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
         <item name="smokyModernSearch">true</item>
         <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>

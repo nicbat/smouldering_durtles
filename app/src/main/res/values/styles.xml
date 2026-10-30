@@ -17,6 +17,7 @@
 <resources>
     <style name="WKLightTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/wkLightColorPrimary</item>
+        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
         <item name="colorPrimaryDark">@color/wkLightColorPrimaryDark</item>
         <item name="colorPrimaryInverse">@color/wkLightColorPrimaryInverse</item>
         <item name="colorPrimaryLight">@color/wkLightColorPrimaryLight</item>
@@ -54,6 +55,7 @@
 
     <style name="WKDarkWaniKaniTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/wkLightColorPrimaryLight</item>
+        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
         <item name="colorPrimaryDark">@color/wkDarkBrowseLevelButtonColorBackground</item>
         <item name="colorPrimaryInverse">@color/wkLightColorPrimaryInverse</item>
         <item name="colorPrimaryLight">@color/wkLightColorPrimaryLight</item>
@@ -92,6 +94,7 @@
 
     <style name="WKDarkTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/wkDarkColorPrimary</item>
+        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
         <item name="colorPrimaryDark">@color/wkDarkColorPrimaryDark</item>
         <item name="colorPrimaryInverse">@color/wkDarkColorPrimaryInverse</item>
         <item name="colorPrimaryLight">@color/wkDarkColorPrimaryLight</item>
@@ -130,6 +133,7 @@
 
     <style name="WKBlackWaniKaniTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/wkLightColorPrimaryLight</item>
+        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
         <item name="colorPrimaryDark">@color/wkDarkBrowseLevelButtonColorBackground</item>
         <item name="colorPrimaryInverse">@color/wkLightColorPrimaryInverse</item>
         <item name="colorPrimaryLight">@color/wkLightColorPrimaryLight</item>
@@ -168,6 +172,7 @@
 
     <style name="WKBlackTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/wkDarkColorPrimary</item>
+        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
         <item name="colorPrimaryDark">@color/wkDarkColorPrimaryDark</item>
         <item name="colorPrimaryInverse">@color/wkDarkColorPrimaryInverse</item>
         <item name="colorPrimaryLight">@color/wkDarkColorPrimaryLight</item>
@@ -206,6 +211,7 @@
 
     <style name="WKNordPolarNightAuroraTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/wkNordColorPrimary</item>
+        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
         <item name="colorPrimaryDark">@color/wkNordColorPrimaryDark</item>
         <item name="colorPrimaryInverse">@color/wkNordColorPrimaryInverse</item>
         <item name="colorPrimaryLight">@color/wkNordColorPrimaryLight</item>
@@ -255,7 +261,7 @@
 
     <style name="WK.TextView.Normal" parent="Widget.AppCompat.TextView">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/wkTextColorPrimary</item>
         <item name="android:background">@color/transparent</item>
     </style>
 

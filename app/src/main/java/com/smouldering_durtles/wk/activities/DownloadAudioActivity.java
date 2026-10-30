@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
 /**
  * An activity for starting background downloads of pronunciation audio files.
  */
-public final class DownloadAudioActivity extends AbstractActivity {
+public final class DownloadAudioActivity extends ModernActivity {
     private final ViewProxy moveProgressBar = new ViewProxy();
     private final ViewProxy cancelButton = new ViewProxy();
     private final ViewProxy deleteButton = new ViewProxy();
@@ -61,7 +61,8 @@ public final class DownloadAudioActivity extends AbstractActivity {
      * The constructor.
      */
     public DownloadAudioActivity() {
-        super(R.layout.activity_download_audio, R.menu.generic_options_menu);
+        super(com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()
+                ? R.layout.activity_download_audio_modern : R.layout.activity_download_audio, R.menu.generic_options_menu);
     }
 
     @Override
@@ -153,7 +154,9 @@ public final class DownloadAudioActivity extends AbstractActivity {
                 final DownloadAudioBracketView view = new DownloadAudioBracketView(this);
                 final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, 0);
                 layoutParams.setMargins(0, 0, 0, 0);
-                layoutParams.width = WRAP_CONTENT;
+                layoutParams.width = com.smouldering_durtles.wk.ui.ModernUi.isModern(this)
+                        ? android.view.ViewGroup.LayoutParams.MATCH_PARENT : WRAP_CONTENT;
+                if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) layoutParams.topMargin = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 12);
                 layoutParams.height = WRAP_CONTENT;
                 downloadAudioView.addView(view, layoutParams);
             }
@@ -188,7 +191,7 @@ public final class DownloadAudioActivity extends AbstractActivity {
      * Handler for the delete button.
      */
     private void onDelete() {
-        safe(() -> new AlertDialog.Builder(this)
+        safe(() -> com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                 .setTitle("Delete all audio?")
                 .setMessage(renderHtml(DELETE_AUDIO_WARNING))
                 .setIcon(R.drawable.ic_baseline_warning_24px)

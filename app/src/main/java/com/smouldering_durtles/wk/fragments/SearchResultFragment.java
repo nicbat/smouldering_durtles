@@ -33,6 +33,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.ui.SearchStyle;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import android.content.Context;
 import com.smouldering_durtles.wk.WkApplication;
 import com.smouldering_durtles.wk.activities.AbstractActivity;
 import com.smouldering_durtles.wk.activities.SessionActivity;
@@ -301,6 +304,15 @@ public final class SearchResultFragment extends AbstractFragment {
         return null;
     }
 
+    private Context presentationContext() {
+        return getView() == null ? requireContext() : requireView().getContext();
+    }
+
+    private AlertDialog.Builder dialogBuilder() {
+        final Context context = presentationContext();
+        return SearchStyle.isModern(context) ? new MaterialAlertDialogBuilder(context) : new AlertDialog.Builder(context);
+    }
+
     private void savePreset(final String name) {
         final SearchPreset preset = new SearchPreset();
         preset.name = name;
@@ -320,7 +332,7 @@ public final class SearchResultFragment extends AbstractFragment {
         final String message = String.format(Locale.ROOT, "Do you want to set the star rating for %d subject%s to %d star%s?",
                 subjects.size(), subjects.size() == 1 ? "" : "s", newNumStars, newNumStars == 1 ? "" : "s");
 
-        new AlertDialog.Builder(requireContext())
+        dialogBuilder()
                 .setTitle("Set star ratings?")
                 .setMessage(message)
                 .setNegativeButton("No", (dialog, which) -> {})
@@ -357,19 +369,21 @@ public final class SearchResultFragment extends AbstractFragment {
             return true;
         }
         if (itemId == R.id.action_search_result_save_preset) {
-            final LayoutInflater layoutInflater = LayoutInflater.from(requireContext());
-            final View promptView = layoutInflater.inflate(R.layout.input_dialog, null);
+            final Context context = presentationContext();
+            final boolean modern = SearchStyle.isModern(context);
+            final LayoutInflater layoutInflater = LayoutInflater.from(context);
+            final View promptView = layoutInflater.inflate(modern ? R.layout.browse_preset_dialog_modern : R.layout.input_dialog, null);
             final ViewProxy textView = new ViewProxy(promptView, R.id.textView);
             final ViewProxy editText = new ViewProxy(promptView, R.id.editText);
             final ArrayAdapter<String> presetAdapter =
-                    new ArrayAdapter<>(requireContext(), R.layout.spinner_item, LiveSearchPresets.getInstance().getNames());
+                    new ArrayAdapter<>(context, modern ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, LiveSearchPresets.getInstance().getNames());
             editText.setArrayAdapter(presetAdapter);
             textView.setText("Choose a name for the search preset");
             editText.setHint("Name");
             if (!isEmpty(presetName)) {
                 editText.setText(presetName);
             }
-            final AlertDialog theDialog = new AlertDialog.Builder(requireContext())
+            final AlertDialog theDialog = dialogBuilder()
                     .setTitle("Preset name")
                     .setView(promptView)
                     .setNegativeButton("Cancel", (dialog, which) -> safe(this::hideSoftInput))

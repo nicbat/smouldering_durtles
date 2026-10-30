@@ -71,7 +71,13 @@ public final class FontImportActivity extends AbstractActivity {
     }
 
     @Override
+    protected void customizeActivityTheme(final android.content.res.Resources.Theme theme) {
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
+    }
+
+    @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        com.smouldering_durtles.wk.ui.ModernUi.styleActivity(this);
         fontTable.setDelegate(this, R.id.fontTable);
         importFontButton.setDelegate(this, R.id.importFontButton);
 
@@ -87,7 +93,7 @@ public final class FontImportActivity extends AbstractActivity {
                             return;
                         }
                         if (hasFontFile(fileName)) {
-                            new AlertDialog.Builder(this)
+                            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                                     .setTitle("Overwrite file?")
                                     .setMessage(String.format("A file named '%s' already exists. Do you want to overwrite it?", fileName))
                                     .setIcon(R.drawable.ic_baseline_warning_24px)
@@ -128,12 +134,13 @@ public final class FontImportActivity extends AbstractActivity {
 
     private void updateFileList() {
         fontTable.removeAllViews();
+        new ViewProxy(this, R.id.fontImportEmpty).setVisibility(getNames().isEmpty());
         for (final String name: getNames()) {
             final FontImportRowView row = new FontImportRowView(this);
             row.setName(name);
             final TableLayout.LayoutParams rowLayoutParams = new TableLayout.LayoutParams(0, 0);
             rowLayoutParams.setMargins(dp2px(2), dp2px(2), 0, 0);
-            rowLayoutParams.width = WRAP_CONTENT;
+            rowLayoutParams.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
             rowLayoutParams.height = WRAP_CONTENT;
             fontTable.addView(row, rowLayoutParams);
         }
@@ -235,14 +242,14 @@ public final class FontImportActivity extends AbstractActivity {
                     textView.setPadding(0, dp2px(16), 0, dp2px(16));
                     textView.setTypeface(typefaceConfiguration.getTypeface());
 
-                    new AlertDialog.Builder(this)
+                    com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                             .setTitle("Font sample")
                             .setView(textView)
                             .setCancelable(false)
                             .setPositiveButton("OK", (dialog, which) -> {}).create().show();
                 }
                 catch (final Exception e) {
-                    new AlertDialog.Builder(this)
+                    com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                             .setTitle("Unable to load font")
                             .setMessage("There was an error attempting to load this font. You will not be able to use it in quizzes.")
                             .setCancelable(false)
@@ -260,7 +267,7 @@ public final class FontImportActivity extends AbstractActivity {
     public void deleteFont(final @Nullable FontImportRowView row) {
         safe(() -> {
             if (row != null && row.getName() != null) {
-                new AlertDialog.Builder(this)
+                com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
                         .setTitle("Delete file?")
                         .setMessage(String.format("Are you sure you want to delete '%s'", row.getName()))
                         .setIcon(R.drawable.ic_baseline_warning_24px)

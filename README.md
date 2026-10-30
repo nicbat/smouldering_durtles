@@ -2,41 +2,29 @@
 
 For ongoing development, start with [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md).
 
-Smoky Durtles is a personal fork of Smouldering Durtles. The initial work adds an
-independent installation identity, fixes toolbar search, and introduces a Material 3
-dashboard overview, refreshed chart/level panels, Material 3 settings, and redesigned search results. In-app flow and consistency come next; widgets are last. Tasks are tracked in
-[FORK_PLAN.md](FORK_PLAN.md).
+Smoky Durtles is a personal fork of Smouldering Durtles with a separate installation
+identity, a one-tap toolbar search fix and a modern Material 3 interface across the app.
+The first full design pass is implemented; phone feedback and measured optimization are
+next, with widgets last. Work is tracked in [FORK_PLAN.md](FORK_PLAN.md).
 
-## Dashboard appearance
+## Appearance
 
-The study overview uses Compose Material 3 and wallpaper colors on Android 12+,
-with static light/dark palettes on older devices. Go to **Settings → Display
-settings** to turn off **Modern dashboard** for the Classic header, or disable
-**Wallpaper colors**. The modern dashboard includes a titled review forecast,
-SRS distribution rows, level progress counts, and time spent on the current level.
-Custom charts retain their calculations and interactions, with independent WaniKani
-subject/SRS palettes. Review and lesson screens retain their existing behavior.
+**Settings → Display settings → Modern interface** controls browsing, subject details,
+lessons/reviews, settings, customization and utility screens. Turn it off to use Classic.
+**Wallpaper colors in interface** enables dynamic color on supported Android 12+ devices;
+older devices use static light/dark palettes. Modern screens follow system light/dark mode.
+Existing subject/SRS palettes remain independent of Material accents.
 
-## Settings appearance
+**Modern dashboard** and **Wallpaper colors on dashboard** control the dashboard separately.
+Its Compose Material 3 overview launches the existing study actions. Custom forecast,
+SRS, level and statistics Views retain their calculations and navigation, with refreshed
+surfaces and scalable labels. Recent/critical/burned subjects keep WaniKani colors.
 
-Settings use Material 3 Views while retaining AndroidX Preferences storage and
-validation. **Settings → Display settings → Modern settings and search** switches back to
-Classic independently of the dashboard. **Wallpaper colors in settings and search** enables
-dynamic color on supported Android 12+ devices; other devices use a static palette.
-Modern settings follow system light/dark mode. The Classic light/dark selectors
-still control legacy screens, study sessions, and custom subject palettes.
-
-The first settings pass covers switches, choice dialogs, outlined text editors,
-confirmation dialogs, and toolbar menus. Sliders and the inner layouts of custom
-two-field editors remain conventional Views. Toolbar overflow menus now use rounded Material surfaces across the app. The
-main dashboard follows its own appearance controls; other toolbars follow Modern
-settings and its wallpaper-color option. Contextual menus remain future work.
-
-Search results use rounded cards with WaniKani-colored subject labels, readable
-meanings/readings, level/SRS information, and collapsible groups. Search and settings
-share their appearance controls. Browsing uses a neutral Material toolbar while the
-advanced-filter editor and item-detail bodies retain their existing layouts for now.
-Static accent colors are shared with the dashboard; custom subject colors remain separate.
+The rest of the app keeps its existing Views and behavior, with Material menus/dialogs,
+outlined inputs, sliders, rounded actions and coherent page styling. Advanced filters,
+font/color tools and audio-download controls are included. Study grading, scheduling
+and submission logic are unchanged. The color wheel, custom subject diagrams and
+Android-owned pickers retain their specialized UI.
 
 ## Local development build
 
@@ -69,9 +57,11 @@ Run the focused identity and toolbar regression tests on a connected emulator/de
 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smouldering_durtles.wk.test.SearchExpansionTest,com.smouldering_durtles.wk.test.ForkIdentityTest
 ```
 
-The historical migration fixtures have been restored from Git history. All 52
-instrumentation tests pass on Android 16 at the search/consistency milestone. See TASKS
-for the latest results as further tests are added.
+The historical migration fixtures have been restored from Git history. See
+[HANDOFF.md](HANDOFF.md) for current instrumentation evidence and remaining device checks.
+API 21 is still declared, but its existing Jackson dependency fails to initialize in
+serialization-dependent tests; the full app is not currently verified on that version.
+Never run instrumentation on an account-bearing phone; use an explicitly targeted emulator.
 
 ## Upstream project
 

@@ -142,6 +142,18 @@ public final class SubjectCardBinder {
             bgDrawable.setColorFilter(new SimpleColorFilter(subject.getButtonBackgroundColor()));
             view.setBackground(bgDrawable);
         }
+        if (!modern && com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext())) {
+            // Related-subject grids keep their compact geometry and semantic palette.
+            final android.graphics.drawable.Drawable shape = com.smouldering_durtles.wk.ui.ModernUi.surface(
+                    view, subject.getButtonBackgroundColor(), 12);
+            view.setBackground(new android.graphics.drawable.RippleDrawable(
+                    android.content.res.ColorStateList.valueOf(0x33FFFFFF), shape, null));
+            view.setElevation(0);
+            view.setFocusable(true);
+            final int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 8);
+            view.setPadding(padding, padding, padding, padding);
+            view.setMinimumHeight(com.smouldering_durtles.wk.ui.ModernUi.dp(view, 48));
+        }
     }
 
     private static void bindNormal(final View view, final Subject subject) {

@@ -76,6 +76,16 @@ public abstract class LiveSubjectTableView extends TableLayout {
             setColumnStretchable(1, true);
             setColumnShrinkable(1, true);
             setBackgroundResource(R.drawable.main_activity_view_background);
+            if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())) {
+                com.smouldering_durtles.wk.dashboard.DashboardStyle.card(this);
+                android.widget.TextView title = (android.widget.TextView) ((android.view.ViewGroup) getChildAt(0)).getChildAt(0);
+                title.setTextAppearance(getContext(), com.google.android.material.R.style.TextAppearance_Material3_TitleLarge);
+                title.setTextColor(com.google.android.material.color.MaterialColors.getColor(this,
+                        com.google.android.material.R.attr.colorOnSurface));
+                title.setGravity(android.view.Gravity.START);
+                title.setPadding(0, 0, 0, com.smouldering_durtles.wk.dashboard.DashboardStyle.dp(this, 12));
+                androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
+            }
         });
     }
 

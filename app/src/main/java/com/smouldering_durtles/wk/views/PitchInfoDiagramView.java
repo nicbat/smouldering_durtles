@@ -153,7 +153,7 @@ public final class PitchInfoDiagramView extends View {
         else {
             color = ThemeUtil.getColor(R.attr.pitchInfoNakadakaColor);
         }
-        backgroundColor = ThemeUtil.getColor(R.attr.colorBackground);
+        backgroundColor = ThemeUtil.getColor(getContext(), R.attr.colorBackground);
     }
 
     /**

@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
 /**
  * An activity for burning one or more subjects.
  */
-public final class BurnActivity extends AbstractActivity {
+public final class BurnActivity extends ModernActivity {
     private List<Long> subjectIds = Collections.emptyList();
     private int todo = 0;
     private int success = 0;

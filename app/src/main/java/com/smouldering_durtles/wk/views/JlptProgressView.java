@@ -71,7 +71,8 @@ public final class JlptProgressView extends TableLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), R.layout.jlpt_progress, this);
+        inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
+                ? R.layout.jlpt_progress_modern : R.layout.jlpt_progress, this);
 
         locked.add(new ViewProxy(this, R.id.jlptLevel1Locked));
         locked.add(new ViewProxy(this, R.id.jlptLevel2Locked));

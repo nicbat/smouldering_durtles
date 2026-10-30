@@ -1,0 +1,6 @@
+<resources>
+    <string name="font_use_name">Use %1$s</string>
+    <string name="custom_colors_explanation">Choose a swatch to change its color. These colors identify subjects, SRS stages and study actions independently of wallpaper colors.</string>
+    <string name="custom_colors_reset">Reset selected color</string>
+    <string name="font_import_empty">No imported fonts yet. Import a TTF file to add another study font.</string>
+</resources>

@@ -122,17 +122,7 @@ public final class BrowseActivity extends AbstractActivity {
 
     @Override
     public void refreshToolbarAppearance() {
-        final Toolbar toolbar = getToolbar();
-        if (toolbar == null || !SearchStyle.isModern(toolbar.getContext())) return;
-        final int surface = MaterialColors.getColor(toolbar, com.google.android.material.R.attr.colorSurface);
-        toolbar.setBackgroundColor(surface);
-        toolbar.setElevation(0);
-        MaterialToolbar.tintIcons(toolbar, toolbar.getMenu());
-        final boolean light = MaterialColors.isColorLight(surface);
-        WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightStatusBars(light);
-        WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightNavigationBars(light);
-        getWindow().setStatusBarColor(surface);
-        getWindow().setNavigationBarColor(surface);
+        com.smouldering_durtles.wk.ui.ModernUi.chrome(this);
     }
 
     @Override
@@ -207,10 +197,27 @@ public final class BrowseActivity extends AbstractActivity {
      * @param animation the transition animation to use for the transition
      */
     public void loadSubjectInfoFragment(final long id, final long[] ids, final FragmentTransitionAnimation animation) {
+        loadSubjectInfoFragment(id, ids, animation, false);
+    }
+
+    /** Move between adjacent items without adding another detail-page Back step. */
+    public void pageSubjectInfoFragment(final long id, final long[] ids, final FragmentTransitionAnimation animation) {
+        loadSubjectInfoFragment(id, ids, animation, true);
+    }
+
+    private void loadSubjectInfoFragment(final long id, final long[] ids,
+                                         final FragmentTransitionAnimation animation, final boolean paging) {
         final Fragment fragment = SubjectInfoFragment.newInstance(id, ids);
         final FragmentManager manager = getSupportFragmentManager();
+        // Only explicit previous/next navigation replaces the detail entry. Related-item links push normally.
+        final boolean replacesDetail = paging && getCurrentFragment() instanceof SubjectInfoFragment;
+        final boolean replacesRootDetail = replacesDetail && manager.getBackStackEntryCount() == 0;
+        if (replacesDetail && manager.getBackStackEntryCount() > 0) {
+            manager.popBackStackImmediate();
+        }
         final FragmentTransaction transaction = manager.beginTransaction();
-        if (getCurrentFragment() != null) {
+        // A deep-linked detail has no entry to replace; adjacent items stay at that root level.
+        if (getCurrentFragment() != null && !replacesRootDetail) {
             transaction.addToBackStack(null);
             animation.apply(transaction);
         }
