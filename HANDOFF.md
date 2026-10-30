@@ -89,7 +89,7 @@ account screenshots. Earlier captures remain under `captures/smoky-settings/`
 and `captures/smoky-dashboard/`. Captures are ignored and regeneratable.
 
 Phone: the dashboard launcher and settings-build installation were confirmed in
-prior turns. The newest overflow/chart build has **not** been installed there.
+prior turns. The overflow/chart build b074d72 was subsequently installed successfully with adb install -r, preserving app data. User validation of its menus/charts is pending.
 No account credentials or submissions were used for this milestone. Actual
 review/lesson navigation, pre-Android-12 devices, and wallpaper-change integration
 still need coverage. The emulator used for this work is stopped at handoff.

@@ -7,7 +7,7 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 Rounded toolbar overflow menus and modern dashboard chart/level panels.
 Development and emulator testing are authorized. The settings milestone was installed on the user's Pixel 9 Pro.
-The new overflow/chart milestone is not installed on the phone yet.
+The overflow/chart build b074d72 was installed on the phone with adb install -r; user validation is pending.
 Do not run instrumentation tests on that phone or use its account data.
 Push tested milestones to the user's fork on the current feature branch.
 
@@ -68,6 +68,7 @@ Start with the first item below. No build/test blocker remains; emulator is stop
 - [ ] Review/lesson presentation migration after behavior coverage is established.
 - [x] Install the dashboard milestone on the Pixel 9 Pro; user confirmed launcher visibility.
 - [x] Install Material settings build 4472ee8 on the Pixel 9 Pro as an update, preserving app data.
+- [x] Install overflow/chart build b074d72 on the Pixel 9 Pro, preserving app data.
 - [ ] Physical-device validation of settings, search keyboard, study flows, and launcher widgets.
 - [ ] Durable release signing and update delivery; do not commit signing keys.
 
