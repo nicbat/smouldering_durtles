@@ -62,7 +62,7 @@ Push tested milestones to the user's fork on the current feature branch.
 - [x] Fix Material/Classic tutorial-button state mismatch and a theme-change/menu callback race.
 - [x] Debug/release builds and full Android 16 suite: **52 tests, 0 failures**.
 - [x] Inspect light and dark/2x-font search captures with synthetic subjects; no account/DB writes.
-- [ ] Install the search update on the phone when requested; current phone build remains b074d72.
+- [x] Install search update ab784d0 on the Pixel 9 Pro with adb install -r, preserving app data. Physical-device behavior validation remains pending.
 
 ## Next — app flow first
 

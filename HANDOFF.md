@@ -90,9 +90,10 @@ the empty search uses the real BrowseActivity. Captures are ignored/regeneratabl
 The completed development milestone still needs phone validation and pre-Android-12
 coverage. The task emulator is stopped at handoff.
 
-Phone remains on overflow/chart implementation **b074d72**, installed with adb
-install -r and documented in 868f929. This search update has NOT been installed on
-the phone. Do not run instrumentation on that account-bearing device.
+Phone: search/consistency implementation **ab784d0** was installed successfully on
+the Pixel 9 Pro with adb install -r at the user’s request, preserving app data.
+Physical-device behavior validation remains pending. Do not run instrumentation
+on that account-bearing device.
 
 ## Search presentation boundary
 
