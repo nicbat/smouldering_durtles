@@ -98,10 +98,14 @@ public abstract class HeaderItemViewHolder extends ResultItemViewHolder implemen
             }
         });
 
-        final int icon = item.isCollapsed() ? R.drawable.ic_expand_less : R.drawable.ic_expand_more;
+        final boolean modern = com.smouldering_durtles.wk.ui.SearchStyle.isModern(itemView.getContext());
+        final boolean pointDown = modern == item.isCollapsed();
+        final int icon = pointDown ? R.drawable.ic_expand_more : R.drawable.ic_expand_less;
         final @Nullable Drawable drawable = ContextCompat.getDrawable(itemView.getContext(), icon);
         if (drawable != null) {
-            drawable.setColorFilter(new SimpleColorFilter(ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
+            drawable.setColorFilter(new SimpleColorFilter(modern
+                    ? com.google.android.material.color.MaterialColors.getColor(itemView, com.google.android.material.R.attr.colorOnSurfaceVariant)
+                    : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
             arrowHead.setImageDrawable(drawable);
         }
 
@@ -122,6 +126,12 @@ public abstract class HeaderItemViewHolder extends ResultItemViewHolder implemen
             parts.add(String.format(Locale.ROOT, "%d burned", burned));
         }
         details.setText(join(", ", "", "", parts));
+        if (com.smouldering_durtles.wk.ui.SearchStyle.isModern(itemView.getContext())) {
+            androidx.core.view.ViewCompat.replaceAccessibilityAction(itemView,
+                    androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
+                    itemView.getContext().getString(item.isCollapsed() ? R.string.search_group_expand : R.string.search_group_collapse),
+                    (view, arguments) -> { view.performClick(); return true; });
+        }
     }
 
     @Override

@@ -9,7 +9,7 @@
     </style>
 
     <!-- Applied only to PreferencesActivity. Legacy semantic colors remain available. -->
-    <style name="SmokySettingsTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="SmokySettingsTheme" parent="SmokyMaterialTheme">
         <item name="colorBackground">?android:attr/colorBackground</item>
         <item name="toolbarColorBackground">?attr/colorSurface</item>
         <item name="smokySettingsToolbarTheme">@style/ThemeOverlay.Material3.Toolbar.Surface</item>

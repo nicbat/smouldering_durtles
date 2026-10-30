@@ -22,6 +22,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import com.google.android.material.color.MaterialColors;
+import com.smouldering_durtles.wk.ui.SearchStyle;
+import com.smouldering_durtles.wk.ui.MaterialToolbar;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -52,6 +57,7 @@ public final class BrowseActivity extends AbstractActivity {
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        refreshToolbarAppearance();
         if (savedInstanceState == null) {
             if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
                 final @Nullable String query = getIntent().getStringExtra(SearchManager.QUERY);
@@ -112,6 +118,28 @@ public final class BrowseActivity extends AbstractActivity {
 
             loadOverviewFragment();
         }
+    }
+
+    @Override
+    public void refreshToolbarAppearance() {
+        final Toolbar toolbar = getToolbar();
+        if (toolbar == null || !SearchStyle.isModern(toolbar.getContext())) return;
+        final int surface = MaterialColors.getColor(toolbar, com.google.android.material.R.attr.colorSurface);
+        toolbar.setBackgroundColor(surface);
+        toolbar.setElevation(0);
+        MaterialToolbar.tintIcons(toolbar, toolbar.getMenu());
+        final boolean light = MaterialColors.isColorLight(surface);
+        WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightStatusBars(light);
+        WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightNavigationBars(light);
+        getWindow().setStatusBarColor(surface);
+        getWindow().setNavigationBarColor(surface);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        final boolean result = super.onPrepareOptionsMenu(menu);
+        refreshToolbarAppearance();
+        return result;
     }
 
     @Override

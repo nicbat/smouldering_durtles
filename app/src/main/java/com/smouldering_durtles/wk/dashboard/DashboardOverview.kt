@@ -7,8 +7,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,8 +34,8 @@ fun DashboardTheme(dynamicColor: Boolean, dark: Boolean = isSystemInDarkTheme(),
     val context = LocalContext.current
     val colors = when {
         dynamicColor && Build.VERSION.SDK_INT >= 31 -> if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        dark -> darkColorScheme(primary = Color(0xFFBAC3FF), secondary = Color(0xFFC4C6D0), tertiary = Color(0xFFE2BADD))
-        else -> lightColorScheme(primary = Color(0xFF465CA8), secondary = Color(0xFF5B626F), tertiary = Color(0xFF75558D))
+        dark -> darkColorScheme(primary = colorResource(R.color.smoky_primary_dark), secondary = colorResource(R.color.smoky_secondary_dark), tertiary = colorResource(R.color.smoky_tertiary_dark))
+        else -> lightColorScheme(primary = colorResource(R.color.smoky_primary_light), secondary = colorResource(R.color.smoky_secondary_light), tertiary = colorResource(R.color.smoky_tertiary_light))
     }
     MaterialTheme(colorScheme = colors, content = content)
 }

@@ -188,6 +188,9 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
 
     protected boolean useDynamicOverflow() { return GlobalSettings.Display.getSettingsDynamicColor(); }
 
+    /** Screen-specific chrome, reapplied after a fragment changes its toolbar title/color. */
+    public void refreshToolbarAppearance() { }
+
     private void onCreateBase() {
         creationTheme = ActiveTheme.getCurrentTheme();
         creationModernOverflow = useModernOverflow();

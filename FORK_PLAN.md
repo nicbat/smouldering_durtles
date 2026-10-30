@@ -6,6 +6,15 @@ Status: implementation started with user authorization. The fork is named **Smok
 
 ## Current milestone
 
+Search results and shared appearance accents are implemented. Results use scoped
+Material cards and group headers, preserve subject colors and navigation callbacks,
+and offer Classic through the existing settings appearance preference. Browsing
+chrome is modern; advanced filters, browse overview, and detail bodies are next.
+The user explicitly prioritizes app flow and UI consistency; **widgets are last**.
+The full Android 16 suite passes 52 tests. TASKS/HANDOFF hold current evidence.
+
+### Previous milestones
+
 Overflow/dashboard follow-up: shared toolbar popup styling, scoped Material theme
 for modern MainActivity, and refreshed forecast/SRS/level panels. Existing chart
 models, search callbacks, custom semantic palettes, and Classic layouts are retained.
@@ -39,7 +48,7 @@ and remaining work; earlier estimates below are historical planning context.
 - Independent application IDs: `com.smoky_durtles.wk` and `com.smoky_durtles.wk.debug`, distinct provider authorities, automatic variant-specific test ID, and `smoky-durtles://` subject links.
 - Updated launcher/About/Support identity with upstream credits; Java namespace and database schema identity retained.
 - User-reported search bug: the top search control needs two taps. Reproduced by an instrumentation test: one expansion left the editor hidden. Fixed by using AppCompat SearchView in both toolbar menus. The same test now passes for initial expansion, focus, collapse, and reopening.
-- Next milestones: regression fixtures and selected bug fixes; one complete Compose Material 3 dashboard; modern widgets; measured optimization and further screen redesign.
+- Next milestones: regression fixtures and selected bug fixes; one complete Compose Material 3 dashboard; in-app flow and screen consistency; measured optimization; widgets last.
 - Classic study screens remain available while new UI is developed. No credentials, user data, public publishing, or permanent release keys are configured by this milestone.
 
 ### Foundation validation

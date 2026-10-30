@@ -5,7 +5,8 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Rounded toolbar overflow menus and modern dashboard chart/level panels.
+Material 3 search results are complete. Next: browse overview, advanced filters, and item-detail flow.
+Widgets are explicitly last, after the in-app experience is coherent.
 Development and emulator testing are authorized. The settings milestone was installed on the user's Pixel 9 Pro.
 The overflow/chart build b074d72 was installed on the phone with adb install -r; user validation is pending.
 Do not run instrumentation tests on that phone or use its account data.
@@ -51,26 +52,33 @@ Push tested milestones to the user's fork on the current feature branch.
 - [x] Debug/release builds succeed; **48 instrumentation tests pass, 0 failures on Android 16**.
 - [x] Inspect light/dark, populated charts, 2x text, and rounded overflow screenshots; update docs and push.
 
-## Next
+## Search and consistency milestone
+
+- [x] Material search result cards, scalable group headings, and loading/empty/error messages.
+- [x] Keep grouping, collapse/expand, subject ordering/IDs, click navigation, and WaniKani colors.
+- [x] Scoped Material browsing toolbar and search input; study and detail-body themes stay isolated.
+- [x] Existing Modern settings / wallpaper toggles now cover search too; labels explain their scope.
+- [x] Share static accent resources between Compose dashboard, settings, search, and overflow menus.
+- [x] Fix Material/Classic tutorial-button state mismatch and a theme-change/menu callback race.
+- [x] Debug/release builds and full Android 16 suite: **52 tests, 0 failures**.
+- [x] Inspect light and dark/2x-font search captures with synthetic subjects; no account/DB writes.
+- [ ] Install the search update on the phone when requested; current phone build remains b074d72.
+
+## Next — app flow first
 
 Start with the first item below. No build/test blocker remains; emulator is stopped at handoff.
 
-- [ ] Test actual review/lesson navigation and populated session state using controlled offline fixtures (no real account submissions). Chart fixtures now cover populated statistics without database/account data.
-- [x] Verify modern-to-Classic dashboard switching across real activity recreation.
-- [ ] Verify API 21/30 fallback, real wallpaper changes on API 31+, and Classic-to-modern round trips during a study session.
-- [ ] Refine dashboard subject lists, table density, and configurable section ordering. Current charts retain their original data models and drawing logic.
-
-- [ ] Session fixtures and recovery tests: interruption, process death, pending offline submissions.
-- [ ] Reproduce offline audio delays and audit cancellation/focus behavior.
-- [ ] Modern widgets: inspect upstream PR #153, then implement and test one useful widget.
-- [ ] Further settings/search redesign: grouping, Material sliders, custom two-field layouts, and contextual menus beyond toolbar overflow.
-- [ ] Measured startup/scroll/audio optimizations.
-- [ ] Review/lesson presentation migration after behavior coverage is established.
-- [x] Install the dashboard milestone on the Pixel 9 Pro; user confirmed launcher visibility.
-- [x] Install Material settings build 4472ee8 on the Pixel 9 Pro as an update, preserving app data.
-- [x] Install overflow/chart build b074d72 on the Pixel 9 Pro, preserving app data.
-- [ ] Physical-device validation of settings, search keyboard, study flows, and launcher widgets.
+- [ ] Modernize the browse overview and advanced-filter editor, including search/refine/preset navigation and contextual dialogs. The current advanced editor intentionally retains its legacy context.
+- [ ] Refine item details: consistent headings, spacing, audio/copy actions, next/previous navigation, and return-to-results state. Detail bodies are still Classic; only browsing chrome is modern.
+- [ ] Test actual review/lesson navigation and populated session state using controlled offline fixtures; cover interruption, recovery, and pending submissions before modernizing study presentation.
+- [ ] Complete the UI consistency pass: remaining dashboard subject tables, settings sliders/two-field editors, dialogs, touch targets, typography, and large-text layouts. Review result-list density on a phone.
+- [ ] Verify API 21/30 fallback, real wallpaper changes on API 31+, and appearance round trips during study.
+- [ ] Reproduce offline audio delays and audit cancellation/focus behavior; measure startup/scroll/audio performance before optimizing.
+- [ ] Physical-device validation of settings, search keyboard, item navigation, and study flows.
 - [ ] Durable release signing and update delivery; do not commit signing keys.
+- [ ] **Last: widgets**, after in-app browsing, navigation, study flows, and UI consistency. Inspect upstream PR #153 before implementation.
+
+Previous phone installs: dashboard, settings 4472ee8, and overflow/charts b074d72, all preserving app data.
 
 ## Open decisions
 

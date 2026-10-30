@@ -4,7 +4,7 @@ For ongoing development, start with [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOF
 
 Smoky Durtles is a personal fork of Smouldering Durtles. The initial work adds an
 independent installation identity, fixes toolbar search, and introduces a Material 3
-dashboard overview, refreshed chart/level panels, and Material 3 settings. Further dashboard work, widgets, and reliability tasks are tracked in
+dashboard overview, refreshed chart/level panels, Material 3 settings, and redesigned search results. In-app flow and consistency come next; widgets are last. Tasks are tracked in
 [FORK_PLAN.md](FORK_PLAN.md).
 
 ## Dashboard appearance
@@ -20,8 +20,8 @@ subject/SRS palettes. Review and lesson screens retain their existing behavior.
 ## Settings appearance
 
 Settings use Material 3 Views while retaining AndroidX Preferences storage and
-validation. **Settings → Display settings → Modern settings** switches back to
-Classic independently of the dashboard. **Wallpaper colors in settings** enables
+validation. **Settings → Display settings → Modern settings and search** switches back to
+Classic independently of the dashboard. **Wallpaper colors in settings and search** enables
 dynamic color on supported Android 12+ devices; other devices use a static palette.
 Modern settings follow system light/dark mode. The Classic light/dark selectors
 still control legacy screens, study sessions, and custom subject palettes.
@@ -31,6 +31,12 @@ confirmation dialogs, and toolbar menus. Sliders and the inner layouts of custom
 two-field editors remain conventional Views. Toolbar overflow menus now use rounded Material surfaces across the app. The
 main dashboard follows its own appearance controls; other toolbars follow Modern
 settings and its wallpaper-color option. Contextual menus remain future work.
+
+Search results use rounded cards with WaniKani-colored subject labels, readable
+meanings/readings, level/SRS information, and collapsible groups. Search and settings
+share their appearance controls. Browsing uses a neutral Material toolbar while the
+advanced-filter editor and item-detail bodies retain their existing layouts for now.
+Static accent colors are shared with the dashboard; custom subject colors remain separate.
 
 ## Local development build
 
@@ -63,8 +69,8 @@ Run the focused identity and toolbar regression tests on a connected emulator/de
 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smouldering_durtles.wk.test.SearchExpansionTest,com.smouldering_durtles.wk.test.ForkIdentityTest
 ```
 
-The historical migration fixtures have been restored from Git history. All 48
-instrumentation tests pass on Android 16 at the overflow/dashboard panels milestone. See TASKS
+The historical migration fixtures have been restored from Git history. All 52
+instrumentation tests pass on Android 16 at the search/consistency milestone. See TASKS
 for the latest results as further tests are added.
 
 ## Upstream project

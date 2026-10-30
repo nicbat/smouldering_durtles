@@ -161,6 +161,8 @@ public abstract class AbstractFragment extends Fragment implements Actment {
                 if (color != 0) {
                     toolbar.setBackgroundColor(color);
                 }
+                final AbstractActivity activity = getAbstractActivity();
+                if (activity != null) activity.refreshToolbarAppearance();
             }
         });
     }

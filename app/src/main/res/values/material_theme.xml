@@ -1,0 +1,7 @@
+<resources>
+    <style name="SmokyMaterialTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/smoky_primary_light</item>
+        <item name="colorSecondary">@color/smoky_secondary_light</item>
+        <item name="colorTertiary">@color/smoky_tertiary_light</item>
+    </style>
+</resources>

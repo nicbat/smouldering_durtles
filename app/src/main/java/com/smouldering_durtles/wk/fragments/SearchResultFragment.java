@@ -65,6 +65,18 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  * Fragment to show a simple search result.
  */
 public final class SearchResultFragment extends AbstractFragment {
+    private boolean searchFinished = false;
+    private boolean searchFailed = false;
+
+    @Override
+    public View onCreateView(android.view.LayoutInflater inflater, @Nullable android.view.ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        if (GlobalSettings.Display.getModernSettings()) {
+            return inflater.cloneInContext(com.smouldering_durtles.wk.ui.SearchStyle.context(requireContext()))
+                    .inflate(R.layout.fragment_search_result_modern, container, false);
+        }
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
     private int searchType = 0;
     private String searchParameters = "1";
     private String searchDescription = "";
@@ -164,10 +176,15 @@ public final class SearchResultFragment extends AbstractFragment {
     @SuppressLint("NewApi")
     @Override
     public void onViewCreatedLocal(final View view, final @Nullable Bundle savedInstanceState) {
+        adapter.setModern(com.smouldering_durtles.wk.ui.SearchStyle.isModern(view.getContext()));
         resultView.setDelegate(view, R.id.resultView);
         numHits.setDelegate(view, R.id.numHits);
         tutorialText.setDelegate(view, R.id.tutorialText);
-        tutorialDismiss.setDelegate(view, R.id.tutorialDismiss);
+        tutorialDismiss.setDelegate(view, com.smouldering_durtles.wk.ui.SearchStyle.isModern(view.getContext())
+                ? R.id.tutorialDismissModern : R.id.tutorialDismiss);
+        searchFinished = false;
+        searchFailed = false;
+        updateViews();
 
         if (savedInstanceState != null) {
             final @Nullable Collection<String> tags = savedInstanceState.getStringArrayList("collapsedTags");
@@ -218,6 +235,8 @@ public final class SearchResultFragment extends AbstractFragment {
             }
             return SearchUtil.searchSubjects(searchType, searchParameters);
         }, result -> {
+            searchFinished = true;
+            searchFailed = result == null;
             if (result != null) {
                 adapter.setResult(result);
                 canResurrect = result.stream().anyMatch(Subject::isResurrectable);
@@ -263,7 +282,15 @@ public final class SearchResultFragment extends AbstractFragment {
     @Override
     public void updateViews() {
         updateMenu();
-        numHits.setTextFormat("%s: %d subject(s) found", searchDescription, adapter.getNumSubjects());
+        if (getView() != null && com.smouldering_durtles.wk.ui.SearchStyle.isModern(requireView().getContext())) {
+            final int count = adapter.getNumSubjects();
+            numHits.setText(!searchFinished ? getString(R.string.search_loading)
+                    : searchFailed ? getString(R.string.search_failed)
+                    : count == 0 ? getString(R.string.search_empty, searchDescription)
+                    : getResources().getQuantityString(R.plurals.search_result_count, count, searchDescription, count));
+        } else {
+            numHits.setTextFormat("%s: %d subject(s) found", searchDescription, adapter.getNumSubjects());
+        }
     }
 
     @Override

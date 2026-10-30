@@ -37,7 +37,7 @@ Do not wipe or overwrite the user's AVD.
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`. The old Gradle HTML report at
 `test-reports/connected/debug/index.html` covers the 32-test dashboard milestone;
-the current 48-test run is `test-results/panels-full-instrumentation.txt`.
+the current 52-test run is `test-results/search-full-instrumentation.txt`.
 
 With the user's phone also attached, use explicit emulator targeting for tests.
 Disable test-device animations in the isolated, unsaved emulator session (never on
@@ -62,37 +62,68 @@ Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debu
 
 ## Latest evidence
 
-Foundation `0b6b531`, reliability `4780982`, Compose overview `713d144`, and
-Material settings `4472ee8` are pushed. The overflow/dashboard panels milestone
-passes **48 instrumentation tests, 0 failures on Android 16**. Debug and release
-APKs build successfully; aapt confirms minimum API 21 and target 36. Current logs:
-`/tmp/smoky-panels-final-build.log`, `/tmp/smoky-panels-full-tests.log`, and the copy
-`test-results/panels-full-instrumentation.txt` (ignored). The old Gradle HTML report
-is not the current test result.
+The search/consistency milestone passes **52 instrumentation tests, 0 failures on
+Android 16** (33.965 seconds). Debug/release/test APK builds succeed. Logs:
+`/tmp/smoky-search-build.log`, `/tmp/smoky-search-focused-tests.log` (4 tests),
+`/tmp/smoky-search-full-tests.log`, and the ignored copy
+`test-results/search-full-instrumentation.txt`. Earlier Gradle HTML reports are stale.
 
-New tests cover populated chart counts and colors, SRS/level search callbacks,
-hidden panels taking no space, large/dark layouts, original Classic layouts, real
-MainActivity modern-to-Classic recreation, and overflow navigation into Settings.
-Real recreation exposed a MaterialButton SavedState mismatch on the retry button;
-the modern dashboard theme now explicitly uses AppCompatViewInflater and the
-legacy button style. This keeps view classes stable across appearance changes.
-An initial full run had two UI-window timing failures; settings editor tests now
-select dialog roots explicitly, the overflow test selects its popup root, and the
-passing full run disabled animations in the isolated emulator.
+`search/SearchAppearanceTest.kt` uses synthetic subjects held only in memory. It
+checks result grouping/counts, collapse/expand and IDs, both card/title click
+callbacks, unchanged shared card rendering outside search, dark/2x-font wrapping,
+and real BrowseActivity search prefill, back stack, and Modern/Classic recreation.
+The real activity test blocks the no-token redirect, runs a read-only local search,
+and restores changed preferences. No account credentials, DB fixture writes, or
+study submissions are used. Settings tests now locate the renamed appearance option
+by its string resource.
 
-Synthetic screenshots in `captures/smoky-dashboard-panels/` cover light/dark,
-forecast, SRS, and level rows at 1x/2x text. Level-panel captures draw the entire
-measured view so all rows/legend can be inspected. The overflowing large-text
-level legend was replaced with ConstraintLayout Flow wrapping. These fixtures
-inflate the real dashboard layout in an AboutActivity host; they are not live
-account screenshots. Earlier captures remain under `captures/smoky-settings/`
-and `captures/smoky-dashboard/`. Captures are ignored and regeneratable.
+Recreation tests exposed and fixed two bugs: a Material tutorial-button SavedState
+being restored to a Classic Button (distinct IDs now), and an old Classic toolbar
+receiving Material colors after the preference changed but before recreation
+(style using the inflated context, not the new preference). The initial fixture
+assumed four result groups; existing sorting combines vocabulary/kana vocabulary,
+so the test correctly expects three. Sorting behavior is unchanged.
 
-Phone: the dashboard launcher and settings-build installation were confirmed in
-prior turns. The overflow/chart build b074d72 was subsequently installed successfully with adb install -r, preserving app data. User validation of its menus/charts is pending.
-No account credentials or submissions were used for this milestone. Actual
-review/lesson navigation, pre-Android-12 devices, and wallpaper-change integration
-still need coverage. The emulator used for this work is stopped at handoff.
+Visual QA: `captures/smoky-search/` contains light populated results, an empty result
+screen, and a dark card at 2x text. Full-screen fixtures use an AboutActivity host;
+the empty search uses the real BrowseActivity. Captures are ignored/regeneratable.
+The completed development milestone still needs phone validation and pre-Android-12
+coverage. The task emulator is stopped at handoff.
+
+Phone remains on overflow/chart implementation **b074d72**, installed with adb
+install -r and documented in 868f929. This search update has NOT been installed on
+the phone. Do not run instrumentation on that account-bearing device.
+
+## Search presentation boundary
+
+`ui/SearchStyle.java` wraps only the result layout and browsing toolbar in a
+Material context; BrowseActivity itself keeps ActiveTheme. `ui/BrowseToolbar.java`
+uses that context for input/icons and keeps browsing chrome neutral when a legacy
+subject headline requests a subject-colored toolbar. The subject headline inside
+the page retains its semantic color. `AbstractActivity.refreshToolbarAppearance`
+is a no-op hook, overridden only by BrowseActivity and called after fragment title
+updates. Result cards use a scoped context marker; shared SubjectCardBinder remains
+unchanged for Classic screens and other callers. The default result layout is a
+full-width card with the existing subject renderer (including radical images),
+meaning, reading, level and SRS/wait information. Long titles fit to available width.
+
+Group headers and the adapter retain the existing result tree, sort order, filters,
+collapsed tags, and subject IDs. Header actions have accessible expand/collapse
+labels. Modern tutorial-dismiss has a distinct ID from Classic to avoid cross-class
+saved-state restoration. Advanced form rows explicitly inflate using the legacy
+activity context; migrate that editor as a separate next step, not by changing all
+of BrowseActivity's theme. Item-detail bodies and review/lesson activities remain
+legacy, and their presentation consistency is still unfinished.
+
+The existing `modern_settings` / `settings_dynamic_color` preferences cover search
+and browsing chrome too, now labeled **Modern settings and search** / **Wallpaper
+colors in settings and search**. No preference keys were renamed. Dashboard controls
+remain independent. `SmokyMaterialTheme` plus `material_colors.xml` share static
+accent resources across Material Views and DashboardTheme; dynamic overlays still
+supply wallpaper colors when enabled. Semantic ActiveTheme colors remain independent.
+
+User priority: **widgets last**. Continue browsing/filter/detail and study-flow work
+before widget development. TASKS.md is the ordered backlog.
 
 ## Architecture boundaries
 

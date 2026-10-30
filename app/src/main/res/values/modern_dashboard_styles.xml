@@ -1,6 +1,6 @@
 <resources>
     <attr name="smokyModernDashboard" format="boolean"/>
-    <style name="SmokyDashboardTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="SmokyDashboardTheme" parent="SmokyMaterialTheme">
         <item name="smokyModernDashboard">true</item>
         <!-- Keep legacy button saved-state types stable when switching back to Classic. -->
         <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
@@ -15,7 +15,7 @@
     </style>
 
     <!-- A complete popup theme also works above legacy AppCompat activities. -->
-    <style name="SmokyOverflowTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="SmokyOverflowTheme" parent="SmokyMaterialTheme">
         <item name="popupMenuStyle">@style/SmokyOverflowMenu</item>
         <item name="actionOverflowMenuStyle">@style/SmokyOverflowMenu</item>
         <item name="listPopupWindowStyle">@style/SmokyOverflowMenu</item>

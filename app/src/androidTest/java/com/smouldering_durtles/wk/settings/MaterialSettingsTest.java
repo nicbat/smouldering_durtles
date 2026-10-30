@@ -98,7 +98,7 @@ public class MaterialSettingsTest {
 
     @Test public void classicSwitchRecreatesAndKeepsCurrentScreen() {
         try (ActivityScenario<PreferencesActivity> scenario = launch("display_settings")) {
-            onView(withText("Modern settings")).perform(click());
+            onView(withText(R.string.modern_settings_title)).perform(click());
             idle();
             scenario.onActivity(activity -> {
                 assertNotNull(fragment(activity).findPreference("modern_settings"));
@@ -106,7 +106,7 @@ public class MaterialSettingsTest {
                 assertFalse(activity.findViewById(androidx.preference.R.id.switchWidget) instanceof MaterialSwitch);
             });
             assertFalse(prefs.getBoolean("modern_settings", true));
-            onView(withText("Modern settings")).perform(click());
+            onView(withText(R.string.modern_settings_title)).perform(click());
             idle();
             scenario.onActivity(activity -> assertTrue(activity.findViewById(
                     androidx.preference.R.id.switchWidget) instanceof MaterialSwitch));
@@ -180,7 +180,7 @@ public class MaterialSettingsTest {
             screenshot("settings-root");
             onView(withText("Display settings")).perform(click());
             scenario.recreate();
-            onView(withText("Modern settings")).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
+            onView(withText(R.string.modern_settings_title)).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
             pressBack();
             onView(withText("API and audio download settings")).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
         }

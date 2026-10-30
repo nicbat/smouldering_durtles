@@ -61,6 +61,16 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
     private @Nullable AdvancedSearchParameters parameters = null;
     private final SubjectCardBinder binder = new SubjectCardBinder(GlobalSettings.Experimental.getSubjectCardLayoutSearch());
 
+    private boolean modern;
+
+    /** Capture the view context for this result list, stable until its next inflation. */
+    public void setModern(boolean modern) { this.modern = modern; }
+
+    private int headerLayout(ViewGroup parent, int classic) {
+        return com.smouldering_durtles.wk.ui.SearchStyle.isModern(parent.getContext())
+                ? R.layout.search_result_header_modern : classic;
+    }
+
     /**
      * The constructor.
      * @param fragment the fragment this adapter belongs to
@@ -176,29 +186,30 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
                 return new SubjectItemViewHolder(this, view, binder, fragmentRef.get());
             }
             if (viewType == R.id.viewTypeResultSearchForm) {
-                final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+                // The advanced editor retains its legacy theme until its own migration.
+                final LayoutInflater inflater = LayoutInflater.from(fragmentRef.get().requireContext());
                 final View view = inflater.inflate(R.layout.search_result_form, parent, false);
                 return new SearchFormItemViewHolder(this, view, requireNonNull(parameters), fragmentRef.get());
             }
             if (viewType == R.id.viewTypeResultItemTypeHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
                 final int id = sortOrder.isSingleLevel() ? R.layout.search_result_top_header : R.layout.search_result_sub_header;
-                final View view = inflater.inflate(id, parent, false);
+                final View view = inflater.inflate(headerLayout(parent, id), parent, false);
                 return new ItemTypeHeaderItemViewHolder(this, view);
             }
             if (viewType == R.id.viewTypeResultLevelHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final View view = inflater.inflate(R.layout.search_result_top_header, parent, false);
+                final View view = inflater.inflate(headerLayout(parent, R.layout.search_result_top_header), parent, false);
                 return new LevelHeaderItemViewHolder(this, view);
             }
             if (viewType == R.id.viewTypeResultAvailableAtHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final View view = inflater.inflate(R.layout.search_result_top_header, parent, false);
+                final View view = inflater.inflate(headerLayout(parent, R.layout.search_result_top_header), parent, false);
                 return new AvailableAtHeaderItemViewHolder(this, view, searchTime);
             }
             if (viewType == R.id.viewTypeResultSrsStageHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final View view = inflater.inflate(R.layout.search_result_top_header, parent, false);
+                final View view = inflater.inflate(headerLayout(parent, R.layout.search_result_top_header), parent, false);
                 return new SrsStageHeaderItemViewHolder(this, view);
             }
             return new DummyViewHolder(this, new AppCompatTextView(parent.getContext()));
@@ -249,6 +260,10 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
             final @Nullable ResultItem item = getItem(position);
             if (item == null) {
                 return 1;
+            }
+            if (item instanceof SubjectItem && modern
+                    && GlobalSettings.Experimental.getSubjectCardLayoutSearch() == com.smouldering_durtles.wk.enums.SubjectCardLayout.NORMAL) {
+                return spans;
             }
             return item.getSpanSize(spans);
         });

@@ -1,0 +1,9 @@
+<resources>
+    <!-- Shared fallback accents for Material Views and Compose; semantic subject colors are separate. -->
+    <color name="smoky_primary_light">#465CA8</color>
+    <color name="smoky_primary_dark">#BAC3FF</color>
+    <color name="smoky_secondary_light">#5B626F</color>
+    <color name="smoky_secondary_dark">#C4C6D0</color>
+    <color name="smoky_tertiary_light">#75558D</color>
+    <color name="smoky_tertiary_dark">#E2BADD</color>
+</resources>

@@ -25,14 +25,13 @@
     android:background="?attr/colorBackground"
     tools:context="com.smouldering_durtles.wk.activities.BrowseActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.smouldering_durtles.wk.ui.BrowseToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:background="?attr/toolbarColorBackground"
         android:elevation="4dp"
-        android:theme="@style/WKToolbarTheme"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
         tools:ignore="UnusedAttribute"/>
 

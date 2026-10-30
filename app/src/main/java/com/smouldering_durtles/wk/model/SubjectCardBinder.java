@@ -75,6 +75,9 @@ public final class SubjectCardBinder {
      */
     public View createView(final SubjectType subjectType, final ViewGroup parent) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if (layout == SubjectCardLayout.NORMAL && com.smouldering_durtles.wk.ui.SearchStyle.isModern(parent.getContext())) {
+            return inflater.inflate(R.layout.subject_card_search_modern, parent, false);
+        }
         if (subjectType.isRadical()) {
             return inflater.inflate(layoutIds.get(0), parent, false);
         }
@@ -96,11 +99,19 @@ public final class SubjectCardBinder {
         final ViewProxy meaning = new ViewProxy(view, R.id.meaning);
         final ViewProxy reading = new ViewProxy(view, R.id.reading);
 
-        view.setBackgroundColor(subject.getButtonBackgroundColor());
+        final boolean modern = view instanceof com.google.android.material.card.MaterialCardView;
+        if (!modern) view.setBackgroundColor(subject.getButtonBackgroundColor());
 
         button.setSubject(subject);
         button.setSizeSp(24);
-        button.setTransparent(true);
+        button.setTransparent(!modern);
+        if (modern) {
+            // Let the existing renderer fit long Japanese titles within the actual row width.
+            ((com.smouldering_durtles.wk.views.SubjectInfoButtonView) view.findViewById(R.id.button))
+                    .setMaxSize(Integer.MAX_VALUE, (int) (24 * view.getResources().getDisplayMetrics().scaledDensity));
+            view.findViewById(R.id.button).setContentDescription(subject.getType().getDescription()
+                    + ": " + (subject.getCharacters() == null ? subject.getOneMeaning() : subject.getCharacters()));
+        }
 
         if (subject.hasMeanings() && showMeaning) {
             meaning.setText(subject.getOneMeaning());
@@ -127,7 +138,7 @@ public final class SubjectCardBinder {
         button.setOnClickListener(onClickListener);
 
         final @Nullable Drawable bgDrawable = ContextCompat.getDrawable(view.getContext(), R.drawable.small_rounded_corners);
-        if (bgDrawable != null) {
+        if (!modern && bgDrawable != null) {
             bgDrawable.setColorFilter(new SimpleColorFilter(subject.getButtonBackgroundColor()));
             view.setBackground(bgDrawable);
         }
@@ -234,6 +245,14 @@ public final class SubjectCardBinder {
         bindCommon(view, subject, onClickListener, showMeaning, showReading);
         if (layout == SubjectCardLayout.NORMAL) {
             bindNormal(view, subject);
+            if (view instanceof com.google.android.material.card.MaterialCardView) {
+                final android.widget.TextView progress = view.findViewById(R.id.progress);
+                final String stageName = subject.getSrsStage().getName();
+                progress.setText(view.getContext().getString(R.string.search_subject_progress, subject.getLevel(),
+                        subject.getAvailableAt() == 0 || subject.getSrsStage().isLocked() ? stageName
+                                : stageName + " · " + subject.getShortNextReviewWaitTime()));
+                progress.setVisibility(View.VISIBLE);
+            }
         }
         else {
             bindCompact(view, subject);
