@@ -1,6 +1,7 @@
 # Smoky Durtles
 
 For ongoing development, start with [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md).
+[UI_GUIDE.md](UI_GUIDE.md) records the Material 3 principles, implementation patterns and visual review checklist.
 
 Smoky Durtles is a personal fork of Smouldering Durtles with a separate installation
 identity, a one-tap toolbar search fix and a modern Material 3 interface across the app.

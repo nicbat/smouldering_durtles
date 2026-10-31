@@ -95,6 +95,8 @@ public final class AdvancedSearchFormView extends TableLayout {
     private void init() {
         final boolean modern = SearchStyle.isModern(getContext()) || com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext());
         inflate(getContext(), modern ? R.layout.advanced_search_modern : R.layout.advanced_search, this);
+        if (modern) setBackgroundColor(com.google.android.material.color.MaterialColors.getColor(
+                this, com.google.android.material.R.attr.colorSurface));
         setShrinkAllColumns(true);
 
         starRatingSwitches.add(new ViewProxy(this, R.id.starRating0));

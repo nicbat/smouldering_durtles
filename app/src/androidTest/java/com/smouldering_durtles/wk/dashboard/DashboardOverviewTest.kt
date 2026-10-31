@@ -23,15 +23,17 @@ class DashboardOverviewTest {
     @Test fun readyActionsDispatchExactlyOnce() {
         var reviews = 0
         var lessons = 0
+        var browses = 0
         compose.setContent {
             DashboardTheme(false) {
                 DashboardOverview(DashboardState(ready = true, reviews = 42, lessons = 12, level = 8), true,
-                    { reviews++ }, { lessons++ }, {}, {})
+                    { reviews++ }, { lessons++ }, {}, { browses++ })
             }
         }
         compose.onNodeWithText("Start reviews").performClick()
         compose.onNodeWithText("Start lessons").performClick()
-        compose.runOnIdle { assertEquals(1, reviews); assertEquals(1, lessons) }
+        compose.onNodeWithText("Browse subjects").performClick()
+        compose.runOnIdle { assertEquals(1, reviews); assertEquals(1, lessons); assertEquals(1, browses) }
         saveScreenshot("dashboard-light.png")
     }
 

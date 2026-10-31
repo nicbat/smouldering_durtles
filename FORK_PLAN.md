@@ -14,6 +14,12 @@ rewrite is required to reach this design goal.
 
 ## Current milestone
 
+The first pass has now received user feedback. A cross-app refinement follows the official
+Material role/component guidance and [UI_GUIDE.md](UI_GUIDE.md): coherent study controls,
+responsive search grid, compact browse/dashboard layouts, font/download/utility hierarchy.
+The guide records observations and conventions so future agents can apply them consistently.
+See HANDOFF/TASKS for final verification and installed-build status.
+
 The first complete in-app modern design pass is implemented: browse/filters, details,
 lesson/review/Anki/self-study/summary/log UI, remaining dashboard tables, settings tools,
 font/color customization and utility/help pages. Shared Material Views styling preserves

@@ -5,15 +5,26 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-The full in-app modern design pass is implemented. Finish cross-version validation and
-phone feedback, then begin measured refinement/optimization. Widgets remain last.
-Modern interface covers browse/details/study/settings/tools; Modern dashboard remains
-independent. Classic and semantic subject/SRS palettes remain available.
+Refine the full in-app Material pass based on phone feedback: jarring review layout,
+low-density search results and inconsistent spacing/action emphasis. Apply the shared
+[UI guide](UI_GUIDE.md) across study, browse, dashboard and tools; it records official
+Material references, local conventions, concrete lessons and a per-screen checklist.
+Widgets remain last. Existing Views, Classic and semantic learning colors remain.
 
-Full UI build **6bbe197** was installed on the user's Pixel 9 Pro with `adb install -r`
-and launched successfully on 2026-10-30, preserving app data. Phone behavior feedback
-remains pending. Never run instrumentation on the account-bearing phone.
-Push tested milestones to `origin/smoky-durtles/foundation` and keep these notes current.
+The phone has full UI build **6bbe197**, installed/started with data preserved.
+The current refinement is newer and is not installed yet. Never run instrumentation
+on the account-bearing phone. Push tested changes to `origin/smoky-durtles/foundation`.
+
+## Current refinement
+
+- [x] Record UI principles, official references, source boundaries and review checklist in UI_GUIDE.
+- [x] Separate review prompt/input/actions, quiet the question-type label, support constrained IME space.
+- [x] Responsive search grid and compact metadata; keyword-first browse, readable filter units.
+- [x] Shared button hierarchy, consistent spacing, dashboard/font/download/utility refinements.
+- [x] Inspect refreshed light/dark, narrow/2x, wide-grid, IME and scrolled review captures.
+- [x] Debug/release builds; **80 tests pass on Android 16 and Android 11**. Focused attached-view
+  capture/contrast test also passes after a test-only fixture correction. See HANDOFF for logs.
+- [ ] Phone validation of refined build when installed; keep further feedback in Phase 2.
 
 ## Completed
 
@@ -106,7 +117,8 @@ real account sync, audio playback or process-death recovery. See HANDOFF for exa
 
 ## Phase 2 — refine, fix and optimize
 
-- [ ] Use phone feedback to adjust density, search card sizes, information hierarchy and navigation friction.
+- [x] Apply first phone-feedback refinement: review geometry, responsive search density, shared action hierarchy.
+- [ ] Gather feedback on the refined build and adjust remaining navigation/density issues.
 - [ ] Refine dashboard section ordering and other usability details after the full flow is available.
 - [ ] Profile startup, scrolling, memory, chart rendering and audio; make measured optimizations.
 - [ ] Investigate offline audio delays, cancellation/focus and synchronization/recovery edge cases.

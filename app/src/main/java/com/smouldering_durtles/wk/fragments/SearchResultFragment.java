@@ -18,7 +18,6 @@ package com.smouldering_durtles.wk.fragments;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +28,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
@@ -199,23 +197,7 @@ public final class SearchResultFragment extends AbstractFragment {
             }
         }
 
-        final DisplayMetrics metrics = view.getContext().getResources().getDisplayMetrics();
-        int spans = (int) ((metrics.widthPixels / metrics.density + 10) / 90);
-        if (spans < 1) {
-            spans = 1;
-        }
-        final int numSpans = spans;
-        final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spans);
-        final GridLayoutManager.SpanSizeLookup spanSizeLookup = new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(final int position) {
-                return adapter.getItemSpanSize(position, numSpans);
-            }
-        };
-        spanSizeLookup.setSpanGroupIndexCacheEnabled(true);
-        spanSizeLookup.setSpanIndexCacheEnabled(true);
-        layoutManager.setSpanSizeLookup(spanSizeLookup);
-        resultView.setLayoutManager(layoutManager);
+        SearchStyle.configureResultGrid((androidx.recyclerview.widget.RecyclerView) resultView.getDelegate(), adapter);
         resultView.setAdapter(adapter);
         resultView.setHasFixedSize(true);
 

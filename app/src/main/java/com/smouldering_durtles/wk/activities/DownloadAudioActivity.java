@@ -67,6 +67,14 @@ public final class DownloadAudioActivity extends ModernActivity {
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
+            com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.moveButton),
+                    com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.PRIMARY);
+            com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.abortMoveButton),
+                    com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
+            com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.deleteButton),
+                    com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
+        }
         moveProgressBar.setDelegate(this, R.id.moveProgressBar);
         cancelButton.setDelegate(this, R.id.cancelButton);
         deleteButton.setDelegate(this, R.id.deleteButton);

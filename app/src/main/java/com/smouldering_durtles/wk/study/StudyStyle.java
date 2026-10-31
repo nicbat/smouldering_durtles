@@ -8,6 +8,11 @@ import android.graphics.drawable.RippleDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.view.Gravity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.helper.widget.Flow;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -35,8 +40,115 @@ public final class StudyStyle {
                 ((ViewGroup.MarginLayoutParams) input.getLayoutParams()).setMargins(dp(input, 16), dp(input, 8), dp(input, 16), dp(input, 12));
             }
         }
+        reflowQuestionActions(view);
+        prepareSummaryActions(view);
         final View info = view.findViewById(R.id.subjectInfo);
         if (info != null) info.setPadding(dp(info, 16), dp(info, 16), dp(info, 16), dp(info, 24));
+    }
+
+    private static void margins(View view, int start, int top, int end, int bottom) {
+        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            params.setMargins(dp(view, start), dp(view, top), dp(view, end), dp(view, bottom));
+            view.setLayoutParams(params);
+        }
+    }
+
+    private static void action(Button button, boolean primary) {
+        ModernUi.button(button, primary ? ModernUi.ButtonRole.PRIMARY : ModernUi.ButtonRole.TEXT);
+        button.setGravity(Gravity.CENTER);
+        button.setMinWidth(0);
+        button.setMinimumWidth(0);
+        button.setSingleLine(false);
+    }
+
+    /** Keep question content free of action overlays; bindings still target the same Views and IDs. */
+    private static void reflowQuestionActions(View root) {
+        final View question = root.findViewById(R.id.questionView);
+        if (!(question instanceof ViewGroup) || !(question.getParent() instanceof LinearLayout)) return;
+        final LinearLayout page = (LinearLayout) question.getParent();
+        final View inputFrame = root.findViewById(R.id.questionEditFrame);
+        final View feedback = root.findViewById(R.id.questionEdit);
+        final View anchor = inputFrame != null ? inputFrame : feedback != null ? feedback : root.findViewById(R.id.questionType);
+        if (anchor == null || anchor.getParent() != page) return;
+        final LinearLayout actions = new LinearLayout(root.getContext());
+        actions.setOrientation(LinearLayout.VERTICAL);
+        final LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rowParams.setMargins(dp(root, 16), 0, dp(root, 16), dp(root, 8));
+        page.addView(actions, page.indexOfChild(anchor) + 1, rowParams);
+        addActionRow(root, actions, new int[]{R.id.dontKnowButton, R.id.submitButton, R.id.nextButton});
+        addActionRow(root, actions, new int[]{R.id.specialButton3, R.id.specialButton2, R.id.specialButton1});
+        final View glyph = root.findViewById(R.id.questionText);
+        if (glyph != null) {
+            // The quiz renderer already reserves 28dp above and 24dp below the glyph.
+            // Extra padding here would exceed compact user-configured question heights.
+            glyph.setPadding(0, 0, 0, 0);
+            if (glyph instanceof com.smouldering_durtles.wk.views.SubjectInfoButtonView)
+                ((com.smouldering_durtles.wk.views.SubjectInfoButtonView) glyph).setTextShadowEnabled(false);
+        }
+        final Button bottomNext = root.findViewById(R.id.nextButton2);
+        if (bottomNext != null) {
+            action(bottomNext, true);
+            bottomNext.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+            margins(bottomNext, 16, 8, 16, 12);
+        }
+        if (inputFrame != null && page == root) {
+            // The IME and large text can leave less vertical room than the configured question height.
+            // Scroll the whole prompt/input/actions together instead of clipping the submit controls.
+            final LinearLayout content = new LinearLayout(root.getContext());
+            content.setOrientation(LinearLayout.VERTICAL);
+            while (page.getChildCount() > 0) {
+                final View child = page.getChildAt(0);
+                page.removeViewAt(0);
+                content.addView(child);
+            }
+            final androidx.core.widget.NestedScrollView scroll = new androidx.core.widget.NestedScrollView(root.getContext());
+            scroll.setFillViewport(true);
+            scroll.addView(content, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            page.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+    }
+
+    private static void addActionRow(View root, LinearLayout container, int[] ids) {
+        final LinearLayout row = new LinearLayout(root.getContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        for (int id : ids) {
+            final View view = root.findViewById(id);
+            if (!(view instanceof Button)) continue;
+            ((ViewGroup) view.getParent()).removeView(view);
+            action((Button) view, id == R.id.submitButton);
+            final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+            if (row.getChildCount() > 0) params.leftMargin = dp(root, 8);
+            row.addView(view, params);
+        }
+        if (row.getChildCount() > 0) container.addView(row, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+    }
+
+    private static void prepareSummaryActions(View root) {
+        final Button finish = root.findViewById(R.id.finishButton);
+        if (finish == null || !(finish.getParent() instanceof ConstraintLayout)) return;
+        final ConstraintLayout container = (ConstraintLayout) finish.getParent();
+        container.setPadding(dp(root, 16), dp(root, 8), dp(root, 16), dp(root, 16));
+        int[] ids = {R.id.specialButton3, R.id.specialButton2, R.id.specialButton1, R.id.showButton, R.id.finishButton};
+        for (int id : ids) action(root.findViewById(id), id == R.id.finishButton);
+        final Flow flow = new Flow(root.getContext());
+        flow.setId(View.generateViewId());
+        flow.setReferencedIds(ids);
+        flow.setWrapMode(Flow.WRAP_CHAIN);
+        flow.setHorizontalStyle(Flow.CHAIN_PACKED);
+        flow.setHorizontalBias(1);
+        flow.setHorizontalGap(dp(root, 8));
+        flow.setVerticalGap(dp(root, 8));
+        final ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+        container.addView(flow, params);
+        final View progress = root.findViewById(R.id.finishProgressBar);
+        final ConstraintLayout.LayoutParams progressParams = (ConstraintLayout.LayoutParams) progress.getLayoutParams();
+        progressParams.topToBottom = flow.getId();
+        progress.setLayoutParams(progressParams);
     }
 
     /** Round a semantic surface without replacing its established foreground/background palette. */
@@ -55,16 +167,26 @@ public final class StudyStyle {
         if (!ModernUi.isModern(root.getContext())) return;
         final View question = root.findViewById(R.id.questionView);
         if (question != null) {
-            semanticSurface(question, subjectColor, 24, false);
+            semanticSurface(question, subjectColor, 16, false);
             question.setClipToOutline(true);
             final ViewGroup.LayoutParams lp = question.getLayoutParams();
             if (lp instanceof ViewGroup.MarginLayoutParams) {
-                ((ViewGroup.MarginLayoutParams) lp).setMargins(dp(question, 12), dp(question, 8), dp(question, 12), dp(question, 8));
+                ((ViewGroup.MarginLayoutParams) lp).setMargins(dp(question, 16), dp(question, 8), dp(question, 16), dp(question, 4));
                 question.setLayoutParams(lp);
             }
         }
-        final View type = root.findViewById(R.id.questionType);
-        roundCurrentColor(type, 12, false);
+        final TextView type = root.findViewById(R.id.questionType);
+        if (type != null) {
+            // Reading/meaning remains explicit text; avoid a stark white/black capsule in either theme.
+            type.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            type.setTextColor(MaterialColors.getColor(type, com.google.android.material.R.attr.colorOnSurfaceVariant));
+            type.setElevation(0);
+            type.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            type.setPadding(dp(type, 16), dp(type, 8), dp(type, 16), dp(type, 4));
+            type.setTextSize(14);
+            type.setTypeface(type.getTypeface(), Typeface.BOLD);
+            type.setLabelFor(R.id.questionEdit);
+        }
     }
 
     public static void roundCurrentColor(View view, int radius, boolean ripple) {
@@ -99,7 +221,7 @@ public final class StudyStyle {
                 table.addView(record, i, new android.widget.TableLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             }
-            semanticSurface(table, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurfaceContainerLow), 16, false);
+            semanticSurface(table, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurfaceContainerLow), 12, false);
             table.setPadding(dp(view, 16), dp(view, 8), dp(view, 16), dp(view, 8));
         }
         final TextView synonyms = view.findViewById(R.id.synonyms);
@@ -113,7 +235,7 @@ public final class StudyStyle {
             add.setGravity(android.view.Gravity.CENTER);
             add.setContentDescription(view.getContext().getString(R.string.study_add_synonym));
             add.setTextColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorOnSecondaryContainer));
-            semanticSurface(add, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSecondaryContainer), 20, true);
+            semanticSurface(add, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSecondaryContainer), 12, true);
             add.setFocusable(true);
         }
     }
@@ -126,7 +248,8 @@ public final class StudyStyle {
 
     public static void answerFeedback(TextView answer, int background) {
         if (!ModernUi.isModern(answer.getContext())) return;
-        semanticSurface(answer, background, 16, false);
+        semanticSurface(answer, background, 12, false);
+        margins(answer, 16, 8, 16, 8);
         answer.setTextColor(contrastInk(background));
         answer.setShadowLayer(0, 0, 0, 0);
         answer.setGravity(android.view.Gravity.CENTER);
@@ -140,21 +263,41 @@ public final class StudyStyle {
             final View panel = root.findViewById(id);
             if (panel == null || !(panel.getBackground() instanceof ColorDrawable)) continue;
             final int color = ((ColorDrawable) panel.getBackground()).getColor();
-            semanticSurface(panel, color, 24, false);
+            // Summary status is an accent, not a second page-sized subject-colored surface.
+            MaterialShapeDrawable surface = ModernUi.surface(panel,
+                    MaterialColors.getColor(panel, com.google.android.material.R.attr.colorSurfaceContainerLow), 12);
+            surface.setStroke(dp(panel, 2), color);
+            panel.setBackground(surface);
             panel.setPadding(dp(panel, 16), dp(panel, 12), dp(panel, 16), dp(panel, 12));
-            contrastText(panel, contrastInk(color));
+            contrastText(panel, MaterialColors.getColor(panel, com.google.android.material.R.attr.colorOnSurface));
             if (panel instanceof android.widget.TableLayout) {
-                ((android.widget.TableLayout) panel).setColumnShrinkable(0, true);
-                ((android.widget.TableLayout) panel).setColumnStretchable(0, true);
-                final ViewGroup rows = (ViewGroup) panel;
-                for (int i = 0; i < rows.getChildCount(); i++) {
-                    if (!(rows.getChildAt(i) instanceof ViewGroup)) continue;
-                    final ViewGroup row = (ViewGroup) rows.getChildAt(i);
-                    row.setPadding(0, dp(panel, 4), 0, dp(panel, 4));
-                    if (row.getChildCount() > 1) {
-                        ((TextView) row.getChildAt(0)).setGravity(android.view.Gravity.START);
-                        row.getChildAt(1).setPadding(dp(panel, 16), 0, 0, 0);
+                final android.widget.TableLayout table = (android.widget.TableLayout) panel;
+                for (int i = 0; i < table.getChildCount(); i++) {
+                    if (!(table.getChildAt(i) instanceof android.widget.TableRow)) continue;
+                    final ViewGroup old = (ViewGroup) table.getChildAt(i);
+                    final LinearLayout row = new LinearLayout(root.getContext());
+                    final boolean large = root.getResources().getConfiguration().fontScale >= 1.5f;
+                    row.setOrientation(large ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+                    row.setGravity(Gravity.CENTER_VERTICAL);
+                    row.setPadding(0, dp(panel, 6), 0, dp(panel, 6));
+                    while (old.getChildCount() > 0) {
+                        final TextView field = (TextView) old.getChildAt(0);
+                        old.removeViewAt(0);
+                        final boolean label = row.getChildCount() == 0;
+                        field.setGravity(label || large ? Gravity.START : Gravity.END);
+                        field.setPadding(0, 0, 0, 0);
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                large ? ViewGroup.LayoutParams.MATCH_PARENT : label ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT, !large && label ? 1 : 0);
+                        if (!label) {
+                            if (large) params.topMargin = dp(panel, 4);
+                            else params.leftMargin = dp(panel, 16);
+                        }
+                        row.addView(field, params);
                     }
+                    table.removeViewAt(i);
+                    table.addView(row, i, new android.widget.TableLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
             }
         }
@@ -174,7 +317,7 @@ public final class StudyStyle {
     /** Log entries keep subject colors while their status and event text follow actual fill contrast. */
     public static void logRow(View row, int color) {
         if (!ModernUi.isModern(row.getContext())) return;
-        semanticSurface(row, color, 16, row.hasOnClickListeners());
+        semanticSurface(row, color, 12, row.hasOnClickListeners());
         row.setElevation(0);
         row.setPadding(dp(row, 12), dp(row, 12), dp(row, 12), dp(row, 12));
         row.setMinimumHeight(dp(row, 56));
@@ -192,7 +335,7 @@ public final class StudyStyle {
     public static void logHeader(View row) {
         if (!ModernUi.isModern(row.getContext())) return;
         final int color = MaterialColors.getColor(row, com.google.android.material.R.attr.colorSurfaceContainerLow);
-        semanticSurface(row, color, 16, true);
+        semanticSurface(row, color, 12, true);
         row.setPadding(dp(row, 8), dp(row, 12), dp(row, 12), dp(row, 12));
         row.setMinimumHeight(dp(row, 56));
         row.setFocusable(true);
@@ -234,10 +377,20 @@ public final class StudyStyle {
         }
     }
 
+    private static void flattenSubjectGlyphs(View view) {
+        if (view instanceof com.smouldering_durtles.wk.views.SubjectInfoButtonView)
+            ((com.smouldering_durtles.wk.views.SubjectInfoButtonView) view).setTextShadowEnabled(false);
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) flattenSubjectGlyphs(group.getChildAt(i));
+        }
+    }
+
     public static void headline(SubjectInfoHeadlineView view) {
         if (!ModernUi.isModern(view.getContext())) return;
-        semanticSurface(view, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurfaceContainerLow), 24, false);
+        semanticSurface(view, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurfaceContainerLow), 12, false);
         view.setPadding(dp(view, 16), dp(view, 16), dp(view, 16), dp(view, 16));
+        flattenSubjectGlyphs(view);
         View buttons = view.findViewById(R.id.buttonsColumn);
         if (buttons != null) ModernUi.style(buttons);
     }

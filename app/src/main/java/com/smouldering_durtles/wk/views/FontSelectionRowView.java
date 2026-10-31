@@ -77,10 +77,10 @@ public final class FontSelectionRowView extends ConstraintLayout {
             inflate(getContext(), com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
                     ? R.layout.font_selection_row_modern : R.layout.font_selection_row_view, this);
             if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
-                int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(this, 16);
+                int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(this, 12);
                 setPadding(padding, padding, padding, padding);
                 setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
-                        com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow), 24));
+                        com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow), 16));
             }
             fontName.setDelegate(this, R.id.fontName);
             fontSample.setDelegate(this, R.id.fontSample);

@@ -143,6 +143,8 @@ class StudyPresentationTest {
                     val label = summary.requireView().findViewById<TextView>(textId)
                     assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(label.currentTextColor,
                         (panel.background as MaterialShapeDrawable).fillColor!!.defaultColor) >= 4.5)
+                    val semantic = if (panelId == R.id.correctSummary) R.attr.correctColorBackground else R.attr.incorrectColorBackground
+                    assertEquals(ThemeUtil.getColor(semantic), (panel.background as MaterialShapeDrawable).strokeColor!!.defaultColor)
                 }
                 capture(activity, summary.requireView(), "study-summary")
                 assertEquals(0, item.numAnswers)
@@ -150,6 +152,99 @@ class StudyPresentationTest {
             }
         }
     }
+
+    @Test fun reviewControlsStayOutsidePromptAndScrollWithLargeTextAndImeSpace() {
+        fixture().use { scenario -> scenario.onActivity { activity ->
+            for ((name, night, scale, width, height, promptHeight) in listOf(
+                ReviewSize("light", Configuration.UI_MODE_NIGHT_NO, 1f, 360, 560),
+                ReviewSize("fixed-height", Configuration.UI_MODE_NIGHT_NO, 1f, 360, 560, 100),
+                ReviewSize("dark-large", Configuration.UI_MODE_NIGHT_YES, 2f, 320, 300),
+                ReviewSize("landscape", Configuration.UI_MODE_NIGHT_YES, 1f, 640, 220))) {
+                val config = Configuration(activity.resources.configuration).apply {
+                    uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+                    fontScale = scale
+                    orientation = if (width > height) Configuration.ORIENTATION_LANDSCAPE else Configuration.ORIENTATION_PORTRAIT
+                }
+                val context = androidx.appcompat.view.ContextThemeWrapper(activity.createConfigurationContext(config), ActiveTheme.getCurrentTheme().styleId).apply {
+                    theme.applyStyle(R.style.SmokyUiTheme, true)
+                }
+                val root = LayoutInflater.from(context).inflate(R.layout.fragment_unanswered_question, null)
+                StudyStyle.page(root)
+                StudyStyle.question(root, subject.backgroundColor)
+                val prompt = root.findViewById<View>(R.id.questionView)
+                prompt.layoutParams.height = (promptHeight * context.resources.displayMetrics.density).toInt()
+                (prompt.layoutParams as android.widget.LinearLayout.LayoutParams).weight = 0f
+                root.findViewById<com.smouldering_durtles.wk.views.SubjectInfoButtonView>(R.id.questionText).apply {
+                    setSubject(subject)
+                    setTransparent(true)
+                    setSizeForQuiz(true)
+                    setMaxSize((160 * context.resources.displayMetrics.density).toInt(), (80 * context.resources.displayMetrics.density).toInt())
+                }
+                root.findViewById<TextView>(R.id.progress).text = "0/1"
+                root.findViewById<TextView>(R.id.questionType).text = "Kanji meaning"
+                root.findViewById<EditText>(R.id.questionEdit).setText("draft answer")
+                root.findViewById<View>(R.id.dontKnowButton).visibility = View.VISIBLE
+                root.findViewById<TextView>(R.id.specialButton1).apply { visibility = View.VISIBLE; text = "Play audio" }
+                root.findViewById<TextView>(R.id.specialButton2).apply { visibility = View.VISIBLE; text = "Ignore typo" }
+                // Attach like a real page so stateful Ripple/MaterialShape backgrounds receive enabled state.
+                activity.setContentView(root)
+                val density = context.resources.displayMetrics.density
+                captureSize(activity, root, "study-refined-$name", (width * density).toInt(), (height * density).toInt())
+                val glyph = root.findViewById<View>(R.id.questionText)
+                assertTrue("The quiz glyph must fit inside the configured prompt height", glyph.height <= prompt.height)
+                assertTrue(glyph.top >= 0 && glyph.bottom <= prompt.height)
+                assertNull(prompt.findViewById<View>(R.id.submitButton))
+                assertNull(prompt.findViewById<View>(R.id.specialButton1))
+                val submit = root.findViewById<TextView>(R.id.submitButton)
+                assertTrue(submit.isEnabled)
+                assertTrue(submit.drawableState.contains(android.R.attr.state_enabled))
+                val fill = (submit.background as android.graphics.drawable.RippleDrawable).getDrawable(0) as MaterialShapeDrawable
+                assertTrue("Attached primary background must receive enabled state", fill.state.contains(android.R.attr.state_enabled))
+                val renderedFill = fill.fillColor!!.getColorForState(fill.state, fill.fillColor!!.defaultColor)
+                assertEquals(com.google.android.material.color.MaterialColors.getColor(submit, androidx.appcompat.R.attr.colorPrimary), renderedFill)
+                assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(submit.currentTextColor, renderedFill) >= 4.5)
+                val dontKnow = root.findViewById<View>(R.id.dontKnowButton)
+                assertTrue(submit.left >= dontKnow.right)
+                assertTrue(submit.height >= (48 * density).toInt())
+                assertTrue(submit.right <= (submit.parent as View).width)
+                val scroll = (root as android.view.ViewGroup).getChildAt(0) as androidx.core.widget.NestedScrollView
+                if (scale > 1f || width > height) {
+                    assertTrue(scroll.getChildAt(0).height > scroll.height)
+                    scroll.scrollTo(0, scroll.getChildAt(0).height - scroll.height)
+                    val submitBounds = android.graphics.Rect(0, 0, submit.width, submit.height)
+                    scroll.offsetDescendantRectToMyCoords(submit, submitBounds)
+                    submitBounds.offset(-scroll.scrollX, -scroll.scrollY)
+                    assertTrue("Submit must be fully reachable in the limited viewport", submitBounds.top >= 0 && submitBounds.bottom <= scroll.height)
+                    assertTrue(submitBounds.left >= 0 && submitBounds.right <= scroll.width)
+                    captureSize(activity, root, "study-refined-$name-scrolled", (width * density).toInt(), (height * density).toInt())
+                }
+                assertEquals("draft answer", root.findViewById<EditText>(R.id.questionEdit).text.toString())
+            }
+        } }
+    }
+
+    @Test fun summaryPercentagesAndActionsFitNarrowLargeText() {
+        fixture().use { scenario -> scenario.onActivity { activity ->
+            val config = Configuration(activity.resources.configuration).apply { fontScale = 2f }
+            val context = androidx.appcompat.view.ContextThemeWrapper(activity.createConfigurationContext(config), ActiveTheme.getCurrentTheme().styleId).apply {
+                    theme.applyStyle(R.style.SmokyUiTheme, true)
+                }
+            val root = LayoutInflater.from(context).inflate(R.layout.fragment_summary, null)
+            StudyStyle.page(root)
+            StudyStyle.summary(root)
+            val density = context.resources.displayMetrics.density
+            captureSize(activity, root, "study-summary-large", (320 * density).toInt(), (640 * density).toInt())
+            val value = root.findViewById<TextView>(R.id.correctPercentage)
+            assertTrue(value.width >= value.paint.measureText(value.text.toString()))
+            assertTrue(value.right <= (value.parent as View).width)
+            val show = root.findViewById<View>(R.id.showButton)
+            val finish = root.findViewById<View>(R.id.finishButton)
+            assertTrue(show.right <= finish.left || show.bottom <= finish.top)
+            assertTrue(finish.right <= (finish.parent as View).width)
+        } }
+    }
+
+    private data class ReviewSize(val name: String, val night: Int, val scale: Float, val width: Int, val height: Int, val promptHeight: Int = 140)
 
     @Test fun answerDraftSurvivesFragmentViewRecreation() {
         fixture().use { scenario ->
@@ -196,6 +291,42 @@ class StudyPresentationTest {
                     }
                     bitmap.recycle()
                 }
+                scenario.onActivity { activity ->
+                    val editor = activity.findViewById<EditText>(R.id.questionEdit)
+                    editor.requestFocus()
+                    (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
+                        .showSoftInput(editor, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                }
+                var imeVisible = false
+                for (attempt in 0 until 40) {
+                    scenario.onActivity { activity -> imeVisible = androidx.core.view.ViewCompat.getRootWindowInsets(activity.window.decorView)
+                        ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true }
+                    if (imeVisible) break
+                    android.os.SystemClock.sleep(50)
+                }
+                assertTrue("The emulator IME should be visible for the review layout check", imeVisible)
+                scenario.onActivity { activity ->
+                    val submit = activity.findViewById<View>(R.id.submitButton)
+                    submit.requestRectangleOnScreen(android.graphics.Rect(0, 0, submit.width, submit.height), true)
+                }
+                instrumentation.waitForIdleSync()
+                android.os.SystemClock.sleep(100)
+                scenario.onActivity { activity ->
+                    for (id in listOf(R.id.questionEdit, R.id.submitButton)) {
+                        val control = activity.findViewById<View>(id)
+                        val visible = android.graphics.Rect()
+                        assertTrue(control.getGlobalVisibleRect(visible))
+                        assertEquals(control.height, visible.height())
+                    }
+                }
+                instrumentation.uiAutomation.takeScreenshot()?.let { bitmap ->
+                    File(instrumentation.targetContext.filesDir, "study-review-ime.png").outputStream().use {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    bitmap.recycle()
+                }
+                scenario.onActivity { activity -> androidx.core.view.WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+                    .hide(androidx.core.view.WindowInsetsCompat.Type.ime()) }
                 prefs.edit().putBoolean("modern_settings", false).commit()
                 scenario.recreate()
                 scenario.onActivity { activity ->
@@ -336,7 +467,9 @@ class StudyPresentationTest {
                 uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES
                 fontScale = 2f
             }
-            val context = androidx.appcompat.view.ContextThemeWrapper(activity.createConfigurationContext(config), R.style.SmokyUiTheme)
+            val context = androidx.appcompat.view.ContextThemeWrapper(activity.createConfigurationContext(config), ActiveTheme.getCurrentTheme().styleId).apply {
+                    theme.applyStyle(R.style.SmokyUiTheme, true)
+                }
             context.theme.applyStyle(ActiveTheme.getCurrentTheme().styleId, false)
             val info = SubjectInfoView(context)
             info.setPadding(40, 40, 40, 40)
@@ -374,16 +507,27 @@ class StudyPresentationTest {
     private fun capture(context: Context, view: View, name: String) {
         val metrics = context.resources.displayMetrics
         val height = metrics.heightPixels - (96 * metrics.density).toInt()
+        captureSize(context, view, name, metrics.widthPixels, height)
+    }
+
+    private fun captureSize(context: Context, view: View, name: String, width: Int, height: Int) {
         view.scrollTo(0, 0)
         forceMeasure(view)
-        view.measure(View.MeasureSpec.makeMeasureSpec(metrics.widthPixels, View.MeasureSpec.EXACTLY),
+        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
         view.viewTreeObserver.dispatchOnPreDraw() // TextView single-line scrolling resolves here
+        refreshDrawableStates(view)
         val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
         view.draw(Canvas(bitmap))
         File(context.filesDir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()
+    }
+
+    private fun refreshDrawableStates(view: View) {
+        view.refreshDrawableState()
+        view.jumpDrawablesToCurrentState()
+        if (view is android.view.ViewGroup) for (index in 0 until view.childCount) refreshDrawableStates(view.getChildAt(index))
     }
 
     private fun forceMeasure(view: View) {

@@ -76,6 +76,7 @@ public final class SubjectInfoButtonView extends View {
     private int maxWidth = -1;
     private int maxHeight = -1;
     private boolean transparent = false;
+    private boolean textShadowEnabled = true;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect rect = new Rect();
     private int displayHeight = 0;
@@ -337,7 +338,8 @@ public final class SubjectInfoButtonView extends View {
                 paint.setTextSize(textHeight);
                 paint.setColor(textColor);
                 paint.setTextAlign(Paint.Align.LEFT);
-                paint.setShadowLayer(3, 1, 1, Color.BLACK);
+                if (textShadowEnabled) paint.setShadowLayer(3, 1, 1, Color.BLACK);
+                else paint.clearShadowLayer();
                 final int x = getPaddingLeft() + fontPaddingLeft;
                 final int y = getPaddingTop() + fontPaddingTop + textHeight / 2 - (int) (paint.ascent() + paint.descent()) / 2;
                 Path path = new Path();
@@ -345,25 +347,28 @@ public final class SubjectInfoButtonView extends View {
                 canvas.drawPath(path, paint);
             }
             else {
-                image.setBounds(
-                        getPaddingLeft() + fontPaddingLeft + 2,
-                        getPaddingTop() + fontPaddingTop + 2,
-                        getPaddingLeft() + fontPaddingLeft + textWidth + 2,
-                        getPaddingTop() + fontPaddingTop + textHeight + 2);
-                if (shadowColorFilter != null) {
-                    image.setColorFilter(shadowColorFilter);
-                }
-                image.draw(canvas);
+                if (textShadowEnabled) {
+                    image.setBounds(
+                            getPaddingLeft() + fontPaddingLeft + 2,
+                            getPaddingTop() + fontPaddingTop + 2,
+                            getPaddingLeft() + fontPaddingLeft + textWidth + 2,
+                            getPaddingTop() + fontPaddingTop + textHeight + 2);
+                    if (shadowColorFilter != null) {
+                        image.setColorFilter(shadowColorFilter);
+                    }
+                    image.draw(canvas);
 
-                image.setBounds(
-                        getPaddingLeft() + fontPaddingLeft - 1,
-                        getPaddingTop() + fontPaddingTop - 1,
-                        getPaddingLeft() + fontPaddingLeft + textWidth - 1,
-                        getPaddingTop() + fontPaddingTop + textHeight - 1);
-                if (shadowColorFilter != null) {
-                    image.setColorFilter(shadowColorFilter);
+                    image.setBounds(
+                            getPaddingLeft() + fontPaddingLeft - 1,
+                            getPaddingTop() + fontPaddingTop - 1,
+                            getPaddingLeft() + fontPaddingLeft + textWidth - 1,
+                            getPaddingTop() + fontPaddingTop + textHeight - 1);
+                    if (shadowColorFilter != null) {
+                        image.setColorFilter(shadowColorFilter);
+                    }
+                    image.draw(canvas);
+
                 }
-                image.draw(canvas);
 
                 image.setBounds(
                         getPaddingLeft() + fontPaddingLeft,
@@ -393,6 +398,12 @@ public final class SubjectInfoButtonView extends View {
                     viewWidth + getPaddingLeft() + getPaddingRight(),
                     viewHeight + getPaddingTop() + getPaddingBottom());
         });
+    }
+
+    /** Presentation opt-in; Classic retains the existing glyph and radical-image shadows. */
+    public void setTextShadowEnabled(boolean enabled) {
+        textShadowEnabled = enabled;
+        invalidate();
     }
 
     /**

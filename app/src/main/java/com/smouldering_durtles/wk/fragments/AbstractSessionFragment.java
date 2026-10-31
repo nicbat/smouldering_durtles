@@ -160,7 +160,8 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
         questionType.setText(question.getTitle());
         questionType.setBackgroundColor(question.getType().getHintColor());
         questionType.setTextColor(question.getType().getHintContrastColor());
-        questionType.setVisibility(!isLandscape() || !(this instanceof UnansweredSessionFragment));
+        questionType.setVisibility(!isLandscape() || !(this instanceof UnansweredSessionFragment)
+                || com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext()));
         com.smouldering_durtles.wk.study.StudyStyle.question(view, subject.getBackgroundColor());
 
         specialButton1.setOnClickListener(v -> safe(() -> {

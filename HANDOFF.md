@@ -2,7 +2,7 @@
 
 ## Start a new session
 
-1. Read this file, [TASKS.md](TASKS.md), and the current milestone in [FORK_PLAN.md](FORK_PLAN.md).
+1. Read this file, [TASKS.md](TASKS.md), [UI_GUIDE.md](UI_GUIDE.md), and the current milestone in [FORK_PLAN.md](FORK_PLAN.md).
 2. Run `git status --short`, `git branch -vv`, and `git remote -v`. Preserve unfinished edits.
 3. Continue the first incomplete current-milestone task. Inspect the actual code before relying on historical notes.
 4. Run appropriate tests, update TASKS and this handoff, commit, and push to the user's fork.
@@ -61,7 +61,74 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest evidence — full in-app modern pass
+## Latest refinement — layout, density and Material guidance
+
+User feedback on phone build 6bbe197 identified jarring review controls and overly spacious
+search cards. They requested principles documented and applied throughout the app, grounded
+in official Material 3 guidance. [UI_GUIDE.md](UI_GUIDE.md) is now the reusable design reference;
+read it before future UI changes. It distinguishes Material rules from this fork's conventions.
+
+Implemented:
+
+- Review controls moved outside the subject panel; aligned field/feedback edges, explicit
+  meaning/reading label, primary Submit and quiet secondary actions. Unanswered content can
+  scroll when IME/large text leaves little room. Extra glyph padding was removed after review
+  caught clipping at a configured 100dp prompt height. Existing custom quiz sizing remains.
+- Summary controls wrap with gaps, values no longer clip, and status colors are outlines on
+  neutral containers. Details/logs use quieter surfaces and flat modern subject glyphs.
+- Responsive normal search cards: 2 columns at 360dp, 1 at narrow/large-text sizes, up to 4 on
+  wide windows. Headers/forms and very long Japanese titles span the row. Level/SRS metadata
+  use distinct lines. Classic/compact options, grouping/order/collapse and callbacks stay intact.
+- Browse is keyword-first with compact 48dp level targets. Advanced numeric inputs carry unit
+  labels without squeezed side columns. Explicit Material button hierarchy applies to actions.
+- Dashboard metadata/spacing/shape and study-action priority refined. Fonts/downloads use
+  consistent rows and action hierarchy. Utility forms gain 16dp gutters, separated controls,
+  and a full-width API-token field with Save below. Native settings/color editor retained after
+  visual audit because their structure already works; no gratuitous replacement.
+- `ModernUi.ButtonRole` centralizes PRIMARY / SECONDARY / TEXT and paired role colors;
+  repeated style calls retain the chosen role. `UtilityStyle` isolates utility corrections.
+  `SubjectInfoButtonView.setTextShadowEnabled` is opt-in, preserving Classic defaults.
+
+Build: debug/release/test APKs succeed, including release vital lint. Final test results:
+- Android 16/API 36.1: **80 tests, 0 failures**, 78.922 seconds.
+- Android 11/API 30: **80 tests, 0 failures**, 67.17 seconds.
+- Focused search/study: **17 tests passed**. Subsequent test-only capture lifecycle correction:
+  **1 focused test passed**, verifying attached enabled-button state, Material fill and 4.5:1
+  contrast at all four review sizes. No application source changed after the full suites.
+- Build log: `/tmp/smoky-refinement-build.log`; final full logs:
+  `/tmp/smoky-refinement-api36-final-tests.log`, `/tmp/smoky-refinement-api30-final-tests.log`.
+  Ignored local copies: `test-results/refinement-api36-instrumentation.txt` and
+  `test-results/refinement-api30-instrumentation.txt`.
+- Additional logs: `/tmp/smoky-refinement-focused-tests.log`,
+  `/tmp/smoky-refinement-capture-build.log`, `/tmp/smoky-refinement-capture-tests.log`.
+- API 21 was not rerun; the existing Jackson blocker from the previous pass remains.
+
+Captures: `captures/smoky-refinement/before/` and `captures/smoky-refinement/after/`.
+Inspect `study-review-ime.png`, `study-refined-fixed-height.png`, `study-refined-dark-large.png`,
+`study-refined-landscape.png`, `study-summary-large.png`, `search-grid-light.png`,
+`search-grid-wide.png`, `search-grid-dark-large.png`, browse/font/dashboard/download captures.
+These are synthetic emulator screenshots, not account-bearing phone content.
+
+Initial 80-test runs on both versions had two new study fixture inflation failures: the
+standalone configured contexts lacked ActiveTheme attributes beneath the Material overlay.
+Those fixtures now mirror the actual activity theme chain. Existing actual-activity tests,
+including real IME visibility/draft retention, passed in those initial runs. Screenshot QA
+also corrected metadata wrapping and a resizing-grid fixture captured during item animation.
+A second candidate caught a genuine grid pixel-rounding edge at density 2.625: nominal 360dp
+lost a fraction of a dp to integer padding and selected one column. A 1dp rounding tolerance
+fixes the breakpoint, with two-/four-column geometry assertions. Its screenshot helper also
+needed to resolve color from the scoped RecyclerView rather than the unthemed window decor.
+Finally, detached review fixtures showed stale disabled drawable fill; attaching the views
+and refreshing drawable state fixed the captures, with enabled-state/fill/contrast assertions.
+These fixture fixes did not require changing production theme behavior. Final status comes
+from the final logs above, not intermediate failed candidates.
+
+Phone still has **6bbe197**; this refinement is not installed. No phone actions or real review
+submissions were performed during this task. Both task-owned emulators (5580/5582) were stopped without saving snapshots.
+Physical-device feedback, TalkBack, actual wallpaper-change refresh and extended/offline
+study behavior remain validation work. Widgets stay last; no performance gains are claimed.
+
+## Previous evidence — full in-app modern pass
 
 Debug, release and instrumentation APKs build successfully (including release vital lint).
 All 75 instrumentation tests pass on both Android 16 and Android 11. There is no separate
@@ -165,7 +232,7 @@ commit `b36c696`; never fabricate migration fixtures.
 
 ## Next work
 
-1. This build is installed and launched on the phone; get feedback across browse,
+1. Install the refinement when requested; get feedback across browse,
    details, lesson/review input, summary/log and settings. Keep Classic available.
 2. Address any reproducible bugs and usability issues; complete broader accessibility,
    landscape, wallpaper and recovery validation without submitting real test answers.

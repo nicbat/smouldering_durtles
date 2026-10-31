@@ -263,7 +263,9 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
             }
             if (item instanceof SubjectItem && modern
                     && GlobalSettings.Experimental.getSubjectCardLayoutSearch() == com.smouldering_durtles.wk.enums.SubjectCardLayout.NORMAL) {
-                return spans;
+                final String title = ((SubjectItem) item).getSubject().getCharacters();
+                // Long terms get room to remain legible rather than shrinking into a narrow tile.
+                return title != null && title.codePointCount(0, title.length()) > 8 ? spans : 1;
             }
             return item.getSpanSize(spans);
         });

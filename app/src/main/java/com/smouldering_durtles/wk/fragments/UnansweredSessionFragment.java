@@ -191,7 +191,7 @@ public final class UnansweredSessionFragment extends AbstractSessionFragment {
         // Show the Don't Know button if needed
         dontKnowButton.setVisibility(GlobalSettings.AdvancedOther.getDontKnowButtonBehavior().canShow());
 
-        if (isLandscape()) {
+        if (isLandscape() && !com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext())) {
             questionEditFrame.setBackgroundColor(question.getType().getHintColor());
         }
 
@@ -258,7 +258,7 @@ public final class UnansweredSessionFragment extends AbstractSessionFragment {
             questionEdit.setJapaneseLocale();
         }
 
-        if (isLandscape()) {
+        if (isLandscape() && !com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext())) {
             questionEditFrame.setBackgroundColor(question.getType().getHintColor());
             questionEdit.setBackgroundColor(question.getType().getHintColor());
             questionEdit.setTextColor(question.getType().getHintContrastColor());

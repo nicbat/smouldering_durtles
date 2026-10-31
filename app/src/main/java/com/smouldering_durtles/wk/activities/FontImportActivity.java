@@ -80,6 +80,12 @@ public final class FontImportActivity extends AbstractActivity {
         com.smouldering_durtles.wk.ui.ModernUi.styleActivity(this);
         fontTable.setDelegate(this, R.id.fontTable);
         importFontButton.setDelegate(this, R.id.importFontButton);
+        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
+            com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.importFontButton),
+                    com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.PRIMARY);
+            final android.view.View content = (android.view.View) findViewById(R.id.fontTable).getParent();
+            content.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(16));
+        }
 
         importFontButton.setOnClickListener(v -> importFont());
 
@@ -139,7 +145,8 @@ public final class FontImportActivity extends AbstractActivity {
             final FontImportRowView row = new FontImportRowView(this);
             row.setName(name);
             final TableLayout.LayoutParams rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-            rowLayoutParams.setMargins(dp2px(2), dp2px(2), 0, 0);
+            rowLayoutParams.setMargins(com.smouldering_durtles.wk.ui.ModernUi.isModern(this) ? 0 : dp2px(2),
+                    dp2px(com.smouldering_durtles.wk.ui.ModernUi.isModern(this) ? 8 : 2), 0, 0);
             rowLayoutParams.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
             rowLayoutParams.height = WRAP_CONTENT;
             fontTable.addView(row, rowLayoutParams);

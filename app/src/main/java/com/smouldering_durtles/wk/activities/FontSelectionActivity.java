@@ -57,6 +57,10 @@ public final class FontSelectionActivity extends AbstractActivity {
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
         com.smouldering_durtles.wk.ui.ModernUi.styleActivity(this);
         fontList.setDelegate(this, R.id.fontList);
+        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
+            final android.view.View list = findViewById(R.id.fontList);
+            list.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(16));
+        }
 
         while (fontList.getChildCount() > 1) {
             fontList.removeViewAt(1);
@@ -108,7 +112,7 @@ public final class FontSelectionActivity extends AbstractActivity {
             row.setTypeface(typeface == null ? Typeface.DEFAULT : typeface);
         }
         final TableLayout.LayoutParams rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-        rowLayoutParams.setMargins(0, dp2px(4), 0, 0);
+        rowLayoutParams.setMargins(0, dp2px(com.smouldering_durtles.wk.ui.ModernUi.isModern(this) ? 8 : 4), 0, 0);
         rowLayoutParams.width = MATCH_PARENT;
         rowLayoutParams.height = WRAP_CONTENT;
         layout.addView(row, rowLayoutParams);
@@ -125,7 +129,7 @@ public final class FontSelectionActivity extends AbstractActivity {
         row.setFontName(name);
         row.setTypeface(typefaceConfiguration.getTypeface());
         final TableLayout.LayoutParams rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-        rowLayoutParams.setMargins(0, dp2px(4), 0, 0);
+        rowLayoutParams.setMargins(0, dp2px(com.smouldering_durtles.wk.ui.ModernUi.isModern(this) ? 8 : 4), 0, 0);
         rowLayoutParams.width = MATCH_PARENT;
         rowLayoutParams.height = WRAP_CONTENT;
         layout.addView(row, rowLayoutParams);

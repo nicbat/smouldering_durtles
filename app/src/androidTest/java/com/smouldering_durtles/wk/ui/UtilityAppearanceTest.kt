@@ -53,11 +53,24 @@ class UtilityAppearanceTest {
                 val height = (800 * activity.resources.displayMetrics.density).toInt()
                 layouts.forEach { layout ->
                     val root = LayoutInflater.from(activity).cloneInContext(context).inflate(layout, null)
-                    ModernUi.style(root)
+                    UtilityStyle.apply(root)
                     root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
                     root.layout(0, 0, root.measuredWidth, root.measuredHeight)
                     assertNotNull("Utility screen must retain toolbar", root.findViewById<View>(R.id.toolbar))
                     assertEquals(width, root.width)
+                    if (layout == R.layout.activity_no_api_key_help) {
+                        val token = root.findViewById<View>(R.id.apiKey)
+                        val save = root.findViewById<Button>(R.id.saveButton)
+                        assertTrue("Save must sit below the full-width token field", save.top >= token.bottom)
+                        val form = token.parent as android.view.ViewGroup
+                        assertEquals(form.width - form.paddingLeft - form.paddingRight, token.width)
+                        assertTrue(root.findViewById<View>(R.id.document).top >= save.bottom)
+                    }
+                    if (layout == R.layout.activity_data_import_export) {
+                        val export = root.findViewById<View>(R.id.exportSearchPresets)
+                        val import = root.findViewById<View>(R.id.importSearchPresets)
+                        assertTrue("Import/export controls need separate touch bounds", import.top > export.bottom)
+                    }
                     if (layout == R.layout.activity_download_audio_modern) {
                         assertFalse(root.findViewById<View>(R.id.abortMoveButton).isEnabled)
                         assertTrue(root.findViewById<Button>(R.id.moveButton).minHeight >= (48 * context.resources.displayMetrics.density).toInt())
@@ -73,6 +86,30 @@ class UtilityAppearanceTest {
                 }
             }
         }
+    }
+
+    @Test fun actionRolesSurviveRestylingAndKeepDisabledBehavior() {
+        ActivityScenario.launch(AboutActivity::class.java).use { scenario -> scenario.onActivity { activity ->
+            val button = androidx.appcompat.widget.AppCompatButton(activity)
+            var clicks = 0
+            button.setOnClickListener { clicks++ }
+            ModernUi.button(button, ModernUi.ButtonRole.PRIMARY)
+            val primaryInk = button.currentTextColor
+            assertEquals(com.google.android.material.color.MaterialColors.getColor(button,
+                com.google.android.material.R.attr.colorOnPrimary), primaryInk)
+            ModernUi.style(button)
+            assertEquals(primaryInk, button.currentTextColor)
+            assertEquals(ModernUi.ButtonRole.PRIMARY, button.getTag(R.id.modernActionRole))
+            button.performClick()
+            assertEquals(1, clicks)
+            button.isEnabled = false
+            val disabledInk = button.currentTextColor
+            assertNotEquals(primaryInk, disabledInk)
+            ModernUi.style(button)
+            assertFalse(button.isEnabled)
+            assertEquals(disabledInk, button.currentTextColor)
+            assertEquals(1, clicks)
+        } }
     }
 
     @Test fun syntheticDownloadBracketKeepsCountsAndFinishedState() {

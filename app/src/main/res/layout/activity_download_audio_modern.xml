@@ -43,7 +43,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
+            android:padding="16dp"
             android:orientation="vertical">
 
             <TextView
@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                style="@style/WK.TextView.Normal"/>
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <TextView
                 android:id="@+id/activeDownloads"
@@ -59,13 +59,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Active downloads: 0"
-                style="@style/WK.TextView.Large"/>
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="vertical" android:padding="16dp" android:background="?attr/tileColorBackground">
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Move audio files from other locations to the preferred location" style="@style/WK.TextView.Normal"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:id="@+id/audioRelocationPanel" android:orientation="vertical" android:padding="12dp" android:background="@drawable/modern_panel_background">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Move audio files from other locations to the preferred location" android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp">
-                    <Button android:id="@+id/moveButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:text="Move" style="@style/WK.Button.Normal"/>
-                    <Button android:id="@+id/abortMoveButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Abort" android:clickable="false" android:enabled="false" style="@style/WK.Button.Normal"/>
+                    <Button android:id="@+id/moveButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:text="Move" style="@style/WK.Button.Normal" android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+                    <Button android:id="@+id/abortMoveButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Abort" android:clickable="false" android:enabled="false" style="@style/WK.Button.Normal" android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -87,7 +87,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="Abort"
                 android:visibility="gone"
-                style="@style/WK.Button.Normal"/>
+                style="@style/WK.Button.Normal" android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
 
             <Button
                 android:id="@+id/deleteButton"
@@ -97,7 +97,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="Delete all audio"
                 android:visibility="gone"
-                style="@style/WK.Button.Normal"/>
+                style="@style/WK.Button.Normal" android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
 
             <LinearLayout
                 android:id="@+id/downloadAudioView"

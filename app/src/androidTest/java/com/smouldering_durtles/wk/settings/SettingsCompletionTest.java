@@ -126,6 +126,18 @@ public class SettingsCompletionTest {
                     assertTextFits(form);
                     capture(activity, "settings-dark-large-" + activity.getResources().getResourceEntryName(resource), form);
                 }
+                com.smouldering_durtles.wk.views.FontSelectionRowView font = new com.smouldering_durtles.wk.views.FontSelectionRowView(context);
+                font.setFontName("A long imported Japanese typeface name");
+                int fontWidth = Math.round(320 * context.getResources().getDisplayMetrics().density);
+                font.measure(View.MeasureSpec.makeMeasureSpec(fontWidth, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                font.layout(0, 0, fontWidth, font.getMeasuredHeight());
+                TextView name = font.findViewById(R.id.fontName);
+                View toggle = font.findViewById(R.id.fontSwitch);
+                assertTextFits(font);
+                assertTrue("Long font name must not collide with its switch", name.getRight() <= toggle.getLeft());
+                assertTrue("Switch stays inside the row", toggle.getRight() <= font.getWidth());
+                capture(activity, "settings-font-row-dark-large", font);
             });
         }
     }

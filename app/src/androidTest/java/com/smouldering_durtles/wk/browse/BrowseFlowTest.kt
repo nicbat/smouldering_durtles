@@ -94,6 +94,12 @@ class BrowseFlowTest {
                     assertTrue(view.width > 0)
                     assertTrue("Control should fit its parent", view.right <= (view.parent as View).width)
                 }
+                for (id in listOf(R.id.reviewLessHours, R.id.reviewMoreHours, R.id.incorrectHours)) {
+                    val field = form.findViewById<TextInputEditText>(id)
+                    assertEquals("Hours", field.hint.toString())
+                    assertEquals("Units must not squeeze the numeric field", width, (field.parent as View).width)
+                }
+                assertEquals("Days ago", form.findViewById<TextInputEditText>(R.id.burnedLessDays).hint.toString())
                 // Capture just the numeric/filter controls; the full form can be many screens tall.
                 val bitmap = Bitmap.createBitmap(width, minOf(form.height, 1600), Bitmap.Config.ARGB_8888)
                 form.draw(Canvas(bitmap))
@@ -126,13 +132,20 @@ class BrowseFlowTest {
                     File(activity.filesDir, "browse-overview-light.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
                     bitmap.recycle()
                     val table = activity.findViewById<android.widget.TableLayout>(R.id.levelTable)
+                    val queryPosition = IntArray(2)
+                    val tablePosition = IntArray(2)
+                    activity.findViewById<View>(R.id.queryButton).getLocationInWindow(queryPosition)
+                    table.getLocationInWindow(tablePosition)
+                    assertTrue("Keyword search should be reachable before the 60-level table", queryPosition[1] < tablePosition[1])
                     var levelSeven: View? = null
                     for (row in 0 until table.childCount) {
                         val children = table.getChildAt(row) as android.widget.TableRow
                         for (column in 0 until children.childCount) {
                             val button = children.getChildAt(column)
                             assertTrue(button is MaterialButton)
-                            assertTrue(button.width > 0)
+                            val minTarget = (48 * button.resources.displayMetrics.density).toInt()
+                            assertTrue("Level button width keeps a touch target", button.width >= minTarget)
+                            assertTrue("Level button height keeps a touch target", button.height >= minTarget)
                             if (button.contentDescription == "Browse level 7") levelSeven = button
                         }
                     }

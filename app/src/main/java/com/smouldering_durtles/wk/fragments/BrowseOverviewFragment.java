@@ -331,15 +331,17 @@ public final class BrowseOverviewFragment extends AbstractFragment {
         final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         final float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
         final boolean modern = SearchStyle.isModern(context);
-        int numColumns = Math.round((dpWidth - (modern ? 32 : 0)) /
-                (modern ? Math.max(64, 56 * displayMetrics.scaledDensity / displayMetrics.density) : Constants.BROWSE_OVERVIEW_COLUMN_WIDTH));
+        int numColumns = modern
+                ? (int) ((dpWidth - 32) / (52 * Math.max(1, getResources().getConfiguration().fontScale)))
+                : Math.round(dpWidth / Constants.BROWSE_OVERVIEW_COLUMN_WIDTH);
+        if (modern && dpWidth < 600) numColumns = Math.min(6, numColumns);
         if (numColumns < 1) {
             numColumns = 1;
         }
         if (numColumns > 10) {
             numColumns = 10;
         }
-        if (numColumns < 10 && numColumns > 5) {
+        if (!modern && numColumns < 10 && numColumns > 5) {
             numColumns = 5;
         }
 
@@ -352,7 +354,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 currentRow = new TableRow(context);
                 currentRow.setId(ViewCompat.generateViewId());
                 rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-                rowLayoutParams.setMargins(0, dp2px(6), 0, 0);
+                rowLayoutParams.setMargins(0, dp2px(modern ? 4 : 6), 0, 0);
                 rowLayoutParams.width = modern ? MATCH_PARENT : WRAP_CONTENT;
                 rowLayoutParams.height = WRAP_CONTENT;
                 levelTable.addView(currentRow, rowLayoutParams);
@@ -382,6 +384,14 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 button.setMinimumWidth(0);
                 button.setMinWidth(0);
                 button.setMinimumHeight(dp2px(48));
+                final MaterialButton levelButton = (MaterialButton) button;
+                levelButton.setCornerRadius(dp2px(12));
+                levelButton.setInsetTop(0);
+                levelButton.setInsetBottom(0);
+                levelButton.setStrokeWidth(0);
+                levelButton.setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(button,
+                        com.google.android.material.R.attr.colorSurfaceContainerLow)));
+                levelButton.setTextColor(MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSurface));
             }
             if (level == LiveLevelDuration.getInstance().get().getLevel()) {
                 if (modern) {
@@ -391,7 +401,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 } else button.setBackgroundColor(ThemeUtil.getColor(R.attr.buttonHighlightColor));
             }
             cellLayoutParams = new TableRow.LayoutParams(0, 0);
-            cellLayoutParams.setMargins(dp2px(2), dp2px(2), 0, 0);
+            cellLayoutParams.setMargins(modern ? 0 : dp2px(2), modern ? 0 : dp2px(2), modern ? dp2px(4) : 0, 0);
             cellLayoutParams.width = modern ? 0 : MATCH_PARENT;
             if (modern) cellLayoutParams.weight = 1;
             cellLayoutParams.height = WRAP_CONTENT;

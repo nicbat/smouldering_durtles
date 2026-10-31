@@ -34,6 +34,9 @@ import com.smouldering_durtles.wk.util.ThemeUtil;
 public final class ModernUi {
     private ModernUi() {}
 
+    /** Explicit action hierarchy; a stored view tag keeps repeated styling from erasing the role. */
+    public enum ButtonRole { PRIMARY, SECONDARY, TEXT }
+
     public static Context context(Context base) {
         if (isModern(base)) return base;
         Context themed = new ContextThemeWrapper(base, R.style.SmokyUiTheme);
@@ -116,23 +119,46 @@ public final class ModernUi {
     }
 
     public static void button(Button button) {
+        final Object role = button.getTag(R.id.modernActionRole);
+        if (button instanceof com.google.android.material.button.MaterialButton && !(role instanceof ButtonRole)) return;
+        button(button, role instanceof ButtonRole ? (ButtonRole) role : ButtonRole.SECONDARY);
+    }
+
+    public static void button(Button button, ButtonRole role) {
         if (!isModern(button.getContext())) return;
-        // Explicit MaterialButton layouts already own shape, state and tint.
-        if (button instanceof com.google.android.material.button.MaterialButton) return;
-        int foreground = MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSecondaryContainer);
-        int fill = MaterialColors.getColor(button, com.google.android.material.R.attr.colorSecondaryContainer);
+        button.setTag(R.id.modernActionRole, role);
+        int foreground = MaterialColors.getColor(button, role == ButtonRole.PRIMARY
+                ? com.google.android.material.R.attr.colorOnPrimary
+                : role == ButtonRole.TEXT ? androidx.appcompat.R.attr.colorPrimary
+                : com.google.android.material.R.attr.colorOnSecondaryContainer);
+        int fill = role == ButtonRole.TEXT ? Color.TRANSPARENT : MaterialColors.getColor(button,
+                role == ButtonRole.PRIMARY ? androidx.appcompat.R.attr.colorPrimary
+                        : com.google.android.material.R.attr.colorSecondaryContainer);
         int onSurface = MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSurface);
         int[][] states = {new int[] {-android.R.attr.state_enabled}, new int[] {}};
         button.setTextColor(new ColorStateList(states, new int[] {ColorUtils.setAlphaComponent(onSurface, 97), foreground}));
-        MaterialShapeDrawable shape = surface(button, fill, 20);
-        shape.setFillColor(new ColorStateList(states, new int[] {ColorUtils.setAlphaComponent(onSurface, 31), fill}));
-        ViewCompat.setBackgroundTintList(button, null);
-        button.setBackground(new RippleDrawable(ColorStateList.valueOf(ColorUtils.setAlphaComponent(foreground, 38)), shape, null));
+        ColorStateList fills = new ColorStateList(states, new int[] {
+                role == ButtonRole.TEXT ? Color.TRANSPARENT : ColorUtils.setAlphaComponent(onSurface, 31), fill});
+        ColorStateList ripple = ColorStateList.valueOf(ColorUtils.setAlphaComponent(foreground, 38));
+        if (button instanceof com.google.android.material.button.MaterialButton) {
+            com.google.android.material.button.MaterialButton material = (com.google.android.material.button.MaterialButton) button;
+            material.setBackgroundTintList(fills);
+            material.setCornerRadius(dp(button, 12));
+            material.setStrokeWidth(0);
+            material.setRippleColor(ripple);
+            material.setIconTint(button.getTextColors());
+        } else {
+            MaterialShapeDrawable shape = surface(button, fill, 12);
+            shape.setFillColor(fills);
+            ViewCompat.setBackgroundTintList(button, null);
+            button.setBackground(new RippleDrawable(ripple, shape, null));
+        }
         button.setShadowLayer(0, 0, 0, 0);
         button.setAllCaps(false);
+        button.setTextSize(14);
         button.setMinHeight(dp(button, 48));
         button.setMinimumHeight(dp(button, 48));
-        button.setPadding(dp(button, 16), dp(button, 10), dp(button, 16), dp(button, 10));
+        button.setPadding(dp(button, 16), dp(button, 8), dp(button, 16), dp(button, 8));
         button.setElevation(0);
     }
 

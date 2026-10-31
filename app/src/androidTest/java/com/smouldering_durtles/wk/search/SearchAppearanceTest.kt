@@ -69,7 +69,7 @@ class SearchAppearanceTest {
             scenario.onActivity { activity ->
                 assertEquals(4, adapter.numSubjects)
                 assertEquals(7, adapter.itemCount) // vocabulary and kana vocabulary share the existing group
-                assertEquals(4, adapter.getItemSpanSize(1, 4))
+                assertEquals(1, adapter.getItemSpanSize(1, 2))
                 val card = list.findViewHolderForAdapterPosition(1)!!.itemView as MaterialCardView
                 assertEquals("Ground", card.findViewById<TextView>(R.id.meaning).text.toString())
                 assertEquals(MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurfaceContainerLow), card.cardBackgroundColor.defaultColor)
@@ -122,6 +122,7 @@ class SearchAppearanceTest {
     @Test fun longTextAndDarkCardsFitAtDoubleFontSize() {
         fixture(dark = true, fontScale = 2f).use { scenario ->
             scenario.onActivity { activity ->
+                assertEquals(1, (list.layoutManager as GridLayoutManager).spanCount)
                 val subject = subjects()[2]
                 val binder = SubjectCardBinder(SubjectCardLayout.NORMAL)
                 val card = binder.createView(subject.type, list) as MaterialCardView
@@ -138,6 +139,78 @@ class SearchAppearanceTest {
                 assertFalse(MaterialColors.isColorLight(card.cardBackgroundColor.defaultColor))
                 save(activity, "search-dark-large-card", card)
             }
+        }
+    }
+
+    @Test fun responsiveGridKeepsHeadersAndLongTitlesFullWidth() {
+        fixture().use { scenario -> scenario.onActivity { activity ->
+            val results = arrayListOf(
+                subject(90101, SubjectType.WANIKANI_KANJI, "一", "One", "いち"),
+                subject(90102, SubjectType.WANIKANI_KANJI, "二", "Two", "に"),
+                subject(90103, SubjectType.WANIKANI_KANJI, "三", "Three", "さん"),
+                subject(90104, SubjectType.WANIKANI_KANJI, "四", "Four", "し"),
+                subject(90105, SubjectType.WANIKANI_VOCAB, "一生懸命", "With all one’s might; as hard as one can", "いっしょうけんめい"),
+                subject(90106, SubjectType.WANIKANI_KANA_VOCAB, "ありがとう", "Thank you", null),
+                subject(90107, SubjectType.WANIKANI_KANA_VOCAB, "よろしくおねがいします", "Please treat me well", null)
+            )
+            adapter.setResult(results)
+            (list.parent as View).findViewById<TextView>(R.id.numHits).text = "7 subjects"
+            layoutList(360)
+            val manager = list.layoutManager as GridLayoutManager
+            assertEquals("360dp phones have two readable columns", 2, manager.spanCount)
+            assertEquals(2, adapter.getItemSpanSize(0, 2))
+            val first = list.findViewHolderForAdapterPosition(1)!!.itemView
+            val second = list.findViewHolderForAdapterPosition(2)!!.itemView
+            assertEquals(first.top, second.top)
+            assertTrue(first.right < second.left)
+            assertTrue(first.width < list.width / 2)
+            val progress = first.findViewById<TextView>(R.id.progress)
+            assertEquals("Level 1\nApprentice I", progress.text.toString())
+            assertEquals("Keep the SRS stage together instead of orphaning its numeral", 2, progress.lineCount)
+            val vocabPosition = (0 until adapter.itemCount).first { adapter.getItemViewType(it) == R.id.viewTypeResultVocabulary }
+            val vocab = list.findViewHolderForAdapterPosition(vocabPosition)!!.itemView
+            val meaning = vocab.findViewById<TextView>(R.id.meaning)
+            assertTrue("Long meanings wrap in a grid cell", meaning.lineCount > 1)
+            for (line in 0 until meaning.lineCount) assertEquals(0, meaning.layout.getEllipsisCount(line))
+            assertEquals("Long Japanese terms keep a full-width card", 2, adapter.getItemSpanSize(adapter.itemCount - 1, 2))
+            save(activity, "search-grid-light", list)
+            val ids = adapter.subjectIds.copyOf()
+            adapter.setShowingForm(true, manager)
+            assertEquals("Refine form spans every column", 2, adapter.getItemSpanSize(0, 2))
+            adapter.setShowingForm(false, manager)
+            layoutList(280)
+            assertEquals("Narrow windows fall back to one column", 1, manager.spanCount)
+            layoutList(720)
+            assertEquals("Wide windows increase density without oversized cards", 4, manager.spanCount)
+            val wideCards = (1..4).map { list.findViewHolderForAdapterPosition(it)!!.itemView }
+            assertTrue("All four kanji share one wide-screen row", wideCards.all { it.top == wideCards.first().top })
+            wideCards.zipWithNext().forEach { (left, right) -> assertTrue(left.right < right.left) }
+            assertTrue(wideCards.last().right <= list.width - list.paddingRight)
+            assertArrayEquals(ids, adapter.subjectIds)
+            save(activity, "search-grid-wide", list)
+        } }
+    }
+
+    @Test fun darkGridUsesOneColumnAtLargeFontAndKeepsClassicSpans() {
+        fixture(dark = true, fontScale = 2f).use { scenario -> scenario.onActivity { activity ->
+            layoutList(360)
+            assertEquals(1, (list.layoutManager as GridLayoutManager).spanCount)
+            save(activity, "search-grid-dark-large", list)
+            adapter.setModern(false)
+            assertEquals(1, adapter.getItemSpanSize(1, 4)) // original radical cell
+            assertEquals(4, adapter.getItemSpanSize(5, 4)) // original vocabulary row
+        } }
+    }
+
+    private fun layoutList(widthDp: Int) {
+        val density = list.resources.displayMetrics.density
+        val width = (widthDp * density).toInt()
+        val height = (1400 * density).toInt()
+        // The first layout updates the span count from the actual viewport; the second lays out that grid.
+        repeat(2) {
+            list.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+            list.layout(0, 0, width, height)
         }
     }
 
@@ -204,13 +277,10 @@ class SearchAppearanceTest {
             val root = LayoutInflater.from(activity).cloneInContext(context).inflate(R.layout.fragment_search_result_modern, null)
             root.findViewById<TextView>(R.id.numHits).text = "Search preview · 4 subjects"
             list = root.findViewById(R.id.resultView)
+            list.itemAnimator = null // Capture final geometry, not an in-flight collapse/resize animation.
             adapter = SearchResultAdapter(fragment)
             adapter.setModern(true)
-            val manager = GridLayoutManager(context, 4)
-            manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int) = adapter.getItemSpanSize(position, 4)
-            }
-            list.layoutManager = manager
+            SearchStyle.configureResultGrid(list, adapter)
             list.adapter = adapter
             adapter.setResult(subjects())
             activity.setContentView(root)
@@ -234,7 +304,13 @@ class SearchAppearanceTest {
     private fun save(context: Context, name: String, view: View) {
         if (view.width <= 0 || view.height <= 0) return
         val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-        view.draw(Canvas(bitmap))
+        val canvas = Canvas(bitmap)
+        if (view is RecyclerView) {
+            // A detached list omits its parent surface; real window roots paint their own background.
+            canvas.drawColor(MaterialColors.getColor(view.context,
+                com.google.android.material.R.attr.colorSurface, android.graphics.Color.TRANSPARENT))
+        }
+        view.draw(canvas)
         File(context.filesDir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()
     }

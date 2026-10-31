@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -44,16 +45,18 @@ fun DashboardTheme(dynamicColor: Boolean, dark: Boolean = isSystemInDarkTheme(),
 fun DashboardOverview(state: DashboardState, enabled: Boolean,
                       onReviews: () -> Unit, onLessons: () -> Unit,
                       onResume: () -> Unit, onBrowse: () -> Unit) {
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
-        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.headlineSmall,
+    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold)
             if (state.level > 0) {
-                Text(stringResource(R.string.dashboard_level, state.level),
-                    style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                state.daysAtLevel?.let { days ->
-                    Text(stringResource(R.string.dashboard_days_at_level, days),
-                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(stringResource(R.string.dashboard_level, state.level),
+                        style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                    state.daysAtLevel?.let { days ->
+                        Text(stringResource(R.string.dashboard_days_at_level, days),
+                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
             if (!state.ready) {
@@ -66,19 +69,26 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                 when {
                     state.activeSession -> {
                         Text(stringResource(R.string.dashboard_session_waiting))
-                        Button(onClick = onResume, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = onResume, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.dashboard_resume))
                         }
                     }
                     state.vacation -> Text(stringResource(R.string.dashboard_vacation))
                     else -> {
                         if (state.reviews > 0) {
-                            Button(onClick = onReviews, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                            Button(onClick = onReviews, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                shape = RoundedCornerShape(12.dp)) {
                                 Text(stringResource(R.string.dashboard_start_reviews))
                             }
                         }
                         if (state.lessons > 0) {
-                            FilledTonalButton(onClick = onLessons, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                            Button(onClick = onLessons, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                colors = if (state.reviews > 0) ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ) else ButtonDefaults.buttonColors(),
+                                shape = RoundedCornerShape(12.dp)) {
                                 Text(stringResource(R.string.dashboard_start_lessons))
                             }
                         }
@@ -93,7 +103,8 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                 Text(stringResource(R.string.dashboard_syncing), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            OutlinedButton(onClick = onBrowse, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onBrowse, enabled = enabled,
+                modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.dashboard_browse))
             }
         }

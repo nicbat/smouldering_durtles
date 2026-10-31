@@ -106,9 +106,11 @@ public final class SubjectCardBinder {
         button.setSizeSp(24);
         button.setTransparent(!modern);
         if (modern) {
-            // Let the existing renderer fit long Japanese titles within the actual row width.
-            ((com.smouldering_durtles.wk.views.SubjectInfoButtonView) view.findViewById(R.id.button))
-                    .setMaxSize(Integer.MAX_VALUE, (int) (24 * view.getResources().getDisplayMetrics().scaledDensity));
+            // Fit Japanese titles within their card; long terms receive a full grid row.
+            final com.smouldering_durtles.wk.views.SubjectInfoButtonView title = view.findViewById(R.id.button);
+            title.setMaxSize(Integer.MAX_VALUE, (int) (24 * view.getResources().getDisplayMetrics().scaledDensity));
+            title.setTextShadowEnabled(false);
+            title.setElevation(0);
             view.findViewById(R.id.button).setContentDescription(subject.getType().getDescription()
                     + ": " + (subject.getCharacters() == null ? subject.getOneMeaning() : subject.getCharacters()));
         }
@@ -131,6 +133,11 @@ public final class SubjectCardBinder {
             reading.setVisibility(true);
         }
         else {
+            reading.setVisibility(false);
+        }
+
+        if (modern && subject.getType().isKanaVocabulary()) {
+            // Kana-only titles already show their reading; avoid repeating the same line below.
             reading.setVisibility(false);
         }
 

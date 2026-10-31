@@ -12,6 +12,7 @@ public abstract class ModernActivity extends AbstractActivity {
     }
 
     @Override protected void styleActivityContent() {
-        ModernUi.styleActivity(this);
+        com.smouldering_durtles.wk.ui.UtilityStyle.apply(findViewById(android.R.id.content));
+        ModernUi.chrome(this);
     }
 }

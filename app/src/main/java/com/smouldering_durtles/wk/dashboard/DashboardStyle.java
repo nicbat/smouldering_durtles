@@ -23,6 +23,9 @@ public final class DashboardStyle {
         androidx.appcompat.widget.Toolbar toolbar = activity.findViewById(R.id.toolbar);
         toolbar.setElevation(0);
         int surface = MaterialColors.getColor(toolbar, com.google.android.material.R.attr.colorSurface);
+        ViewGroup scroll = activity.findViewById(R.id.mainScrollView);
+        View content = scroll.getChildAt(0);
+        content.setPadding(dp(content, 16), dp(content, 8), dp(content, 16), dp(content, 16));
         androidx.core.view.WindowInsetsControllerCompat bars = androidx.core.view.WindowCompat.getInsetsController(
                 activity.getWindow(), activity.getWindow().getDecorView());
         bars.setAppearanceLightStatusBars(MaterialColors.isColorLight(surface));
@@ -86,7 +89,7 @@ public final class DashboardStyle {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(panel, 16), dp(panel, 12), dp(panel, 16), dp(panel, 12));
         panel.setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(panel,
-                MaterialColors.getColor(panel, com.google.android.material.R.attr.colorErrorContainer), 20));
+                MaterialColors.getColor(panel, com.google.android.material.R.attr.colorErrorContainer), 16));
         for (int i = 0; i < panel.getChildCount(); i++) {
             View child = panel.getChildAt(i);
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) child.getLayoutParams();
@@ -110,7 +113,7 @@ public final class DashboardStyle {
 
     public static MaterialShapeDrawable surface(View view) {
         MaterialShapeDrawable shape = new MaterialShapeDrawable(ShapeAppearanceModel.builder()
-                .setAllCornerSizes(dp(view, 24)).build());
+                .setAllCornerSizes(dp(view, 16)).build());
         shape.setFillColor(ColorStateList.valueOf(MaterialColors.getColor(view,
                 com.google.android.material.R.attr.colorSurfaceContainerLow)));
         return shape;
@@ -131,7 +134,7 @@ public final class DashboardStyle {
 
     public static void card(View view) {
         view.setBackground(surface(view));
-        int padding = dp(view, 16);
+        int padding = dp(view, 12);
         view.setPadding(padding, padding, padding, padding);
         textColors(view);
     }
@@ -158,7 +161,7 @@ public final class DashboardStyle {
             this.chart = chart;
             setOrientation(VERTICAL);
             setBackground(new InsetDrawable(surface(this), 0, dp(this, 12), 0, 0));
-            setPadding(dp(this, 16), dp(this, 28), dp(this, 16), dp(this, 16));
+            setPadding(dp(this, 12), dp(this, 24), dp(this, 12), dp(this, 12));
             TextView heading = new TextView(getContext());
             heading.setText(title);
             heading.setTextAppearance(getContext(), com.google.android.material.R.style.TextAppearance_Material3_TitleLarge);
