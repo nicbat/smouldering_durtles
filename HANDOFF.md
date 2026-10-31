@@ -123,8 +123,10 @@ and refreshing drawable state fixed the captures, with enabled-state/fill/contra
 These fixture fixes did not require changing production theme behavior. Final status comes
 from the final logs above, not intermediate failed candidates.
 
-Phone still has **6bbe197**; this refinement is not installed. No phone actions or real review
-submissions were performed during this task. Both task-owned emulators (5580/5582) were stopped without saving snapshots.
+Phone now has refinement build **5749f22**. At the user’s request on 2026-10-30,
+`adb -s 4C191FDAP00202 install -r` succeeded and MainActivity opened with `am start -W`
+(Status: ok, cold launch), preserving app data. No instrumentation or real review submissions
+were performed on the phone. User feedback on the refinement remains pending. Both task-owned emulators (5580/5582) were stopped without saving snapshots.
 Physical-device feedback, TalkBack, actual wallpaper-change refresh and extended/offline
 study behavior remain validation work. Widgets stay last; no performance gains are claimed.
 
@@ -232,7 +234,7 @@ commit `b36c696`; never fabricate migration fixtures.
 
 ## Next work
 
-1. Install the refinement when requested; get feedback across browse,
+1. The refinement is installed and launched; get feedback across browse,
    details, lesson/review input, summary/log and settings. Keep Classic available.
 2. Address any reproducible bugs and usability issues; complete broader accessibility,
    landscape, wallpaper and recovery validation without submitting real test answers.

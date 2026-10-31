@@ -11,9 +11,9 @@ low-density search results and inconsistent spacing/action emphasis. Apply the s
 Material references, local conventions, concrete lessons and a per-screen checklist.
 Widgets remain last. Existing Views, Classic and semantic learning colors remain.
 
-The phone has full UI build **6bbe197**, installed/started with data preserved.
-The current refinement is newer and is not installed yet. Never run instrumentation
-on the account-bearing phone. Push tested changes to `origin/smoky-durtles/foundation`.
+The phone has refinement build **5749f22**, installed with `adb install -r` and opened
+successfully on 2026-10-30, preserving app data. User feedback on this build is pending.
+Never run instrumentation on the account-bearing phone. Push tested changes to `origin/smoky-durtles/foundation`.
 
 ## Current refinement
 
@@ -24,7 +24,8 @@ on the account-bearing phone. Push tested changes to `origin/smoky-durtles/found
 - [x] Inspect refreshed light/dark, narrow/2x, wide-grid, IME and scrolled review captures.
 - [x] Debug/release builds; **80 tests pass on Android 16 and Android 11**. Focused attached-view
   capture/contrast test also passes after a test-only fixture correction. See HANDOFF for logs.
-- [ ] Phone validation of refined build when installed; keep further feedback in Phase 2.
+- [x] Install and launch refinement build 5749f22 on Pixel 9 Pro, preserving app data.
+- [ ] User validation of refined build; keep further feedback in Phase 2.
 
 ## Completed
 
