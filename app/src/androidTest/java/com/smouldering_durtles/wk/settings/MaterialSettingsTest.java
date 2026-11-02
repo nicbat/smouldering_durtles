@@ -19,6 +19,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
+import androidx.preference.ListPreference;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -55,7 +56,7 @@ import static org.junit.Assert.*;
 public class MaterialSettingsTest {
     private SharedPreferences prefs;
     private final Map<String, Object> original = new HashMap<>();
-    private static final String[] KEYS = {"modern_settings", "settings_dynamic_color",
+    private static final String[] KEYS = {"modern_settings", "settings_dynamic_color", "learning_colors",
             "modern_dashboard", "dashboard_dynamic_color", "network_rule", "max_lesson_session_size",
             "previous_level_progression_limit_amount", "previous_level_progression_limit"};
 
@@ -93,6 +94,29 @@ public class MaterialSettingsTest {
             });
             assertFalse(prefs.getBoolean("modern_dashboard", true));
             screenshot("settings-display");
+        }
+    }
+
+    @Test public void learningPalettePersistsAndRecreatesCurrentScreen() throws Exception {
+        prefs.edit().putString("learning_colors", "soft").commit();
+        try (ActivityScenario<PreferencesActivity> scenario = launch("display_settings")) {
+            final PreferencesActivity[] before = new PreferencesActivity[1];
+            scenario.onActivity(activity -> {
+                before[0] = activity;
+                fragment(activity).scrollToPreference("learning_colors");
+            });
+            idle();
+            onView(withText(R.string.learning_colors_title)).perform(click());
+            screenshot("settings-learning-colors");
+            onView(withText("Neutral — use the Material palette")).inRoot(isDialog()).perform(click());
+            idle();
+            assertEquals("neutral", prefs.getString("learning_colors", ""));
+            scenario.onActivity(activity -> {
+                assertNotSame(before[0], activity);
+                ListPreference palette = fragment(activity).findPreference("learning_colors");
+                assertNotNull(palette);
+                assertEquals("neutral", palette.getValue());
+            });
         }
     }
 

@@ -101,7 +101,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
             if (darkTheme != null) darkTheme.setTitle(R.string.classic_dark_theme_title);
             if (customColors != null) customColors.setSummary(R.string.classic_theme_customization_summary);
         }
-        for (String key : new String[] {"modern_settings", "settings_dynamic_color"}) {
+        for (String key : new String[] {"modern_settings", "settings_dynamic_color", "learning_colors"}) {
             Preference appearance = findPreference(key);
             if (appearance != null) appearance.setOnPreferenceChangeListener((preference, value) -> {
                 // The change listener runs before persistence. Recreate after it returns.

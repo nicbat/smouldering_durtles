@@ -145,10 +145,28 @@ public final class StudyStyle {
         params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
         params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
         container.addView(flow, params);
-        final View progress = root.findViewById(R.id.finishProgressBar);
+        final android.widget.ProgressBar progress = root.findViewById(R.id.finishProgressBar);
         final ConstraintLayout.LayoutParams progressParams = (ConstraintLayout.LayoutParams) progress.getLayoutParams();
         progressParams.topToBottom = flow.getId();
+        progressParams.height = dp(root, 8);
+        progressParams.topMargin = dp(root, 8);
+        progressParams.bottomMargin = dp(root, 8);
         progress.setLayoutParams(progressParams);
+        final int trackColor = MaterialColors.getColor(progress, com.google.android.material.R.attr.colorSurfaceContainerHighest);
+        final int indicatorColor = MaterialColors.getColor(progress, androidx.appcompat.R.attr.colorPrimary);
+        final android.graphics.drawable.LayerDrawable drawable = new android.graphics.drawable.LayerDrawable(new Drawable[]{
+                ModernUi.surface(progress, trackColor, 4),
+                new android.graphics.drawable.ClipDrawable(ModernUi.surface(progress, indicatorColor, 4),
+                        Gravity.START, android.graphics.drawable.ClipDrawable.HORIZONTAL)});
+        drawable.setId(0, android.R.id.background);
+        drawable.setId(1, android.R.id.progress);
+        progress.setProgressDrawable(drawable);
+        progress.setProgressTintList(ColorStateList.valueOf(indicatorColor));
+        progress.setProgressBackgroundTintList(ColorStateList.valueOf(trackColor));
+        final View summary = root.findViewById(R.id.correctSummary);
+        final ConstraintLayout.LayoutParams summaryParams = (ConstraintLayout.LayoutParams) summary.getLayoutParams();
+        summaryParams.topMargin = dp(root, 8);
+        summary.setLayoutParams(summaryParams);
     }
 
     /** Round a semantic surface without replacing its established foreground/background palette. */
@@ -167,7 +185,14 @@ public final class StudyStyle {
         if (!ModernUi.isModern(root.getContext())) return;
         final View question = root.findViewById(R.id.questionView);
         if (question != null) {
-            semanticSurface(question, subjectColor, 16, false);
+            question.setBackground(com.smouldering_durtles.wk.ui.LearningColors.surface(question, subjectColor, 16));
+            for (int id : new int[]{R.id.progress, R.id.srsIndicator}) {
+                final TextView label = question.findViewById(id);
+                if (label != null) {
+                    label.setTextColor(com.smouldering_durtles.wk.ui.LearningColors.ink(question.getContext(), label.getCurrentTextColor()));
+                    label.setShadowLayer(0, 0, 0, 0);
+                }
+            }
             question.setClipToOutline(true);
             final ViewGroup.LayoutParams lp = question.getLayoutParams();
             if (lp instanceof ViewGroup.MarginLayoutParams) {
@@ -258,49 +283,7 @@ public final class StudyStyle {
     }
 
     public static void summary(View root) {
-        if (!ModernUi.isModern(root.getContext())) return;
-        for (int id : new int[]{R.id.correctSummary, R.id.incorrectSummary}) {
-            final View panel = root.findViewById(id);
-            if (panel == null || !(panel.getBackground() instanceof ColorDrawable)) continue;
-            final int color = ((ColorDrawable) panel.getBackground()).getColor();
-            // Summary status is an accent, not a second page-sized subject-colored surface.
-            MaterialShapeDrawable surface = ModernUi.surface(panel,
-                    MaterialColors.getColor(panel, com.google.android.material.R.attr.colorSurfaceContainerLow), 12);
-            surface.setStroke(dp(panel, 2), color);
-            panel.setBackground(surface);
-            panel.setPadding(dp(panel, 16), dp(panel, 12), dp(panel, 16), dp(panel, 12));
-            contrastText(panel, MaterialColors.getColor(panel, com.google.android.material.R.attr.colorOnSurface));
-            if (panel instanceof android.widget.TableLayout) {
-                final android.widget.TableLayout table = (android.widget.TableLayout) panel;
-                for (int i = 0; i < table.getChildCount(); i++) {
-                    if (!(table.getChildAt(i) instanceof android.widget.TableRow)) continue;
-                    final ViewGroup old = (ViewGroup) table.getChildAt(i);
-                    final LinearLayout row = new LinearLayout(root.getContext());
-                    final boolean large = root.getResources().getConfiguration().fontScale >= 1.5f;
-                    row.setOrientation(large ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-                    row.setGravity(Gravity.CENTER_VERTICAL);
-                    row.setPadding(0, dp(panel, 6), 0, dp(panel, 6));
-                    while (old.getChildCount() > 0) {
-                        final TextView field = (TextView) old.getChildAt(0);
-                        old.removeViewAt(0);
-                        final boolean label = row.getChildCount() == 0;
-                        field.setGravity(label || large ? Gravity.START : Gravity.END);
-                        field.setPadding(0, 0, 0, 0);
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                large ? ViewGroup.LayoutParams.MATCH_PARENT : label ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT, !large && label ? 1 : 0);
-                        if (!label) {
-                            if (large) params.topMargin = dp(panel, 4);
-                            else params.leftMargin = dp(panel, 16);
-                        }
-                        row.addView(field, params);
-                    }
-                    table.removeViewAt(i);
-                    table.addView(row, i, new android.widget.TableLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                }
-            }
-        }
+        SummaryPresentation.prepare(root);
     }
 
     private static void contrastText(View view, int ink) {
@@ -317,7 +300,7 @@ public final class StudyStyle {
     /** Log entries keep subject colors while their status and event text follow actual fill contrast. */
     public static void logRow(View row, int color) {
         if (!ModernUi.isModern(row.getContext())) return;
-        semanticSurface(row, color, 12, row.hasOnClickListeners());
+        semanticSurface(row, com.smouldering_durtles.wk.ui.LearningColors.fill(row.getContext(), color), 12, row.hasOnClickListeners());
         row.setElevation(0);
         row.setPadding(dp(row, 12), dp(row, 12), dp(row, 12), dp(row, 12));
         row.setMinimumHeight(dp(row, 56));
@@ -326,7 +309,7 @@ public final class StudyStyle {
                 R.id.question3Status, R.id.question4Status, R.id.age, R.id.details}) {
             final TextView text = row.findViewById(id);
             if (text == null) continue;
-            text.setTextColor(contrastInk(color));
+            text.setTextColor(com.smouldering_durtles.wk.ui.LearningColors.ink(row.getContext(), contrastInk(color)));
             text.setShadowLayer(0, 0, 0, 0);
             text.setTextSize(Math.max(14, text.getTextSize() / row.getResources().getDisplayMetrics().scaledDensity));
         }

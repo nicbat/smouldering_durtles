@@ -14,6 +14,10 @@ rewrite is required to reach this design goal.
 
 ## Current milestone
 
+November 2 follow-up: compact summary/level/SRS displays, actionable review forecast and
+optional Subtle/Neutral/Original learning colors. Stored WaniKani/custom palettes remain
+intact; softer presentation is now the modern default. See TASKS/HANDOFF for current proof.
+
 The first pass has now received user feedback. A cross-app refinement follows the official
 Material role/component guidance and [UI_GUIDE.md](UI_GUIDE.md): coherent study controls,
 responsive search grid, compact browse/dashboard layouts, font/download/utility hierarchy.
@@ -26,8 +30,8 @@ font/color customization and utility/help pages. Shared Material Views styling p
 existing classes/state and callbacks; the dashboard overview remains Compose.
 
 The app-wide switch is **Modern interface**, with independent wallpaper-color and dashboard
-controls. Classic remains selectable. Subject/SRS colors, grading and submission engines
-are retained. TASKS/HANDOFF record current build/test evidence, the API 21 Jackson blocker,
+controls. Classic remains selectable. Subject/SRS colors now have a presentation preference;
+stored custom palettes, grading and submission engines are retained. TASKS/HANDOFF record current build/test evidence, the API 21 Jackson blocker,
 and remaining phone/recovery validation. Next is refinement/optimization; **widgets last**.
 
 ### Previous milestones

@@ -32,6 +32,8 @@ import com.smouldering_durtles.wk.enums.SubjectCardLayout;
 import com.smouldering_durtles.wk.enums.SubjectType;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
 import com.smouldering_durtles.wk.util.ThemeUtil;
+import com.smouldering_durtles.wk.ui.LearningColors;
+import com.google.android.material.color.MaterialColors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,16 +152,24 @@ public final class SubjectCardBinder {
             view.setBackground(bgDrawable);
         }
         if (!modern && com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext())) {
-            // Related-subject grids keep their compact geometry and semantic palette.
-            final android.graphics.drawable.Drawable shape = com.smouldering_durtles.wk.ui.ModernUi.surface(
-                    view, subject.getButtonBackgroundColor(), 12);
+            // Related-subject grids share the selected learning palette.
+            final android.graphics.drawable.Drawable shape = LearningColors.surface(view, subject.getButtonBackgroundColor(), 12);
             view.setBackground(new android.graphics.drawable.RippleDrawable(
-                    android.content.res.ColorStateList.valueOf(0x33FFFFFF), shape, null));
+                    android.content.res.ColorStateList.valueOf(MaterialColors.getColor(view, com.google.android.material.R.attr.colorControlHighlight)), shape, null));
             view.setElevation(0);
             view.setFocusable(true);
             final int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 8);
             view.setPadding(padding, padding, padding, padding);
             view.setMinimumHeight(com.smouldering_durtles.wk.ui.ModernUi.dp(view, 48));
+            for (int id : new int[]{R.id.meaning, R.id.reading, R.id.progress}) {
+                final android.widget.TextView label = view.findViewById(id);
+                if (label != null) {
+                    label.setTextColor(LearningColors.ink(view.getContext(), subject.getTextColor()));
+                    label.setShadowLayer(0, 0, 0, 0);
+                }
+            }
+            final com.smouldering_durtles.wk.views.SubjectInfoButtonView title = view.findViewById(R.id.button);
+            title.setTextShadowEnabled(false);
         }
     }
 
@@ -232,7 +242,7 @@ public final class SubjectCardBinder {
         final @Nullable Drawable stageBgDrawable = ContextCompat.getDrawable(view.getContext(), R.drawable.small_rounded_corners);
         if (stageBgDrawable != null) {
             final int textColor;
-            final int bgColor = ActiveTheme.getShallowStageBucketColors7()[stage.getGeneralStageBucket()];
+            final int bgColor = LearningColors.fill(view.getContext(), ActiveTheme.getShallowStageBucketColors7()[stage.getGeneralStageBucket()]);
 
             if (ThemeUtil.isLightColor(bgColor)) {
                 stageLetter.setShadowLayer(0, 0, 0, 0);
@@ -243,7 +253,8 @@ public final class SubjectCardBinder {
                 textColor = ThemeUtil.getColor(R.attr.colorPrimaryLight);
             }
 
-            stageLetter.setTextColor(textColor);
+            stageLetter.setTextColor(LearningColors.ink(view.getContext(), textColor));
+            if (LearningColors.isMuted(view.getContext())) stageLetter.setShadowLayer(0, 0, 0, 0);
             stageBgDrawable.setColorFilter(new SimpleColorFilter(bgColor));
             stageLetter.setBackground(stageBgDrawable);
         }
@@ -269,7 +280,7 @@ public final class SubjectCardBinder {
                 final String stageName = subject.getSrsStage().getName();
                 progress.setText(view.getContext().getString(R.string.search_subject_progress, subject.getLevel(),
                         subject.getAvailableAt() == 0 || subject.getSrsStage().isLocked() ? stageName
-                                : stageName + " · " + subject.getShortNextReviewWaitTime()));
+                                : stageName + " · " + subject.getShortNextReviewWaitTime(), subject.getType().getDescription()));
                 progress.setVisibility(View.VISIBLE);
             }
         }

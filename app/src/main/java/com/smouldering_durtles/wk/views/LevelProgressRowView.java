@@ -91,13 +91,15 @@ public final class LevelProgressRowView extends TableRow {
         safe(() -> {
             label.setTextFormat("Lvl %d %s", entry.getLevel(), entry.getType().getLevelProgressLabel());
             if (DashboardStyle.isModern(getContext())) {
-                label.setText(getContext().getString(R.string.dashboard_level_progress_row,
+                label.setText(getContext().getString(R.string.dashboard_compact_progress_row,
                         entry.getLevel(), entry.getType().getDescriptionPlural()));
-                int total = 0;
+                long total = 0;
                 for (int count : entry.getBuckets()) total += count;
                 TextView counts = findViewById(R.id.levelProgressCount);
                 counts.setText(getContext().getString(R.string.dashboard_passed_count, entry.getBuckets()[0], total));
-                setContentDescription(label.getText() + ", " + counts.getText());
+                boolean target = LiveLevelDuration.getInstance().get().getLevel() == entry.getLevel() && entry.getType().hasLevelUpTarget();
+                setContentDescription(label.getText() + ", " + counts.getText()
+                        + (target ? ", " + getContext().getString(R.string.dashboard_progress_target) : ""));
                 setFocusable(true);
             }
             barView.setValues(entry.getBuckets());

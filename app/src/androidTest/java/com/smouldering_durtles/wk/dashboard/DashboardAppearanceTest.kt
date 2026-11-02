@@ -25,6 +25,7 @@ import com.smouldering_durtles.wk.enums.SubjectType
 import com.smouldering_durtles.wk.livedata.*
 import com.smouldering_durtles.wk.model.*
 import com.smouldering_durtles.wk.views.*
+import com.smouldering_durtles.wk.ui.LearningColors
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.runner.RunWith
@@ -73,8 +74,9 @@ class DashboardAppearanceTest {
         fixture().use { scenario ->
             scenario.onActivity { activity ->
                 assertEquals("232", activity.findViewById<TextView>(R.id.breakdownBucket0Count).text.toString())
-                assertEquals(ActiveTheme.getShallowStageBucketColors5()[0],
-                    (activity.findViewById<View>(R.id.stageSwatch0).background as ColorDrawable).color)
+                val swatch = activity.findViewById<View>(R.id.stageSwatch0)
+                assertEquals(LearningColors.accent(swatch.context, ActiveTheme.getShallowStageBucketColors5()[0]),
+                    (swatch.background as ColorDrawable).color)
                 activity.findViewById<View>(R.id.breakdownBucket2View).performClick()
                 assertTrue(search!!.srsStages.contains("master"))
                 val level = activity.findViewById<LevelProgressView>(R.id.levelProgressView)

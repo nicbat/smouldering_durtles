@@ -1,0 +1,13 @@
+<resources>
+    <string name="learning_colors_title">Learning colors</string>
+    <string-array name="learning_color_labels">
+        <item>Subtle — soft surfaces and small color accents</item>
+        <item>Neutral — use the Material palette</item>
+        <item>Original — full WaniKani and custom colors</item>
+    </string-array>
+    <string-array name="learning_color_values">
+        <item>soft</item>
+        <item>neutral</item>
+        <item>original</item>
+    </string-array>
+</resources>

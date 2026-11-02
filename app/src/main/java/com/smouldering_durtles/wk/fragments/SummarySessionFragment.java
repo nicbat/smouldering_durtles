@@ -63,6 +63,8 @@ import javax.annotation.Nullable;
  * Fragment for the session summary.
  */
 public final class SummarySessionFragment extends AbstractSessionFragment implements SwipingScrollView.OnSwipeListener {
+    private static final String ITEMS_SHOWN = "summaryItemsShown";
+    private boolean itemsShown;
     private final ViewProxy specialButton1 = new ViewProxy();
     private final ViewProxy specialButton2 = new ViewProxy();
     private final ViewProxy specialButton3 = new ViewProxy();
@@ -320,6 +322,19 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         scrollView.setDelegate(view, R.id.scrollView);
         scrollView.setSwipeListener(this);
         com.smouldering_durtles.wk.study.StudyStyle.summary(view);
+        com.smouldering_durtles.wk.study.SummaryPresentation.bind(view,
+                new int[]{numCorrectRadicals, numCorrectKanji, numCorrectVocabulary, numCorrectKanaVocabulary},
+                new int[]{totalRadical, totalKanji, totalVocabulary, totalKanaVocabulary});
+        if (ModernUi.isModern(view.getContext()) && (itemsShown
+                || savedInstanceState != null && savedInstanceState.getBoolean(ITEMS_SHOWN))) {
+            showItems();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ITEMS_SHOWN, itemsShown);
     }
 
     @Override
@@ -451,6 +466,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
 
     @SuppressLint("NewApi")
     private void showItems() {
+        itemsShown = true;
         showButton.setVisibility(false);
         incorrectSummary.setVisibility(false);
         correctSummary.setVisibility(false);

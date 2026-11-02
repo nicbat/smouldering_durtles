@@ -1,7 +1,7 @@
 # Smoky Durtles UI guide
 
 This is the design and review reference for changes across the app. Read it with
-[TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md). Updated 2026-10-30 after phone feedback
+[TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md). Updated 2026-11-02 after phone feedback
 that the first Material pass looked jarring. Widgets remain a later project.
 
 ## Direction and evidence
@@ -88,13 +88,23 @@ window-size classes, and do not fix row heights around short English sample data
 
 Resolve these roles from the **view's themed context**, not the application theme.
 Use dynamic colors when enabled, and the shared static scheme otherwise. Never use a
-container color as text ink. Keep wallpaper accent colors out of subject/SRS semantics.
+container color as text ink. Learning colors are now an explicit presentation preference:
 
-Radical blue, kanji pink, vocabulary purple, SRS stages and user-customized learning
-palettes continue to come from ActiveTheme. Correct/incorrect colors also retain their
-meaning; choose readable ink against the actual fill. Summary panels use neutral surfaces
-with the configured status color as an outline; answer feedback retains its status fill.
-Use wording as well as color.
+- **Subtle** (modern default): 8% of the original subject color mixed into a Material
+  surface, with onSurface text and small subject/stage accents. Broad saturated panels
+  should not compete with the Japanese content.
+- **Neutral**: Material surfaces and primary accents; stage proportions use separators.
+  Preserve type/stage labels and exact counts so color is never the only encoding.
+- **Original**: use the existing WaniKani/custom palette. Classic remains unchanged.
+
+`LearningColors` transforms display colors without changing `ActiveTheme`, stored custom
+palettes or subject data. Always transform the foreground and its actual parent fill
+together, especially transparent custom-drawn glyphs and image radicals. Resolve roles
+from the scoped view context, including the independently enabled modern dashboard.
+Correct/incorrect answer feedback keeps its separate status palette. The session summary
+uses one neutral accuracy panel with explicit Correct/Errors counts, without colored
+outlines pretending to be extra data. Search metadata names the subject type even in
+Neutral mode. Existing rich-text mnemonic emphasis remains unchanged.
 Avoid legacy text shadows on modern subject glyphs; they make otherwise flat components
 look pasted in from a different interface.
 
@@ -115,8 +125,12 @@ options, focus behavior and grading callbacks unchanged.
 
 Use readable section labels for mnemonics, readings, examples and metadata. Related
 subjects may be compact cards. Do not surround every paragraph with another card.
-Summary actions need gaps/wrapping; numeric values need enough width independently of
-labels. Session logs retain restricted-mode hiding and clear expand/collapse affordances.
+Summaries show one accuracy figure, the actual item total, a small accuracy bar and a
+single subject breakdown. An item with any incorrect answer counts as an item with errors;
+do not relabel item accuracy as question-attempt accuracy. Hide zero-total subject rows,
+and use an explicit empty state instead of inventing a percentage. Show items reveals the
+existing detailed lists. Summary actions need gaps/wrapping; numeric values need enough
+width independently of labels. Session logs retain restricted-mode hiding and clear expand/collapse affordances.
 
 ### Browse and search
 
@@ -129,7 +143,24 @@ ordering, grouping, counts, collapsed state and item IDs unchanged.
 
 Group level and time metadata; distinguish the main study action from Browse. Chart
 labels and legends need stable alignment and wrapping, not a new card for each value.
-Keep chart calculations and search callbacks untouched.
+Keep chart aggregation and search callbacks untouched. Density comes from structure:
+
+- Level progress: label and exact passed/total count on one line when they fit; an 8dp
+  segmented bar underneath. Stack the text at larger sizes and keep the 48dp row target.
+  Preserve the rounded-up 90% pass target, including for small totals.
+- SRS: one 12dp proportion bar, total, then a two-column tappable stage legend with exact
+  counts (one column at large text/narrow widths). Do not replace counts with percentages.
+  Post-60 charts expose named stage counts through a visible action and accessibility
+  summary; a neutral chart must not depend on a remembered color-to-stage mapping.
+- Forecast: total across the configured horizon and busiest hour first, then a compact
+  plot. Reserve separate measured bands for ticks/legend/actions. Measure localized ticks
+  before drawing; skip labels that cannot fit. Tap an hour for exact counts, cumulative
+  load and level-up items; expose the hourly list to accessibility and keyboard clicks.
+  Label the cumulative line's separate scale. Neutral segments need visible separators
+  and the line needs a contrasting stroke. Never overlay every count on a dense bar chart.
+
+Avoid increasing density by shrinking all text, disabling scaling or overlapping controls.
+Use a compact overview plus reachable detail, and validate the actual populated view.
 
 Prefer native Material preference rows, switches, sliders and dialogs. Settings already
 using coherent component structure do not need cosmetic churn. A color swatch remains a
@@ -143,6 +174,8 @@ existing confirmation and enable/disable behavior.
 
 - `ui/ModernUi.java`: scoped color resolution and stable-class button roles. Use
   `button(button, ButtonRole.PRIMARY/SECONDARY/TEXT)`; repeated styling preserves the role.
+- `ui/LearningColors.java`: optional learning-color presentation; never mutate semantic palettes.
+- `study/SummaryPresentation.java`: compact item-accuracy summary and adaptive breakdown.
 - `ui/UtilityStyle.java`: utility gutters and constrained form/action layout corrections.
 - `study/StudyStyle.java`: study arrangement and semantic surfaces, before/after binding
   as appropriate. Do not replace Session or answer-handling code to change appearance.

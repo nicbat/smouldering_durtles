@@ -14,6 +14,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.smouldering_durtles.wk.ui.LearningColors
 import com.smouldering_durtles.wk.Actment
 import com.smouldering_durtles.wk.R
 import com.smouldering_durtles.wk.activities.AboutActivity
@@ -84,7 +85,7 @@ class DashboardCompletionTest {
                 val row = table.getChildAt(1)
                 val label = row.findViewById<TextView>(R.id.rowText)
                 val detail = row.findViewById<TextView>(R.id.rowExtra)
-                assertEquals(subject.backgroundColor, (label.background as MaterialShapeDrawable).fillColor!!.defaultColor)
+                assertEquals(LearningColors.fill(label.context, subject.backgroundColor), (label.background as MaterialShapeDrawable).fillColor!!.defaultColor)
                 assertEquals(MaterialColors.getColor(detail, com.google.android.material.R.attr.colorOnSurfaceVariant), detail.currentTextColor)
                 row.performClick()
                 assertEquals(subject.id, clicked)

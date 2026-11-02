@@ -5,15 +5,29 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Refine the full in-app Material pass based on phone feedback: jarring review layout,
-low-density search results and inconsistent spacing/action emphasis. Apply the shared
-[UI guide](UI_GUIDE.md) across study, browse, dashboard and tools; it records official
-Material references, local conventions, concrete lessons and a per-screen checklist.
-Widgets remain last. Existing Views, Classic and semantic learning colors remain.
+November 2 density and color refinement, following feedback on installed build **5749f22**:
+compact summary, softer optional learning colors, slimmer level progress, useful collision-free
+forecast, and condensed SRS distribution. Apply [UI_GUIDE.md](UI_GUIDE.md) consistently.
+Widgets remain last. Keep existing Views, Classic, custom palettes, grading and scheduling.
 
-The phone has refinement build **5749f22**, installed with `adb install -r` and opened
-successfully on 2026-10-30, preserving app data. User feedback on this build is pending.
-Never run instrumentation on the account-bearing phone. Push tested changes to `origin/smoky-durtles/foundation`.
+The phone still has **5749f22**, installed on 2026-10-30. This milestone is not yet installed;
+wait for the user's installation request. Never run instrumentation on the account-bearing
+phone. Push tested work to `origin/smoky-durtles/foundation`.
+
+## Current density/color pass
+
+- [x] Single item-accuracy summary, compact subject breakdown, real empty state, retained actions.
+- [x] Learning colors preference: Subtle modern default / Neutral / Original; stored palettes intact.
+- [x] Apply paired fills/ink to review, subject cards, logs and dashboard labels; label search types.
+- [x] Compact level rows with 8dp bars and original exact counts/90% target/search actions.
+- [x] SRS total + 12dp distribution + adaptive tappable stage legend and exact counts.
+- [x] Forecast overview, measured tick spacing, hourly detail dialogs, accessible list and Neutral mode.
+- [x] Update UI guide with reusable color and data-density principles.
+- [x] Populated/large-text screenshots reviewed; debug/release/test builds pass including release lint.
+- [x] **101-test full suites pass on Android 16 and Android 11**; final palette/detail additions
+  pass all **9 focused dashboard tests on both**. Current suite has 104 tests; see HANDOFF.
+- [x] Post-60 and available-study colors follow the preference; named Post-60 details preserve meaning.
+- [ ] Install on request; user validation with actual review/lesson data and preferred color mode.
 
 ## Current refinement
 
@@ -25,7 +39,7 @@ Never run instrumentation on the account-bearing phone. Push tested changes to `
 - [x] Debug/release builds; **80 tests pass on Android 16 and Android 11**. Focused attached-view
   capture/contrast test also passes after a test-only fixture correction. See HANDOFF for logs.
 - [x] Install and launch refinement build 5749f22 on Pixel 9 Pro, preserving app data.
-- [ ] User validation of refined build; keep further feedback in Phase 2.
+- [x] Feedback on refined build received; addressed in current density/color pass.
 
 ## Completed
 

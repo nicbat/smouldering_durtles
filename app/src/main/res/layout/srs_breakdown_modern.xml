@@ -1,64 +1,83 @@
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-    <LinearLayout android:id="@+id/breakdownBucket0View" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:minHeight="56dp" android:gravity="center_vertical"
-        android:orientation="horizontal" android:background="?attr/selectableItemBackground"
-        android:paddingTop="8dp" android:paddingBottom="8dp" android:focusable="true">
-        <View android:id="@+id/stageSwatch0" android:layout_width="12dp" android:layout_height="24dp"
-            android:layout_marginEnd="12dp"/>
-        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Apprentice" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
-        <TextView android:id="@+id/breakdownBucket0Count" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="0"
-            android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleLarge"/>
-    </LinearLayout>
-    <LinearLayout android:id="@+id/breakdownBucket1View" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:minHeight="56dp" android:gravity="center_vertical"
-        android:orientation="horizontal" android:background="?attr/selectableItemBackground"
-        android:paddingTop="8dp" android:paddingBottom="8dp" android:focusable="true">
-        <View android:id="@+id/stageSwatch1" android:layout_width="12dp" android:layout_height="24dp"
-            android:layout_marginEnd="12dp"/>
-        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Guru" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
-        <TextView android:id="@+id/breakdownBucket1Count" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="0"
-            android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleLarge"/>
-    </LinearLayout>
-    <LinearLayout android:id="@+id/breakdownBucket2View" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:minHeight="56dp" android:gravity="center_vertical"
-        android:orientation="horizontal" android:background="?attr/selectableItemBackground"
-        android:paddingTop="8dp" android:paddingBottom="8dp" android:focusable="true">
-        <View android:id="@+id/stageSwatch2" android:layout_width="12dp" android:layout_height="24dp"
-            android:layout_marginEnd="12dp"/>
-        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Master" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
-        <TextView android:id="@+id/breakdownBucket2Count" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="0"
-            android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleLarge"/>
-    </LinearLayout>
-    <LinearLayout android:id="@+id/breakdownBucket3View" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:minHeight="56dp" android:gravity="center_vertical"
-        android:orientation="horizontal" android:background="?attr/selectableItemBackground"
-        android:paddingTop="8dp" android:paddingBottom="8dp" android:focusable="true">
-        <View android:id="@+id/stageSwatch3" android:layout_width="12dp" android:layout_height="24dp"
-            android:layout_marginEnd="12dp"/>
-        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Enlightened" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
-        <TextView android:id="@+id/breakdownBucket3Count" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="0"
-            android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleLarge"/>
-    </LinearLayout>
-    <LinearLayout android:id="@+id/breakdownBucket4View" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:minHeight="56dp" android:gravity="center_vertical"
-        android:orientation="horizontal" android:background="?attr/selectableItemBackground"
-        android:paddingTop="8dp" android:paddingBottom="8dp" android:focusable="true">
-        <View android:id="@+id/stageSwatch4" android:layout_width="12dp" android:layout_height="24dp"
-            android:layout_marginEnd="12dp"/>
-        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Burned" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
-        <TextView android:id="@+id/breakdownBucket4Count" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="0"
-            android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleLarge"/>
-    </LinearLayout>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical"
+    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+    <TextView android:id="@+id/srsDistributionTotal" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="?attr/colorOnSurfaceVariant"/>
+    <com.smouldering_durtles.wk.views.SrsDistributionBarView android:id="@+id/srsDistributionBar"
+        android:layout_width="match_parent" android:layout_height="12dp" android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" android:importantForAccessibility="no"/>
+    <com.smouldering_durtles.wk.views.DashboardLegendLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:id="@+id/breakdownBucket0View" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical"
+            android:orientation="horizontal" android:background="?attr/selectableItemBackground"
+            android:paddingTop="4dp" android:paddingBottom="4dp" android:focusable="true">
+            <View android:id="@+id/stageSwatch0" android:layout_width="4dp" android:layout_height="24dp"
+                android:layout_marginEnd="8dp" android:importantForAccessibility="no"/>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Apprentice"
+                    android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+                <TextView android:id="@+id/breakdownBucket0Count" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:text="0" android:textColor="?attr/colorOnSurface"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/breakdownBucket1View" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical"
+            android:orientation="horizontal" android:background="?attr/selectableItemBackground"
+            android:paddingTop="4dp" android:paddingBottom="4dp" android:focusable="true">
+            <View android:id="@+id/stageSwatch1" android:layout_width="4dp" android:layout_height="24dp"
+                android:layout_marginEnd="8dp" android:importantForAccessibility="no"/>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Guru"
+                    android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+                <TextView android:id="@+id/breakdownBucket1Count" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:text="0" android:textColor="?attr/colorOnSurface"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/breakdownBucket2View" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical"
+            android:orientation="horizontal" android:background="?attr/selectableItemBackground"
+            android:paddingTop="4dp" android:paddingBottom="4dp" android:focusable="true">
+            <View android:id="@+id/stageSwatch2" android:layout_width="4dp" android:layout_height="24dp"
+                android:layout_marginEnd="8dp" android:importantForAccessibility="no"/>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Master"
+                    android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+                <TextView android:id="@+id/breakdownBucket2Count" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:text="0" android:textColor="?attr/colorOnSurface"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/breakdownBucket3View" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical"
+            android:orientation="horizontal" android:background="?attr/selectableItemBackground"
+            android:paddingTop="4dp" android:paddingBottom="4dp" android:focusable="true">
+            <View android:id="@+id/stageSwatch3" android:layout_width="4dp" android:layout_height="24dp"
+                android:layout_marginEnd="8dp" android:importantForAccessibility="no"/>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enlightened"
+                    android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+                <TextView android:id="@+id/breakdownBucket3Count" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:text="0" android:textColor="?attr/colorOnSurface"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/breakdownBucket4View" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical"
+            android:orientation="horizontal" android:background="?attr/selectableItemBackground"
+            android:paddingTop="4dp" android:paddingBottom="4dp" android:focusable="true">
+            <View android:id="@+id/stageSwatch4" android:layout_width="4dp" android:layout_height="24dp"
+                android:layout_marginEnd="8dp" android:importantForAccessibility="no"/>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Burned"
+                    android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+                <TextView android:id="@+id/breakdownBucket4Count" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:text="0" android:textColor="?attr/colorOnSurface"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+            </LinearLayout>
+        </LinearLayout>
+    </com.smouldering_durtles.wk.views.DashboardLegendLayout>
 </LinearLayout>
 </merge>

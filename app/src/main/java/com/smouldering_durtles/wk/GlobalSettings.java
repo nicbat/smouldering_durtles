@@ -798,6 +798,12 @@ public final class GlobalSettings {
             return prefs().getBoolean("settings_dynamic_color", true);
         }
 
+        /** Modern learning surfaces; original custom palette values are never changed. */
+        public static String getLearningColors() {
+            String value = prefs().getString("learning_colors", "soft");
+            return "original".equals(value) || "neutral".equals(value) ? value : "soft";
+        }
+
         /** The user's selected legacy theme, respecting system night mode. */
         public static ActiveTheme getTheme() {
             final @Nullable String value = prefs().getString("theme", "LIGHT");

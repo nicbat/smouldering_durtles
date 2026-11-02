@@ -101,12 +101,14 @@ public final class LiveSubjectTableRowView extends TableRow {
                 android.widget.TextView label = findViewById(R.id.rowText);
                 android.widget.TextView detail = findViewById(R.id.rowExtra);
                 label.setPadding(pad, pad, pad, pad);
-                label.setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(label, subject.getBackgroundColor(), 8));
+                label.setBackground(com.smouldering_durtles.wk.ui.LearningColors.surface(label, subject.getBackgroundColor(), 8));
+                label.setTextColor(com.smouldering_durtles.wk.ui.LearningColors.ink(getContext(), subject.getTextColor()));
+                label.setShadowLayer(0, 0, 0, 0);
                 detail.setBackgroundColor(android.graphics.Color.TRANSPARENT);
                 detail.setTextColor(com.google.android.material.color.MaterialColors.getColor(this,
                         com.google.android.material.R.attr.colorOnSurfaceVariant));
                 detail.setShadowLayer(0, 0, 0, 0);
-                setContentDescription(subject.getOneMeaning() + ", " + extraTextFunction.apply(subject));
+                setContentDescription(subject.getType().getDescription() + ", " + subject.getOneMeaning() + ", " + extraTextFunction.apply(subject));
             }
         });
     }

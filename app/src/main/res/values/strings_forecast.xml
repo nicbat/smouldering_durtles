@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="forecast_summary">%1$d reviews in %2$d-hour forecast</string>
+    <string name="forecast_peak">Busiest hour: %1$d at %2$s</string>
+    <string name="forecast_empty">No reviews scheduled in this window</string>
+    <string name="forecast_details_action">View hourly details</string>
+    <string name="forecast_scroll_action">Swipe chart or view hourly details</string>
+    <string name="forecast_accessibility">Activate to browse every hour and its exact review counts. The first hour includes overdue reviews.</string>
+    <string name="forecast_hourly_title">Reviews by hour</string>
+    <string name="forecast_hour_count">%1$s: %2$d reviews</string>
+    <string name="forecast_reviews">%1$d reviews</string>
+    <string name="forecast_cumulative">Cumulative: %1$d reviews</string>
+    <string name="forecast_level_up">On the level-up path: %1$d</string>
+    <string name="forecast_overdue">The first hour includes overdue reviews and reviews scheduled during this hour.</string>
+    <string name="forecast_line_scale">Line: cumulative, 0–%1$d reviews</string>
+</resources>

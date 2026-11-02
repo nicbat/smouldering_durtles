@@ -24,6 +24,11 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
+import com.smouldering_durtles.wk.ui.LearningColors;
+import android.graphics.Color;
+import androidx.core.graphics.ColorUtils;
+import com.google.android.material.color.MaterialColors;
 import com.smouldering_durtles.wk.db.model.Subject;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
 import com.smouldering_durtles.wk.livedata.LiveFirstTimeSetup;
@@ -111,40 +116,55 @@ public final class LessonReviewBreakdownView extends TableLayout {
         reviewPastKan.setDelegate(this, R.id.reviewPastKan);
         reviewPastVoc.setDelegate(this, R.id.reviewPastVoc);
 
-        headerRad.setTextColor(ActiveTheme.getSubjectTypeTextColors()[0]);
-        headerRad.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[0]);
-        headerKan.setTextColor(ActiveTheme.getSubjectTypeTextColors()[1]);
-        headerKan.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[1]);
-        headerVoc.setTextColor(ActiveTheme.getSubjectTypeTextColors()[2]);
-        headerVoc.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[2]);
+        int[] fills = ActiveTheme.getSubjectTypeBackgroundColors().clone();
+        int[] inks = ActiveTheme.getSubjectTypeTextColors().clone();
+        if (DashboardStyle.isModern(getContext())) {
+            for (int i = 0; i < fills.length; i++) {
+                fills[i] = LearningColors.fill(getContext(), fills[i]);
+                inks[i] = LearningColors.ink(getContext(), inks[i]);
+                int actualFill = ColorUtils.compositeColors(fills[i], MaterialColors.getColor(this,
+                        com.google.android.material.R.attr.colorSurfaceContainerLow));
+                if (ColorUtils.calculateContrast(inks[i], actualFill) < 4.5) {
+                    inks[i] = ColorUtils.calculateContrast(Color.BLACK, actualFill)
+                            >= ColorUtils.calculateContrast(Color.WHITE, actualFill) ? Color.BLACK : Color.WHITE;
+                }
+            }
+        }
 
-        lessonCurrentRad.setTextColor(ActiveTheme.getSubjectTypeTextColors()[0]);
-        lessonCurrentRad.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[0]);
-        lessonCurrentKan.setTextColor(ActiveTheme.getSubjectTypeTextColors()[1]);
-        lessonCurrentKan.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[1]);
-        lessonCurrentVoc.setTextColor(ActiveTheme.getSubjectTypeTextColors()[2]);
-        lessonCurrentVoc.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[2]);
+        headerRad.setTextColor(inks[0]);
+        headerRad.setBackgroundColor(fills[0]);
+        headerKan.setTextColor(inks[1]);
+        headerKan.setBackgroundColor(fills[1]);
+        headerVoc.setTextColor(inks[2]);
+        headerVoc.setBackgroundColor(fills[2]);
 
-        lessonPastRad.setTextColor(ActiveTheme.getSubjectTypeTextColors()[0]);
-        lessonPastRad.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[0]);
-        lessonPastKan.setTextColor(ActiveTheme.getSubjectTypeTextColors()[1]);
-        lessonPastKan.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[1]);
-        lessonPastVoc.setTextColor(ActiveTheme.getSubjectTypeTextColors()[2]);
-        lessonPastVoc.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[2]);
+        lessonCurrentRad.setTextColor(inks[0]);
+        lessonCurrentRad.setBackgroundColor(fills[0]);
+        lessonCurrentKan.setTextColor(inks[1]);
+        lessonCurrentKan.setBackgroundColor(fills[1]);
+        lessonCurrentVoc.setTextColor(inks[2]);
+        lessonCurrentVoc.setBackgroundColor(fills[2]);
 
-        reviewCurrentRad.setTextColor(ActiveTheme.getSubjectTypeTextColors()[0]);
-        reviewCurrentRad.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[0]);
-        reviewCurrentKan.setTextColor(ActiveTheme.getSubjectTypeTextColors()[1]);
-        reviewCurrentKan.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[1]);
-        reviewCurrentVoc.setTextColor(ActiveTheme.getSubjectTypeTextColors()[2]);
-        reviewCurrentVoc.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[2]);
+        lessonPastRad.setTextColor(inks[0]);
+        lessonPastRad.setBackgroundColor(fills[0]);
+        lessonPastKan.setTextColor(inks[1]);
+        lessonPastKan.setBackgroundColor(fills[1]);
+        lessonPastVoc.setTextColor(inks[2]);
+        lessonPastVoc.setBackgroundColor(fills[2]);
 
-        reviewPastRad.setTextColor(ActiveTheme.getSubjectTypeTextColors()[0]);
-        reviewPastRad.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[0]);
-        reviewPastKan.setTextColor(ActiveTheme.getSubjectTypeTextColors()[1]);
-        reviewPastKan.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[1]);
-        reviewPastVoc.setTextColor(ActiveTheme.getSubjectTypeTextColors()[2]);
-        reviewPastVoc.setBackgroundColor(ActiveTheme.getSubjectTypeBackgroundColors()[2]);
+        reviewCurrentRad.setTextColor(inks[0]);
+        reviewCurrentRad.setBackgroundColor(fills[0]);
+        reviewCurrentKan.setTextColor(inks[1]);
+        reviewCurrentKan.setBackgroundColor(fills[1]);
+        reviewCurrentVoc.setTextColor(inks[2]);
+        reviewCurrentVoc.setBackgroundColor(fills[2]);
+
+        reviewPastRad.setTextColor(inks[0]);
+        reviewPastRad.setBackgroundColor(fills[0]);
+        reviewPastKan.setTextColor(inks[1]);
+        reviewPastKan.setBackgroundColor(fills[1]);
+        reviewPastVoc.setTextColor(inks[2]);
+        reviewPastVoc.setBackgroundColor(fills[2]);
     }
 
     /**

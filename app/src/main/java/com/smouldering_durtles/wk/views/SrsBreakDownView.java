@@ -37,6 +37,9 @@ import com.smouldering_durtles.wk.model.SrsBreakDown;
 import com.smouldering_durtles.wk.model.SrsSystemRepository;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
 import com.smouldering_durtles.wk.util.ThemeUtil;
+import com.smouldering_durtles.wk.ui.LearningColors;
+import android.widget.TextView;
+import java.text.NumberFormat;
 import com.smouldering_durtles.wk.util.WeakLcoRef;
 
 import java.util.ArrayList;
@@ -99,7 +102,7 @@ public final class SrsBreakDownView extends ConstraintLayout {
         for (int i=0; i<5; i++) {
             if (modern) {
                 int[] swatches = {R.id.stageSwatch0, R.id.stageSwatch1, R.id.stageSwatch2, R.id.stageSwatch3, R.id.stageSwatch4};
-                findViewById(swatches[i]).setBackgroundColor(ActiveTheme.getShallowStageBucketColors5()[i]);
+                findViewById(swatches[i]).setBackgroundColor(LearningColors.accent(getContext(), ActiveTheme.getShallowStageBucketColors5()[i]));
                 continue;
             }
             Drawable background = views.get(i).getBackground();
@@ -203,8 +206,24 @@ public final class SrsBreakDownView extends ConstraintLayout {
 
         setVisibility(VISIBLE);
 
+        int[] distribution = new int[5];
+        long total = 0;
+        boolean modern = DashboardStyle.isModern(getContext());
+        String[] stages = {"Apprentice", "Guru", "Master", "Enlightened", "Burned"};
+        int[] stageIds = {R.id.breakdownBucket0View, R.id.breakdownBucket1View,
+                R.id.breakdownBucket2View, R.id.breakdownBucket3View, R.id.breakdownBucket4View};
         for (int i=0; i<5; i++) {
-            counts.get(i).setText(srsBreakDown.getSrsBreakdownCount(i));
+            distribution[i] = srsBreakDown.getSrsBreakdownCount(i);
+            total += distribution[i];
+            counts.get(i).setText(distribution[i]);
+            if (modern) findViewById(stageIds[i])
+                    .setContentDescription(stages[i] + ", " + distribution[i]);
+        }
+        if (modern) {
+            ((SrsDistributionBarView) findViewById(R.id.srsDistributionBar)).setValues(distribution);
+            ((TextView) findViewById(R.id.srsDistributionTotal)).setText(total == 0
+                    ? getContext().getString(R.string.dashboard_srs_empty)
+                    : getContext().getString(R.string.dashboard_srs_total, NumberFormat.getIntegerInstance().format(total)));
         }
     }
 }

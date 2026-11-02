@@ -26,11 +26,17 @@ import android.view.View;
 
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
+import com.smouldering_durtles.wk.ui.LearningColors;
+import com.google.android.material.color.MaterialColors;
+import androidx.core.graphics.ColorUtils;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
 import com.smouldering_durtles.wk.model.SrsBreakDown;
 import com.smouldering_durtles.wk.util.ThemeUtil;
 
 import java.util.Locale;
+import java.text.NumberFormat;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import javax.annotation.Nullable;
 
@@ -41,6 +47,7 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  */
 public final class Post60ProgressBarView extends View {
     private int[] values = new int[0];
+    private String[] stageLabels = new String[0];
     private int[] colors = new int[0];
     private int[] textColors = new int[0];
     private boolean[] textShadow = new boolean[0];
@@ -99,6 +106,14 @@ public final class Post60ProgressBarView extends View {
         textColors = new int[colors.length];
         textShadow = new boolean[colors.length];
         for (int i=0; i<colors.length; i++) {
+            if (DashboardStyle.isModern(getContext())) {
+                int actualFill = ColorUtils.compositeColors(colors[i], MaterialColors.getColor(this,
+                        com.google.android.material.R.attr.colorSurfaceContainerLow));
+                textColors[i] = ColorUtils.calculateContrast(Color.BLACK, actualFill)
+                        >= ColorUtils.calculateContrast(Color.WHITE, actualFill) ? Color.BLACK : Color.WHITE;
+                textShadow[i] = false;
+                continue;
+            }
             final boolean light = ThemeUtil.isLightColor(colors[i]);
             textColors[i] = light
                     ? ThemeUtil.getColor(getContext(), androidx.appcompat.R.attr.colorPrimaryDark)
@@ -129,10 +144,17 @@ public final class Post60ProgressBarView extends View {
                 final int start = getPaddingLeft() + (done * width) / total;
                 final int end = getPaddingLeft() + ((done + value) * width) / total;
 
+                if (DashboardStyle.isModern(getContext())) paint.clearShadowLayer();
                 paint.setColor(colors[i]);
                 paint.setStyle(Paint.Style.FILL_AND_STROKE);
                 paint.setStrokeWidth(0);
                 canvas.drawRect(start, getPaddingTop(), end, getPaddingTop() + height, paint);
+                if (done > 0 && DashboardStyle.isModern(getContext())
+                        && "neutral".equals(GlobalSettings.Display.getLearningColors())) {
+                    paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
+                    canvas.drawRect(start, getPaddingTop(), Math.min(end, start + Math.max(1, dp2px(1))),
+                            getPaddingTop() + height, paint);
+                }
 
                 if (total > 0) {
                     paint.setColor(textColors[i]);
@@ -213,7 +235,8 @@ public final class Post60ProgressBarView extends View {
                         breakDown.getPost60DeepCount(10)
                 };
 
-                colors = ActiveTheme.getStageDeepBucketColors();
+                colors = ActiveTheme.getStageDeepBucketColors().clone();
+                stageLabels = getResources().getStringArray(R.array.dashboard_post60_deep_stages);
             }
             else {
                 values = new int[] {
@@ -226,7 +249,12 @@ public final class Post60ProgressBarView extends View {
                         breakDown.getPost60ShallowCount(6),
                 };
 
-                colors = ActiveTheme.getShallowStageBucketColors7();
+                colors = ActiveTheme.getShallowStageBucketColors7().clone();
+                stageLabels = getResources().getStringArray(R.array.dashboard_post60_stages);
+            }
+
+            if (DashboardStyle.isModern(getContext())) {
+                for (int i = 0; i < colors.length; i++) colors[i] = LearningColors.accent(getContext(), colors[i]);
             }
 
             if (reversed) {
@@ -234,8 +262,10 @@ public final class Post60ProgressBarView extends View {
                     final int tmp = values[i];
                     values[i] = values[j];
                     values[j] = tmp;
+                    String label = stageLabels[i];
+                    stageLabels[i] = stageLabels[j];
+                    stageLabels[j] = label;
                 }
-                colors = colors.clone();
                 for (int i=0, j=colors.length-1; i<j; i++, j--) {
                     final int tmp = colors[i];
                     colors[i] = colors[j];
@@ -243,10 +273,31 @@ public final class Post60ProgressBarView extends View {
                 }
             }
 
+            if (DashboardStyle.isModern(getContext())) setContentDescription(stageSummary());
             dirty = true;
             invalidate();
             requestLayout();
         });
+    }
+
+    /** Exact bucket labels remain available even when all chart segments use a neutral accent. */
+    public void showStageCounts() {
+        if (!DashboardStyle.isModern(getContext())) return;
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle(R.string.dashboard_post60_title)
+                .setMessage(stageSummary())
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private String stageSummary() {
+        StringBuilder summary = new StringBuilder();
+        NumberFormat numbers = NumberFormat.getIntegerInstance();
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) summary.append('\n');
+            summary.append(stageLabels[i]).append(": ").append(numbers.format(values[i]));
+        }
+        return summary.toString();
     }
 
     private int dp2px(final int dp) {

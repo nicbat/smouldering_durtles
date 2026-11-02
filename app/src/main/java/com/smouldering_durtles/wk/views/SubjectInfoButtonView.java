@@ -338,7 +338,7 @@ public final class SubjectInfoButtonView extends View {
                 paint.setTextSize(textHeight);
                 paint.setColor(textColor);
                 paint.setTextAlign(Paint.Align.LEFT);
-                if (textShadowEnabled) paint.setShadowLayer(3, 1, 1, Color.BLACK);
+                if (textShadowEnabled && !com.smouldering_durtles.wk.ui.LearningColors.isMuted(getContext())) paint.setShadowLayer(3, 1, 1, Color.BLACK);
                 else paint.clearShadowLayer();
                 final int x = getPaddingLeft() + fontPaddingLeft;
                 final int y = getPaddingTop() + fontPaddingTop + textHeight / 2 - (int) (paint.ascent() + paint.descent()) / 2;
@@ -347,7 +347,7 @@ public final class SubjectInfoButtonView extends View {
                 canvas.drawPath(path, paint);
             }
             else {
-                if (textShadowEnabled) {
+                if (textShadowEnabled && !com.smouldering_durtles.wk.ui.LearningColors.isMuted(getContext())) {
                     image.setBounds(
                             getPaddingLeft() + fontPaddingLeft + 2,
                             getPaddingTop() + fontPaddingTop + 2,
@@ -426,13 +426,13 @@ public final class SubjectInfoButtonView extends View {
         safe(() -> {
             characters = orElse(question != null && sessionType != null ? question.getCharacters(subject, sessionType) : subject.getCharacters(), "");
             image = subject.needsTitleImage() ? ContextCompat.getDrawable(getContext(), subject.getTitleImageId()) : null;
-            textColor = subject.getTextColor();
+            textColor = com.smouldering_durtles.wk.ui.LearningColors.ink(getContext(), subject.getTextColor());
             if (image != null) {
                 textColorFilter = new SimpleColorFilter(textColor);
                 shadowColorFilter = new SimpleColorFilter(Color.BLACK);
             }
             background.setColorFilter(new PorterDuffColorFilter(
-                    subject.getButtonBackgroundColor(),
+                    com.smouldering_durtles.wk.ui.LearningColors.fill(getContext(), subject.getButtonBackgroundColor()),
                     PorterDuff.Mode.SRC_ATOP));
 
             setTag(R.id.subjectId, subject.getId());

@@ -108,6 +108,14 @@
             app:defaultValue="true"/>
 
         <ListPreference
+            app:key="learning_colors"
+            app:title="@string/learning_colors_title"
+            app:entries="@array/learning_color_labels"
+            app:entryValues="@array/learning_color_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="soft"/>
+
+        <ListPreference
             app:key="theme"
             app:title="Light Theme"
             app:singleLineTitle="false"

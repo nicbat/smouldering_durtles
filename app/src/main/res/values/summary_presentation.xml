@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="summaryPresentationState" />
+    <item type="id" name="summaryItemCount" />
+    <item type="id" name="summaryAccuracyBar" />
+    <item type="id" name="summaryBreakdown" />
+    <string name="summary_accuracy">Items without errors</string>
+    <plurals name="summary_count">
+        <item quantity="one">%1$d of %2$d item · %3$d with errors</item>
+        <item quantity="other">%1$d of %2$d items · %3$d with errors</item>
+    </plurals>
+    <string name="summary_empty">No items to summarize</string>
+    <string name="summary_subject">Subject</string>
+    <string name="summary_correct">Correct</string>
+    <string name="summary_errors">Errors</string>
+    <string name="summary_count_accessibility">%1$s: %2$d correct, %3$d with errors</string>
+</resources>

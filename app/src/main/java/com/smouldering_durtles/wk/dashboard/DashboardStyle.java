@@ -31,8 +31,7 @@ public final class DashboardStyle {
         bars.setAppearanceLightStatusBars(MaterialColors.isColorLight(surface));
         bars.setAppearanceLightNavigationBars(MaterialColors.isColorLight(surface));
         View timeline = activity.findViewById(R.id.timeLineBarChart);
-        timeline.getLayoutParams().height = dp(timeline, Math.round(220 * Math.max(1,
-                timeline.getResources().getConfiguration().fontScale)));
+        timeline.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
         titledPanel(timeline, R.string.dashboard_forecast_title);
         titledPanel(activity.findViewById(R.id.srsBreakDownView), R.string.dashboard_srs_title);
         for (int id : new int[] {R.id.levelProgressView, R.id.post60ProgressView, R.id.joyoProgressView,

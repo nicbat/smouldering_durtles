@@ -104,7 +104,8 @@ class StudyPresentationTest {
                 assertTrue(unanswered is UnansweredSessionFragment)
                 assertSame(question, unanswered.question)
                 val questionView = unanswered.requireView().findViewById<View>(R.id.questionView)
-                assertEquals(subject.backgroundColor, (questionView.background as MaterialShapeDrawable).fillColor!!.defaultColor)
+                assertEquals(com.smouldering_durtles.wk.ui.LearningColors.fill(questionView.context, subject.backgroundColor),
+                    (questionView.background as MaterialShapeDrawable).fillColor!!.defaultColor)
                 assertEquals(question.title, unanswered.requireView().findViewById<TextView>(R.id.questionType).text.toString())
                 assertNotNull(unanswered.requireView().findViewById<EditText>(R.id.questionEdit))
                 capture(activity, unanswered.requireView(), "study-question")
@@ -138,14 +139,14 @@ class StudyPresentationTest {
                 mount(activity, summary)
                 assertTrue(summary is SummarySessionFragment)
                 assertNotNull(summary.requireView().findViewById<View>(R.id.finishButton))
-                for ((panelId, textId) in listOf(R.id.correctSummary to R.id.correctPercentage, R.id.incorrectSummary to R.id.incorrectPercentage)) {
-                    val panel = summary.requireView().findViewById<View>(panelId)
-                    val label = summary.requireView().findViewById<TextView>(textId)
-                    assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(label.currentTextColor,
-                        (panel.background as MaterialShapeDrawable).fillColor!!.defaultColor) >= 4.5)
-                    val semantic = if (panelId == R.id.correctSummary) R.attr.correctColorBackground else R.attr.incorrectColorBackground
-                    assertEquals(ThemeUtil.getColor(semantic), (panel.background as MaterialShapeDrawable).strokeColor!!.defaultColor)
-                }
+                val panel = summary.requireView().findViewById<View>(R.id.correctSummary)
+                val label = summary.requireView().findViewById<TextView>(R.id.correctPercentage)
+                assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(label.currentTextColor,
+                    (panel.background as MaterialShapeDrawable).fillColor!!.defaultColor) >= 4.5)
+                assertEquals("100%", label.text.toString())
+                assertEquals("1 of 1 item · 0 with errors", summary.requireView()
+                    .findViewById<TextView>(R.id.summaryItemCount).text.toString())
+                assertEquals(View.GONE, summary.requireView().findViewById<View>(R.id.incorrectSummary).visibility)
                 capture(activity, summary.requireView(), "study-summary")
                 assertEquals(0, item.numAnswers)
                 assertEquals(SessionItemState.ACTIVE, item.state)
@@ -232,6 +233,7 @@ class StudyPresentationTest {
             val root = LayoutInflater.from(context).inflate(R.layout.fragment_summary, null)
             StudyStyle.page(root)
             StudyStyle.summary(root)
+            SummaryPresentation.bind(root, intArrayOf(1, 8, 2, 1), intArrayOf(1, 10, 3, 1))
             val density = context.resources.displayMetrics.density
             captureSize(activity, root, "study-summary-large", (320 * density).toInt(), (640 * density).toInt())
             val value = root.findViewById<TextView>(R.id.correctPercentage)

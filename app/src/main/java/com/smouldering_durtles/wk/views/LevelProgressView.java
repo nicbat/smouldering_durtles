@@ -29,6 +29,7 @@ import com.smouldering_durtles.wk.livedata.LiveLevelProgress;
 import com.smouldering_durtles.wk.model.LevelProgress;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
 import com.smouldering_durtles.wk.util.ThemeUtil;
+import com.smouldering_durtles.wk.ui.LearningColors;
 import com.smouldering_durtles.wk.util.WeakLcoRef;
 
 import java.util.ArrayList;
@@ -90,10 +91,11 @@ public final class LevelProgressView extends TableLayout {
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket8));
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket9));
 
-                    for (int i=0; i<legendBuckets.size(); i++) {
-                        legendBuckets.get(i).setBackgroundColor(ActiveTheme.getLevelProgressionBucketColors()
-                                [i]);
-                    }
+            for (int i=0; i<legendBuckets.size(); i++) {
+                int color = ActiveTheme.getLevelProgressionBucketColors()[i];
+                legendBuckets.get(i).setBackgroundColor(DashboardStyle.isModern(getContext())
+                        ? LearningColors.accent(getContext(), color) : color);
+            }
         });
     }
 
@@ -132,7 +134,7 @@ public final class LevelProgressView extends TableLayout {
             if (i >= getChildCount()-1) {
                 final LevelProgressRowView row = new LevelProgressRowView(getContext());
                 final LayoutParams rowLayoutParams = new LayoutParams(0, 0);
-                rowLayoutParams.setMargins(0, dp2px(4), 0, 0);
+                rowLayoutParams.setMargins(0, DashboardStyle.isModern(getContext()) ? 0 : dp2px(4), 0, 0);
                 rowLayoutParams.width = MATCH_PARENT;
                 rowLayoutParams.height = WRAP_CONTENT;
                 addView(row, i, rowLayoutParams);

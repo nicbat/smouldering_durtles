@@ -165,7 +165,7 @@ class SearchAppearanceTest {
             assertTrue(first.right < second.left)
             assertTrue(first.width < list.width / 2)
             val progress = first.findViewById<TextView>(R.id.progress)
-            assertEquals("Level 1\nApprentice I", progress.text.toString())
+            assertEquals("Kanji · Level 1\nApprentice I", progress.text.toString())
             assertEquals("Keep the SRS stage together instead of orphaning its numeral", 2, progress.lineCount)
             val vocabPosition = (0 until adapter.itemCount).first { adapter.getItemViewType(it) == R.id.viewTypeResultVocabulary }
             val vocab = list.findViewHolderForAdapterPosition(vocabPosition)!!.itemView

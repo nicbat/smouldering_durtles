@@ -23,6 +23,10 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.smouldering_durtles.wk.R;
+import com.smouldering_durtles.wk.GlobalSettings;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
+import com.smouldering_durtles.wk.ui.LearningColors;
+import com.google.android.material.color.MaterialColors;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
 import com.smouldering_durtles.wk.util.ThemeUtil;
 
@@ -41,7 +45,7 @@ public final class LevelProgressBarView extends View {
     private int[] colors = new int[0];
     private int targetColor = 0;
     private int lineThickness = 0;
-    private int total = 0;
+    private long total = 0;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     /**
@@ -83,12 +87,17 @@ public final class LevelProgressBarView extends View {
         }
         dirty = false;
 
-        height = dp2px(24);
+        height = dp2px(DashboardStyle.isModern(getContext()) ? 8 : 24);
         lineThickness = dp2px(2);
 
-        colors = ActiveTheme.getLevelProgressionBucketColors();
+        colors = ActiveTheme.getLevelProgressionBucketColors().clone();
+        if (DashboardStyle.isModern(getContext())) {
+            for (int i = 0; i < colors.length; i++) colors[i] = LearningColors.accent(getContext(), colors[i]);
+        }
 
-        targetColor = ThemeUtil.getColor(getContext(), R.attr.colorLevelProgressTarget);
+        targetColor = DashboardStyle.isModern(getContext())
+                ? MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
+                : ThemeUtil.getColor(getContext(), R.attr.colorLevelProgressTarget);
 
         total = 0;
         for (final int value: values) {
@@ -107,28 +116,33 @@ public final class LevelProgressBarView extends View {
             }
 
             final int width = getWidth() - getPaddingLeft() - getPaddingRight();
-            int done = 0;
+            long done = 0;
 
-            for (int i=0; i<10; i++) {
+            for (int i=0; i<Math.min(values.length, colors.length); i++) {
                 final int value = values[i];
                 if (value == 0) {
                     continue;
                 }
 
-                final int start = getPaddingLeft() + (done * width) / total;
-                final int end = getPaddingLeft() + ((done + value) * width) / total;
+                final int start = getPaddingLeft() + (int) ((done * width) / total);
+                final int end = getPaddingLeft() + (int) (((done + value) * width) / total);
 
                 paint.setColor(colors[i]);
                 paint.setStyle(Paint.Style.FILL_AND_STROKE);
                 paint.setStrokeWidth(0);
                 canvas.drawRect(start, getPaddingTop(), end, getPaddingTop() + height, paint);
+                if (done > 0 && DashboardStyle.isModern(getContext())
+                        && "neutral".equals(GlobalSettings.Display.getLearningColors())) {
+                    paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
+                    canvas.drawRect(start, getPaddingTop(), Math.min(end, start + dp2px(1)), getPaddingTop() + height, paint);
+                }
 
                 done += value;
             }
 
             if (showTarget) {
-                final int threshold = (total * 9 + 9) / 10;
-                final int start = getPaddingLeft() + (threshold * width) / total - lineThickness / 2;
+                final long threshold = (total * 9 + 9) / 10;
+                final int start = getPaddingLeft() + (int) ((threshold * width) / total) - lineThickness / 2;
                 final int end = start + lineThickness;
 
                 paint.setColor(targetColor);

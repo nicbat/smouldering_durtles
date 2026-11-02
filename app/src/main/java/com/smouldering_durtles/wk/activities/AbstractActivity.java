@@ -101,6 +101,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
     private @Nullable ActiveTheme creationTheme = null;
     private boolean creationModernOverflow;
     private boolean creationDynamicOverflow;
+    private String creationLearningColors;
     private @Nullable Resources.Theme createdTheme = null;
 
     /**
@@ -205,6 +206,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
         creationTheme = ActiveTheme.getCurrentTheme();
         creationModernOverflow = useModernOverflow();
         creationDynamicOverflow = useDynamicOverflow();
+        creationLearningColors = GlobalSettings.Display.getLearningColors();
         setContentView(layoutId);
 
         final Toolbar toolbar = getToolbar();
@@ -314,7 +316,8 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
 
             if (creationTheme != null && (creationTheme != ActiveTheme.getCurrentTheme()
                     || creationModernOverflow != useModernOverflow()
-                    || creationDynamicOverflow != useDynamicOverflow())) {
+                    || creationDynamicOverflow != useDynamicOverflow()
+                    || !GlobalSettings.Display.getLearningColors().equals(creationLearningColors))) {
                 recreate();
                 return;
             }

@@ -19,6 +19,9 @@ package com.smouldering_durtles.wk.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+import android.widget.Button;
+import com.smouldering_durtles.wk.dashboard.DashboardStyle;
+import com.smouldering_durtles.wk.ui.ModernUi;
 
 import androidx.lifecycle.LifecycleOwner;
 
@@ -67,6 +70,14 @@ public final class Post60ProgressView extends LinearLayout {
             setOrientation(VERTICAL);
             setBackgroundResource(R.drawable.main_activity_view_background);
             barView.setDelegate(this, R.id.bar);
+            if (DashboardStyle.isModern(getContext())) {
+                Button details = new Button(getContext());
+                details.setId(R.id.post60StageCounts);
+                details.setText(R.string.dashboard_post60_details);
+                ModernUi.button(details, ModernUi.ButtonRole.TEXT);
+                details.setOnClickListener(view -> ((Post60ProgressBarView) findViewById(R.id.bar)).showStageCounts());
+                addView(details, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            }
         });
     }
 

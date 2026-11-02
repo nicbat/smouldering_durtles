@@ -61,7 +61,68 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest refinement — layout, density and Material guidance
+## Latest milestone — quieter learning colors and denser data (2026-11-02)
+
+User feedback on installed **5749f22** requested a less awkward summary, reduced WaniKani
+color intensity, compact progress/SRS, and a more useful forecast without overlapping text.
+They authorized implementation and reversible design decisions. Widgets remain last.
+
+- `ui/LearningColors.java` and Display → **Learning colors**: Subtle (default modern),
+  Neutral, Original. Subject fills/ink are paired; small chart accents retain original hue
+  in Subtle, while Neutral uses Material colors and segment separators. Classic bypasses
+  this policy. Stored `ActiveTheme`/custom palettes remain untouched. Original is reversible.
+  Preferences recreate immediately and existing activities recreate on return when this
+  choice changes. Search metadata names subject type; review/cards/logs/table glyphs use
+  the selected treatment. Inline rich-text mnemonic emphasis remains unchanged.
+- `study/SummaryPresentation.java`: one item-accuracy panel, actual total and compact
+  Correct/Errors subject breakdown. Zero-total subject rows disappear; no-items shows an
+  explicit empty state. Any wrong attempt still marks its item as having errors. Original
+  count/action objects and callbacks remain; Show items state survives recreation. Sync
+  progress is flat, 8dp high, with clearance around controls. Classic keeps its old layout.
+- `LevelProgress*`, `DashboardProgressHeader`: inline label/count when space permits,
+  stacked otherwise; 8dp bar within 48dp row targets. Counts, search actions and the
+  rounded-up 90% advancement target remain. Long arithmetic avoids large-count overflow.
+  Post-60 and available-study count cells also honor the palette; Post-60 adds a 48dp
+  View stage counts action and accessible exact-count list so Neutral remains meaningful.
+- `SrsDistributionBarView`, `DashboardLegendLayout`: total, 12dp distribution, adaptive
+  two-column stage legend (one at large text) with exact counts and 48dp search targets.
+- `TimeLineBarChart`: total configured-horizon load and busiest hour, compact segmented
+  plot, separately measured text bands, localized collision-free ticks. Tap a bar for
+  hour-specific counts/cumulative/level-up items; click the chart/action label or use
+  accessibility for the complete hourly list. Existing grouping/grid/cumulative/scroll
+  preferences and TimeLine aggregation remain. Neutral bars have separators; cumulative
+  line has its own contrast and scale legend. Dashboard chart now measures wrap_content.
+- [UI_GUIDE.md](UI_GUIDE.md) records these reusable principles. Read the new color policy
+  instead of the historical requirement to retain broad saturated subject panels.
+
+Validation:
+- Debug/release/test APK builds succeed, including release vital lint.
+- Android 16/API 36.1: **101 tests passed**, 111.155 seconds.
+- Android 11/API 30: **101 tests passed**, 103.62 seconds.
+- Final Post-60/available-study palette and named-detail follow-up: **9 focused dashboard
+  tests passed on each platform** (API 36.1: 8.198s; API 30: 10.861s). Suite now contains
+  104 tests: the earlier 101-test full runs plus these focused runs cover all test cases.
+  Other application source is identical to the full-suite build. API 36 initially selected
+  the activity instead of the dialog in the new test; explicit isDialog roots fixed that
+  test-only race. Final test APK rebuilt successfully after the correction.
+- Build log: `/tmp/smoky-density-final-build.log`; full logs:
+  `/tmp/smoky-density-api36-tests.log`, `/tmp/smoky-density-api30-tests.log`.
+  Final focused logs: `/tmp/smoky-density-api36-final-dashboard-tests.log` and API30 equivalent.
+  Ignored persistent local copies are `test-results/density-api{36,30}-instrumentation.txt`
+  and `test-results/density-api{36,30}-dashboard.txt`. Task-owned emulators were stopped.
+- `captures/smoky-density/after/` holds synthetic emulator PNGs. Inspected populated summary,
+  large light/dark summary, review with actual keyboard, search grid, level/SRS, dense forecast
+  at 360dp/1x and 280dp/2x, neutral scrolled chart, and settings palette dialog. Tests also
+  check drawn text bounds and real hourly-detail navigation. First focused run exposed a
+  fractional-pixel Neutral divider; fixed before full suites. Visual review led to flat sync
+  progress and keeping forecast legend dots attached to their labels.
+- API 21 not rerun; pre-existing Jackson initialization blocker remains. Physical long-session,
+  recovery, TalkBack and wallpaper variation validation remain on the backlog.
+
+Phone remains **5749f22**; this work has NOT been installed. No physical device was attached
+at the start of this task. Install only on the user's request; never instrument their phone.
+
+## Previous refinement — layout, density and Material guidance
 
 User feedback on phone build 6bbe197 identified jarring review controls and overly spacious
 search cards. They requested principles documented and applied throughout the app, grounded
@@ -234,8 +295,8 @@ commit `b36c696`; never fabricate migration fixtures.
 
 ## Next work
 
-1. The refinement is installed and launched; get feedback across browse,
-   details, lesson/review input, summary/log and settings. Keep Classic available.
+1. Install the new density/color build when requested, then get feedback on summary,
+   Subtle/Neutral/Original palettes, progress/SRS and forecast details. Keep Classic available.
 2. Address any reproducible bugs and usability issues; complete broader accessibility,
    landscape, wallpaper and recovery validation without submitting real test answers.
 3. Profile startup, scroll, memory, chart and audio behavior before optimization. Do not

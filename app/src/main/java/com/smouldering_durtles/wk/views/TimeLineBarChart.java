@@ -25,6 +25,13 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
+import android.text.format.DateUtils;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,6 +48,8 @@ import com.smouldering_durtles.wk.db.model.Subject;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
 import com.smouldering_durtles.wk.dashboard.DashboardStyle;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.smouldering_durtles.wk.ui.LearningColors;
 import com.smouldering_durtles.wk.enums.SubjectType;
 import com.smouldering_durtles.wk.livedata.LiveTimeLine;
 import com.smouldering_durtles.wk.livedata.LiveVacationMode;
@@ -77,6 +86,9 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     private float density = 1.0f;
     private float labelDensity = 1.0f;
     private boolean modern;
+    // Separate measured text bands keep labels out of the plot, including at 2x font scale.
+    private final List<RectF> modernTextBounds = new ArrayList<>();
+    private int selectedSlot = -1;
     private float originX = 0;
     private float originY = 0;
     private float axisSizeX = 0;
@@ -128,7 +140,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             colorWaterfall = ThemeUtil.getColor(getContext(), R.attr.colorWaterfallLine);
             density = context.getResources().getDisplayMetrics().density;
             modern = DashboardStyle.isModern(context);
-            labelDensity = modern ? context.getResources().getDisplayMetrics().scaledDensity * 1.1f : density;
+            labelDensity = modern ? context.getResources().getDisplayMetrics().scaledDensity : density;
             if (modern) {
                 colorPrimary = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface);
                 colorPrimaryTonedDown = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurfaceVariant);
@@ -136,6 +148,11 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             arrowIcon = ContextCompat.getDrawable(getContext(), ActiveTheme.getCurrentTheme().getLevelUpArrowDrawableId());
             if (modern && arrowIcon != null) arrowIcon.mutate().setTint(colorPrimaryTonedDown);
             init();
+            if (modern) {
+                setClickable(true);
+                setFocusable(true);
+                setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+            }
         });
     }
 
@@ -162,6 +179,12 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         safe(() -> {
+            if (modern) {
+                int width = MeasureSpec.getSize(widthMeasureSpec);
+                if (width == 0) width = (int) (320 * density);
+                setMeasuredDimension(width, resolveSize(modernHeight(width), heightMeasureSpec));
+                return;
+            }
             setMeasuredDimension(0, 0);
 
             final int w;
@@ -438,6 +461,182 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
         }
     }
 
+    private String modernSummary() {
+        return getContext().getString(R.string.forecast_summary, totalCount, entries.size());
+    }
+
+    private String modernPeak() {
+        if (totalCount == 0) return getContext().getString(R.string.forecast_empty);
+        BarEntry peak = entries.get(0);
+        for (BarEntry entry : entries) if (entry.barCount > peak.barCount) peak = entry;
+        return getContext().getString(R.string.forecast_peak, peak.barCount,
+                DateUtils.formatDateTime(getContext(), firstSlot + peak.index * HOUR,
+                        DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_TIME));
+    }
+
+    private CharSequence modernLegend() {
+        SpannableStringBuilder result = new SpannableStringBuilder();
+        for (int i = 0; i < legendLabels.length; i++) {
+            if (i > 0) result.append("   ");
+            int start = result.length();
+            result.append("●");
+            result.setSpan(new ForegroundColorSpan(segmentColors[i]), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            result.append("\u00A0").append(legendLabels[i]);
+        }
+        if (GlobalSettings.Dashboard.getShowWaterfallLine()) {
+            result.append("\n");
+            int start = result.length();
+            result.append("━");
+            result.setSpan(new ForegroundColorSpan(colorPrimary), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            result.append(" ").append(getContext().getString(R.string.forecast_line_scale, totalCount));
+        }
+        return result;
+    }
+
+    @SuppressWarnings("deprecation") // API 21-compatible; the builder is API 23+.
+    private StaticLayout modernText(CharSequence text, int width, float size, int color) {
+        TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setTypeface(Typeface.DEFAULT);
+        textPaint.setColor(color);
+        textPaint.setTextSize(size * labelDensity);
+        return new StaticLayout(text, textPaint, Math.max(1, width), Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
+    }
+
+    private String modernAction() {
+        return getContext().getString(numShownBars < entries.size()
+                ? R.string.forecast_scroll_action : R.string.forecast_details_action);
+    }
+
+    private int modernHeight(int width) {
+        int contentWidth = Math.max(1, width - getPaddingLeft() - getPaddingRight());
+        int textHeight = modernText(modernSummary(), contentWidth, 16, colorPrimary).getHeight()
+                + modernText(modernPeak(), contentWidth, 12, colorPrimaryTonedDown).getHeight()
+                + modernText(modernLegend(), contentWidth, 12, colorPrimaryTonedDown).getHeight()
+                + modernText(modernAction(), contentWidth, 14, colorPrimary).getHeight();
+        paint.setTextSize(12 * labelDensity);
+        return getPaddingTop() + getPaddingBottom() + textHeight + (int) Math.ceil(152 * density + paint.getFontSpacing());
+    }
+
+    private float drawModernText(Canvas canvas, CharSequence text, float y, float size, int color) {
+        int width = getWidth() - getPaddingLeft() - getPaddingRight();
+        StaticLayout layout = modernText(text, width, size, color);
+        canvas.save();
+        canvas.translate(getPaddingLeft(), y);
+        layout.draw(canvas);
+        canvas.restore();
+        for (int line = 0; line < layout.getLineCount(); line++) {
+            modernTextBounds.add(new RectF(getPaddingLeft() + layout.getLineLeft(line), y + layout.getLineTop(line),
+                    getPaddingLeft() + layout.getLineRight(line), y + layout.getLineBottom(line)));
+        }
+        return y + layout.getHeight();
+    }
+
+    private void modernLabel(Canvas canvas, String label, float x, float baseline) {
+        paint.setTextAlign(Paint.Align.LEFT);
+        canvas.drawText(label, x, baseline, paint);
+        modernTextBounds.add(new RectF(x, baseline + paint.ascent(), x + paint.measureText(label), baseline + paint.descent()));
+    }
+
+    /** Modern chart is an overview; exact hourly counts belong in the accessible detail list. */
+    private void drawModern(Canvas canvas) {
+        modernTextBounds.clear();
+        paint.setTypeface(Typeface.DEFAULT);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setStrokeWidth(0);
+        float y = drawModernText(canvas, modernSummary(), getPaddingTop(), 16, colorPrimary);
+        y = drawModernText(canvas, modernPeak(), y + 4 * density, 12, colorPrimaryTonedDown);
+        float plotTop = y + 12 * density;
+        axisSizeY = 108 * density;
+        originY = plotTop + axisSizeY;
+        paint.setTextSize(12 * labelDensity);
+        boolean grid = GlobalSettings.Dashboard.getTimeLineChartGridStyle()
+                != com.smouldering_durtles.wk.enums.TimeLineBarChartGridStyle.OFF;
+        int gridMax = GlobalSettings.Dashboard.getTimeLineChartGridStyle()
+                == com.smouldering_durtles.wk.enums.TimeLineBarChartGridStyle.FOR_WATERFALL ? totalCount : maxBarCount;
+        String maxLabel = Integer.toString(gridMax);
+        originX = getPaddingLeft() + (grid ? paint.measureText(maxLabel) + 8 * density : 0);
+        axisSizeX = Math.max(density, getWidth() - getPaddingRight() - originX);
+        barAdvance = axisSizeX / Math.max(1, numShownBars);
+        scrollOffset = Math.max(0, Math.min(scrollOffset, entries.size() * barAdvance - axisSizeX));
+        pixelsPerUnit = axisSizeY / Math.max(1, maxBarCount);
+        pixelsPerUnitCumulative = axisSizeY / Math.max(1, totalCount);
+        if (grid) {
+            paint.setColor(colorPrimaryTonedDown);
+            modernLabel(canvas, maxLabel, getPaddingLeft(), plotTop - paint.ascent());
+            if (gridMax > 0) modernLabel(canvas, "0", getPaddingLeft(), originY - paint.descent());
+            paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutlineVariant));
+            paint.setStrokeWidth(density);
+            canvas.drawLine(originX, plotTop, originX + axisSizeX, plotTop, paint);
+            canvas.drawLine(originX, plotTop + axisSizeY / 2, originX + axisSizeX, plotTop + axisSizeY / 2, paint);
+            canvas.drawLine(originX, originY, originX + axisSizeX, originY, paint);
+        }
+        canvas.save();
+        canvas.clipRect(originX, plotTop, originX + axisSizeX, originY);
+        paint.setStrokeWidth(0);
+        for (BarEntry entry : entries) {
+            float left = originX + barAdvance * entry.index - scrollOffset + barAdvance * .15f;
+            float right = left + barAdvance * .7f;
+            if (right < originX || left > originX + axisSizeX) continue;
+            float bottom = originY;
+            for (int j = 0; j < entry.values.length; j++) {
+                paint.setColor(segmentColors[j]);
+                float top = bottom - entry.values[j] * pixelsPerUnit;
+                canvas.drawRect(left, top, right, bottom, paint);
+                if (entry.values[j] > 0 && bottom < originY
+                        && "neutral".equals(GlobalSettings.Display.getLearningColors())) {
+                    paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
+                    paint.setStrokeWidth(density);
+                    canvas.drawLine(left, bottom, right, bottom, paint);
+                    paint.setStrokeWidth(0);
+                }
+                bottom = top;
+            }
+            if (entry.index == selectedSlot) {
+                paint.setColor(colorPrimary);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(2 * density);
+                canvas.drawRect(left - density, Math.min(bottom, originY - 4 * density), right + density, originY, paint);
+                paint.setStyle(Paint.Style.FILL);
+                paint.setStrokeWidth(0);
+            }
+        }
+        if (GlobalSettings.Dashboard.getShowWaterfallLine()) {
+            // On-surface ink remains distinct from primary-colored bars in Neutral mode.
+            paint.setColor(colorPrimary);
+            paint.setStrokeWidth(2 * density);
+            for (int i = 1; i < entries.size(); i++) {
+                float x = originX + barAdvance * (i + .5f) - scrollOffset;
+                canvas.drawLine(x - barAdvance, originY - entries.get(i - 1).cumulativeCount * pixelsPerUnitCumulative,
+                        x, originY - entries.get(i).cumulativeCount * pixelsPerUnitCumulative, paint);
+            }
+        }
+        canvas.restore();
+        paint.setStrokeWidth(0);
+        paint.setTextSize(12 * labelDensity);
+        paint.setColor(colorPrimaryTonedDown);
+        float lastRight = originX - 8 * density;
+        float baseline = originY + 8 * density - paint.ascent();
+        // Width measured for each localized label. Never draw overlapping or offscreen ticks.
+        for (BarEntry entry : entries) {
+            float center = originX + barAdvance * (entry.index + .5f) - scrollOffset;
+            if (center < originX || center > originX + axisSizeX) continue;
+            String label = getBarLabel(entry.index);
+            float width = paint.measureText(label);
+            float left = Math.max(originX, Math.min(center - width / 2, originX + axisSizeX - width));
+            if (left < lastRight + 8 * density || left + width > originX + axisSizeX) continue;
+            modernLabel(canvas, label, left, baseline);
+            lastRight = left + width;
+        }
+        y = baseline + paint.descent() + 8 * density;
+        y = drawModernText(canvas, modernLegend(), y, 12, colorPrimaryTonedDown);
+        drawModernText(canvas, modernAction(), y + 8 * density, 14,
+                MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary));
+        if (scroller != null && !scroller.isFinished() && scroller.computeScrollOffset()) {
+            scrollOffset = Math.max(0, Math.min(entries.size() * barAdvance - axisSizeX, scroller.getCurrX()));
+            postInvalidateOnAnimation();
+        }
+    }
+
     private void onDrawImpl(final Canvas canvas) {
         final float baseWidth = getWidth() - getPaddingLeft() - getPaddingRight();
         final float baseHeight = getHeight() - getPaddingTop() - getPaddingBottom();
@@ -518,7 +717,8 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     protected void onDraw(final Canvas canvas) {
         safe(() -> {
             super.onDraw(canvas);
-            onDrawImpl(canvas);
+            if (modern) drawModern(canvas);
+            else onDrawImpl(canvas);
         });
     }
 
@@ -526,7 +726,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         final boolean result = safe(false, () -> {
-            if (numShownBars < entries.size()) {
+            if (modern || numShownBars < entries.size()) {
                 if (gestureDetector == null) {
                     gestureDetector = new GestureDetectorCompat(getContext(), this);
                 }
@@ -557,13 +757,67 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
 
     @Override
     public boolean onSingleTapUp(final MotionEvent e) {
-        return false;
+        if (!modern) return false;
+        if (barAdvance > 0 && e.getY() >= originY - axisSizeY && e.getY() <= originY
+                && e.getX() >= originX && e.getX() <= originX + axisSizeX && !entries.isEmpty()) {
+            selectedSlot = Math.max(0, Math.min(entries.size() - 1,
+                    (int) ((e.getX() - originX + scrollOffset) / barAdvance)));
+            invalidate();
+            showSlot(selectedSlot);
+        } else {
+            performClick();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        if (!modern || entries.isEmpty()) return false;
+        final String[] hours = new String[entries.size()];
+        for (int i = 0; i < hours.length; i++) {
+            hours[i] = getContext().getString(R.string.forecast_hour_count, slotRange(i), entries.get(i).barCount);
+        }
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle(R.string.forecast_hourly_title)
+                .setItems(hours, (dialog, which) -> {
+                    selectedSlot = which;
+                    scrollOffset = Math.max(0, Math.min(Math.max(0, entries.size() * barAdvance - axisSizeX),
+                            which * barAdvance - axisSizeX / 2));
+                    invalidate();
+                    showSlot(which);
+                })
+                .setNegativeButton(android.R.string.cancel, null).show();
+        return true;
+    }
+
+    private String slotRange(int index) {
+        final long start = firstSlot + index * HOUR;
+        return DateUtils.formatDateRange(getContext(), start, start + HOUR,
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_TIME);
+    }
+
+    private String slotDetails(int index) {
+        final BarEntry entry = entries.get(index);
+        StringBuilder detail = new StringBuilder(getContext().getString(R.string.forecast_reviews, entry.barCount));
+        for (int j = 0; j < legendLabels.length; j++) {
+            detail.append("\n").append(legendLabels[j]).append(": ").append(entry.values[j]);
+        }
+        detail.append("\n\n").append(getContext().getString(R.string.forecast_cumulative, entry.cumulativeCount));
+        detail.append("\n").append(getContext().getString(R.string.forecast_level_up, entry.numLevelUpItems));
+        if (index == 0) detail.append("\n\n").append(getContext().getString(R.string.forecast_overdue));
+        return detail.toString();
+    }
+
+    private void showSlot(int index) {
+        new MaterialAlertDialogBuilder(getContext()).setTitle(slotRange(index))
+                .setMessage(slotDetails(index)).setPositiveButton(android.R.string.ok, null).show();
     }
 
     @Override
     public boolean onScroll(final MotionEvent e1, final MotionEvent e2, final float distanceX, final float distanceY) {
         safe(() -> {
-            scrollOffset = Math.min(entries.size() * barAdvance - axisSizeX, Math.max(0, scrollOffset + distanceX));
+            scrollOffset = Math.max(0, Math.min(entries.size() * barAdvance - axisSizeX, Math.max(0, scrollOffset + distanceX)));
             final float distance = prevVerticalScrollRawY - e2.getRawY();
             dispatchNestedScroll(0, 0, 0, (int) distance, null);
             prevVerticalScrollRawY = e2.getRawY();
@@ -585,7 +839,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             }
             scroller.forceFinished(true);
             scroller.fling((int) scrollOffset, 0, (int) -velocityX, 0,
-                    0, (int) (entries.size() * barAdvance - axisSizeX), 0, 0);
+                    0, Math.max(0, (int) (entries.size() * barAdvance - axisSizeX)), 0, 0);
             dispatchNestedFling(0, -velocityY, false);
             invalidate();
         });
@@ -745,6 +999,17 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
 
         firstSlot = timeLine.getFirstSlot();
         numShownBars = GlobalSettings.Dashboard.getTimeLineChartSizeShown();
+        if (modern) {
+            // ActiveTheme returns shared palette arrays: never mutate those persisted semantic colors.
+            segmentColors = segmentColors.clone();
+            for (int i = 0; i < segmentColors.length; i++) {
+                segmentColors[i] = LearningColors.accent(getContext(), segmentColors[i]);
+            }
+            selectedSlot = Math.min(selectedSlot, entries.size() - 1);
+            setContentDescription(modernSummary() + ". " + modernPeak() + ". "
+                    + getContext().getString(R.string.forecast_accessibility));
+            requestLayout();
+        }
 
         setVisibility(View.VISIBLE);
         invalidate();

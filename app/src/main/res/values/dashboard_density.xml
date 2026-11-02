@@ -1,0 +1,18 @@
+<resources>
+    <string name="dashboard_compact_progress_row">%1$d · %2$s</string>
+    <string name="dashboard_progress_target">Marker: 90% to advance</string>
+    <string name="dashboard_srs_total">%1$s items</string>
+    <string name="dashboard_srs_empty">No SRS items yet</string>
+    <string name="dashboard_post60_title">Post-60 progression</string>
+    <string name="dashboard_post60_details">View stage counts</string>
+    <item name="post60StageCounts" type="id"/>
+    <string-array name="dashboard_post60_stages">
+        <item>Locked</item><item>Initiate</item><item>Apprentice</item><item>Guru</item>
+        <item>Master</item><item>Enlightened</item><item>Burned</item>
+    </string-array>
+    <string-array name="dashboard_post60_deep_stages">
+        <item>Locked</item><item>Initiate</item><item>Apprentice I</item><item>Apprentice II</item>
+        <item>Apprentice III</item><item>Apprentice IV</item><item>Guru I</item><item>Guru II</item>
+        <item>Master</item><item>Enlightened</item><item>Burned</item>
+    </string-array>
+</resources>
