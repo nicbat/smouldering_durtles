@@ -123,6 +123,23 @@ landscape; do not rely solely on black/white backgrounds. With the keyboard open
 input and primary action must remain reachable by scrolling. Keep editor state, IME
 options, focus behavior and grading callbacks unchanged.
 
+Lessons have a stable Previous/Next action bar below the scrolling content, with the
+lesson position above. Keep the original controls/listeners and the last-item Start quiz
+behavior. A compact subject header pairs a bounded glyph with meaning/accepted readings;
+stack it using the actual available width when vocabulary or system text gets large.
+Use a 72sp glyph ceiling while respecting smaller user limits and the zero/hide option.
+Place audio/reveal actions below the header text so they never squeeze it into a narrow
+column. Audio icons need the same stateful foreground tint as their text, including icons
+assigned through absolute compound-drawable APIs.
+
+Keep mnemonics and reading restrictions in the existing content flow. Secondary metadata
+can be collapsed under Details, with its expansion restored across recreation. An apparent
+duplicate can carry different meaning: the headline identifies accepted/primary readings,
+while the on’yomi/kun’yomi body lists all readings. Preserve both representations and their
+rich-text emphasis. Keep the synonyms field available for in-place updates; a quiet Add
+action can replace its strong filled treatment without changing its handler. Use outlineVariant
+for lesson dividers instead of importing the Classic palette’s high-contrast rules.
+
 Use readable section labels for mnemonics, readings, examples and metadata. Related
 subjects may be compact cards. Do not surround every paragraph with another card.
 Summaries show one accuracy figure, the actual item total, a small accuracy bar and a
@@ -152,6 +169,11 @@ Keep chart aggregation and search callbacks untouched. Density comes from struct
   counts (one column at large text/narrow widths). Do not replace counts with percentages.
   Post-60 charts expose named stage counts through a visible action and accessibility
   summary; a neutral chart must not depend on a remembered color-to-stage mapping.
+- Jōyō/JLPT: one compact row per grade/level with a 6dp progress bar and exact
+  passed-plus-burned / tracked-kanji counts. Explain the denominator once; this is the
+  kanji tracked in the app, not a claim of complete school/JLPT syllabus coverage. Tap
+  a row for all four mutually exclusive stage buckets. Keep 48dp targets and stack
+  label/count at large text sizes. The old panels had no search action to preserve.
 - Forecast: total across the configured horizon and busiest hour first, then a compact
   plot. Reserve separate measured bands for ticks/legend/actions. Measure localized ticks
   before drawing; skip labels that cannot fit. Tap an hour for exact counts, cumulative
@@ -175,6 +197,8 @@ existing confirmation and enable/disable behavior.
 - `ui/ModernUi.java`: scoped color resolution and stable-class button roles. Use
   `button(button, ButtonRole.PRIMARY/SECONDARY/TEXT)`; repeated styling preserves the role.
 - `ui/LearningColors.java`: optional learning-color presentation; never mutate semantic palettes.
+- `study/LessonStyle.java`: lesson-only navigation, adaptive headline, and metadata disclosure.
+- `views/CoverageProgressRowView.java`: Jōyō/JLPT overview with exact stage details.
 - `study/SummaryPresentation.java`: compact item-accuracy summary and adaptive breakdown.
 - `ui/UtilityStyle.java`: utility gutters and constrained form/action layout corrections.
 - `study/StudyStyle.java`: study arrangement and semantic surfaces, before/after binding

@@ -1,0 +1,15 @@
+<resources>
+    <string name="lesson_position">Lesson %1$d of %2$d</string>
+    <string name="lesson_listen">Listen</string>
+    <string name="lesson_listen_subject">Listen to %1$s</string>
+    <string name="lesson_add">Add</string>
+    <string name="lesson_details">Details</string>
+    <string name="lesson_hide_details">Hide details</string>
+    <string name="lesson_expanded">Expanded</string>
+    <string name="lesson_collapsed">Collapsed</string>
+    <item name="lessonNavigation" type="id"/>
+    <item name="lessonHeadlineRow" type="id"/>
+    <item name="lessonDetailsToggle" type="id"/>
+    <item name="lessonDetailsExpanded" type="id"/>
+    <item name="lessonDetailsAvailable" type="id"/>
+</resources>

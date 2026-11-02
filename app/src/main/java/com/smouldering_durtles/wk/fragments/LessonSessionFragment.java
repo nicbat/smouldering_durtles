@@ -114,6 +114,9 @@ public final class LessonSessionFragment extends AbstractSessionFragment impleme
         previousButton.setVisibility(!session.isOnFirstLessonItem());
         nextButton.setText(session.isOnLastLessonItem() ? "Start quiz" : "Next");
         progress.setTextFormat("%d/%d", items.indexOf(item)+1, items.size());
+        com.smouldering_durtles.wk.study.LessonStyle.navigation(view, items.indexOf(item) + 1, items.size());
+        com.smouldering_durtles.wk.study.LessonStyle.restoreDetails(view, savedInstanceState != null
+                && savedInstanceState.getBoolean("lessonDetailsExpanded"));
 
         previousButton.setOnClickListener(v -> safe(() -> {
             if (!interactionEnabled) {
@@ -137,6 +140,13 @@ public final class LessonSessionFragment extends AbstractSessionFragment impleme
                 session.moveToNextLessonItem();
             }
         }));
+    }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (getView() != null) outState.putBoolean("lessonDetailsExpanded",
+                com.smouldering_durtles.wk.study.LessonStyle.isDetailsExpanded(getView()));
     }
 
     @Override

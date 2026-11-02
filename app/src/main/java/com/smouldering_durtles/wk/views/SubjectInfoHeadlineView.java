@@ -304,6 +304,7 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
         title.setTextSize(textSize);
         meaning.setTextSize(textSize + 4);
         reading.setTextSize(textSize + 4);
+        com.smouldering_durtles.wk.study.LessonStyle.headline(this, subject, maxFontSize);
     }
 
     private int dp2px(final int dp) {

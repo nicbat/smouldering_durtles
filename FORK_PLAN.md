@@ -14,6 +14,11 @@ rewrite is required to reach this design goal.
 
 ## Current milestone
 
+Lesson cleanup and compact Jōyō/JLPT panels follow the density/color pass: adaptive
+lesson headline, stable bottom navigation, optional metadata, and compact curriculum
+progress rows with exact stage details. See TASKS/HANDOFF for verification and UI_GUIDE
+for reusable principles.
+
 November 2 follow-up: compact summary/level/SRS displays, actionable review forecast and
 optional Subtle/Neutral/Original learning colors. Stored WaniKani/custom palettes remain
 intact; softer presentation is now the modern default. See TASKS/HANDOFF for current proof.

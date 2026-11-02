@@ -5,14 +5,27 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-November 2 density and color refinement, following feedback on installed build **5749f22**:
-compact summary, softer optional learning colors, slimmer level progress, useful collision-free
-forecast, and condensed SRS distribution. Apply [UI_GUIDE.md](UI_GUIDE.md) consistently.
-Widgets remain last. Keep existing Views, Classic, custom palettes, grading and scheduling.
+Lesson presentation cleanup and compact Jōyō/JLPT progress, following the density/color
+pass (`c9a4760`). Continue using [UI_GUIDE.md](UI_GUIDE.md); widgets remain last. Keep
+Classic, custom palettes, grading and scheduling intact.
 
-The phone still has **5749f22**, installed on 2026-10-30. This milestone is not yet installed;
-wait for the user's installation request. Never run instrumentation on the account-bearing
-phone. Push tested work to `origin/smoky-durtles/foundation`.
+The last agent-confirmed phone installation was **5749f22**. The user now has
+`./install-phone.sh` and may have updated independently; installed revision has not been
+rechecked. Do not run instrumentation on the phone. Push tested changes to
+`origin/smoky-durtles/foundation`; installation remains a separate user action/request.
+
+## Lesson and curriculum panel cleanup
+
+- [x] Compact adaptive lesson headline; stable Previous/Next footer and lesson position.
+- [x] Preserve accepted/primary reading information, hidden-reading reveal, audio/pitch,
+  image radicals, smaller/zero glyph settings, navigation guards and original callbacks.
+- [x] Metadata behind Details, expansion restored; quiet Add synonym and divider treatment.
+- [x] Jōyō/JLPT: compact progress rows with honest tracked-kanji denominator and tappable
+  exact stage counts; maintain Classic, existing ordering and panel visibility settings.
+- [x] Record lesson-specific layout and semantic-density lessons in UI_GUIDE.
+- [x] Debug/release/test builds pass; **114 tests pass on both Android 16 and Android 11**.
+  Refreshed light/dark, 2x-text, landscape, image-radical and panel screenshots inspected.
+- [ ] User validation with real lessons; install using `./install-phone.sh` when ready.
 
 ## Phone install command
 

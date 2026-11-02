@@ -161,6 +161,9 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         safe(this::init);
     }
 
+    /** The presentation context; visibility policy continues to live in getSubjectInfoDump(). */
+    public ContainerType getContainerType() { return containerType; }
+
     /**
      * The type of container that has this view in it - has an impact on what information is shown.
      * @param containerType the type
@@ -751,6 +754,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         safe(() -> {
             layoutSubjectImpl(sameSubject);
             com.smouldering_durtles.wk.study.StudyStyle.details(this);
+            com.smouldering_durtles.wk.study.LessonStyle.details(this);
         });
     }
 

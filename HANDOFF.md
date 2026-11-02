@@ -74,7 +74,58 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest milestone — quieter learning colors and denser data (2026-11-02)
+## Latest milestone — lesson cleanup and Jōyō/JLPT density (2026-11-02)
+
+User requested lesson cleanup and denser Jōyō/JLPT panels. Implemented in existing Views:
+
+- `study/LessonStyle.java` scopes the changes to `LESSON_PRESENTATION`. The original
+  Previous/Next controls retain their IDs, listeners and interaction guards in a bottom
+  footer; the existing position label sits above scrolling content. Start quiz remains
+  the last-item action. The fragment saves/restores Details expansion.
+- `SubjectInfoView.getContainerType()` exposes the presentation context; its post-bind
+  hook applies Details disclosure only to lesson metadata. Synonyms keep their original
+  TextView and in-place update handler; Add is a quiet action, and dividers use Material
+  outlineVariant. Content visibility still comes from the original subject-info dump.
+- `SubjectInfoHeadlineView` calls the lesson helper after each complete bind/reveal.
+  Existing glyph/text/pitch/audio/reveal views are arranged into an adaptive headline:
+  glyph and text beside one another when measured width permits, otherwise stacked.
+  Glyph ceiling is 72sp, respecting a smaller configured maximum and zero/hide. Audio
+  actions follow the text with correctly tinted icons. Meaning/readings remain rich text.
+  **Do not remove the accepted/primary headline reading as a duplicate**: the body
+  on’yomi/kun’yomi lists include nonaccepted readings. That distinction has its own test.
+- `CoverageProgressRowView` plus modern Jōyō/JLPT layouts: one compact 48dp row per
+  grade/level, 6dp Material bar and passed+burned / tracked-kanji count. Tap for exact
+  Locked/In progress/Passed (not burned)/Burned counts. Models/ordering remain unchanged;
+  these panels previously had no search callbacks. Large text stacks the label/count.
+  The denominator describes the app's tracked kanji, not the entire exam/school syllabus.
+- Classic lesson/panel layouts and all study engine code remain unchanged.
+
+Verification: debug/release/test APK builds succeed, including release vital lint.
+- Android 16/API 36.1: **114 tests, 0 failures**, 129.407 seconds.
+- Android 11/API 30: **114 tests, 0 failures**, 126.216 seconds.
+- Focused new tests: **10 passed** (API 36.1, 11.996s) before the final header action
+  placement refinement; the full suites above cover the final application source.
+- Build log: `/tmp/smoky-lesson-final-build.log`; final full logs:
+  `/tmp/smoky-lesson-api36-tests.log`, `/tmp/smoky-lesson-api30-tests.log`.
+  Persistent ignored local copies: `test-results/lesson-api36-instrumentation.txt` and
+  `test-results/lesson-api30-instrumentation.txt`.
+- Inspected actual populated captures of kanji/long vocabulary/image-radical lessons,
+  dark/2x text, pitch/audio in landscape, scrolled content with reachable footer,
+  Classic, and both compact panels at normal/large text. Font-size zero and saved
+  disclosure state are also asserted. Width checks use visible line extents rather than
+  trailing whitespace; the initial assertion counted invisible trailing spaces.
+- API 21 was not rerun; the existing Jackson initialization blocker remains. Real long
+  lesson sessions, physical keyboard/insets, TalkBack and account recovery remain manual
+  validation tasks. No account data or study submissions were used by these fixtures.
+- Task-owned emulators stopped after verification; phone left untouched.
+
+New classes:
+`study/LessonPresentationTest.kt` (6) and `dashboard/CoverageProgressTest.kt` (4).
+Screenshots: `captures/smoky-lessons/before/` and `captures/smoky-lessons/after/`.
+Phone was not modified; use `./install-phone.sh` for this build once ready. Last agent-
+verified phone revision is 5749f22; the user may have installed newer builds independently.
+
+## Previous milestone — quieter learning colors and denser data (2026-11-02)
 
 User feedback on installed **5749f22** requested a less awkward summary, reduced WaniKani
 color intensity, compact progress/SRS, and a more useful forecast without overlapping text.
@@ -308,8 +359,8 @@ commit `b36c696`; never fabricate migration fixtures.
 
 ## Next work
 
-1. Install the new density/color build when requested, then get feedback on summary,
-   Subtle/Neutral/Original palettes, progress/SRS and forecast details. Keep Classic available.
+1. Install with `./install-phone.sh` when ready, then get feedback on actual lessons and
+   compact Jōyō/JLPT panels, alongside the prior density/color changes. Keep Classic available.
 2. Address any reproducible bugs and usability issues; complete broader accessibility,
    landscape, wallpaper and recovery validation without submitting real test answers.
 3. Profile startup, scroll, memory, chart and audio behavior before optimization. Do not
