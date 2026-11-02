@@ -1,0 +1,16 @@
+<resources>
+    <string name="coverage_joyo_title">Jōyō kanji progress</string>
+    <string name="coverage_jlpt_title">JLPT kanji progress</string>
+    <string name="coverage_explanation">Passed + burned / tracked kanji. Tap a row for stage counts.</string>
+    <string name="coverage_fraction">%1$s / %2$s</string>
+    <string name="coverage_completed_description">%1$s passed or burned out of %2$s tracked kanji</string>
+    <string name="coverage_no_kanji">No tracked kanji</string>
+    <string name="coverage_action">Show stage counts</string>
+    <string name="coverage_bucket_details">Locked: %1$s\nIn progress: %2$s\nPassed (not burned): %3$s\nBurned: %4$s</string>
+    <string name="coverage_grade">Grade %1$d</string>
+    <string name="coverage_secondary_school">Secondary school</string>
+    <string name="coverage_jlpt_level">N%1$d</string>
+    <item name="coverageLabel" type="id"/>
+    <item name="coverageSummary" type="id"/>
+    <item name="coverageBar" type="id"/>
+</resources>

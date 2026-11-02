@@ -111,9 +111,9 @@ class DashboardCompletionTest {
             assertEquals(1, retries)
             capture(activity, error, "dashboard-modern-error-dark-large")
             val table = activity.findViewById<android.widget.TableLayout>(R.id.jlptProgressView)
-            table.findViewById<TextView>(R.id.jlptLevel5PrePassed).text = "123"
+            table.findViewById<com.smouldering_durtles.wk.views.CoverageProgressRowView>(R.id.jlptLevel5Row).setCounts(0, 123, 50, 25)
             capture(activity, table, "dashboard-modern-jlpt-dark-large")
-            val value = table.findViewById<TextView>(R.id.jlptLevel5PrePassed)
+            val value = table.findViewById<android.view.View>(R.id.jlptLevel5Row).findViewById<TextView>(R.id.coverageSummary)
             assertTrue(value.width > 0)
             assertEquals(0, value.layout.getEllipsisCount(0))
         } }

@@ -41,6 +41,7 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  * A custom view that shows a breakdown of Joyo progress.
  */
 public final class JoyoProgressView extends TableLayout {
+    private final List<CoverageProgressRowView> modernRows = new ArrayList<>();
     private final List<ViewProxy> locked = new ArrayList<>();
     private final List<ViewProxy> prePassed = new ArrayList<>();
     private final List<ViewProxy> passed = new ArrayList<>();
@@ -73,6 +74,17 @@ public final class JoyoProgressView extends TableLayout {
     private void init() {
         inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
                 ? R.layout.joyo_progress_modern : R.layout.joyo_progress, this);
+
+        if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())) {
+            int[] rows = {R.id.joyoGrade1Row, R.id.joyoGrade2Row, R.id.joyoGrade3Row, R.id.joyoGrade4Row, R.id.joyoGrade5Row, R.id.joyoGrade6Row, R.id.joyoGrade7Row};
+            for (int i = 0; i < rows.length; i++) {
+                CoverageProgressRowView row = findViewById(rows[i]);
+                row.setLabel(i == 6 ? getContext().getString(R.string.coverage_secondary_school)
+                        : getContext().getString(R.string.coverage_grade, i + 1));
+                modernRows.add(row);
+            }
+            return;
+        }
 
         locked.add(new ViewProxy(this, R.id.joyoGrade1Locked));
         locked.add(new ViewProxy(this, R.id.joyoGrade2Locked));
@@ -133,6 +145,15 @@ public final class JoyoProgressView extends TableLayout {
     private void update(final @Nullable JoyoProgress joyoProgress) {
         if (joyoProgress == null || LiveFirstTimeSetup.getInstance().get() == 0 || !GlobalSettings.Dashboard.getShowJoyoProgress()) {
             setVisibility(GONE);
+            return;
+        }
+
+        if (!modernRows.isEmpty()) {
+            for (int i = 0; i < modernRows.size(); i++) {
+                modernRows.get(i).setCounts(joyoProgress.getLocked(i + 1), joyoProgress.getPrePassed(i + 1),
+                        joyoProgress.getPassed(i + 1), joyoProgress.getBurned(i + 1));
+            }
+            setVisibility(VISIBLE);
             return;
         }
 
