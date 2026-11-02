@@ -68,7 +68,18 @@ public final class LiveTimeLine extends ConservativeLiveData<TimeLine> {
 
         final Collection<Long> levelUpIds = db.subjectCollectionsDao().getLevelUpIds(userLevel, maxLevel);
 
-        final int size = GlobalSettings.Dashboard.getTimeLineChartSize();
+        // Modern overview covers a calendar week, even with the old 24-hour default.
+        // Classic continues to use its configured hourly horizon.
+        final java.util.Calendar weekEnd = java.util.Calendar.getInstance();
+        weekEnd.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        weekEnd.set(java.util.Calendar.MINUTE, 0);
+        weekEnd.set(java.util.Calendar.SECOND, 0);
+        weekEnd.set(java.util.Calendar.MILLISECOND, 0);
+        weekEnd.add(java.util.Calendar.DAY_OF_MONTH, 7);
+        final int weekHours = (int) ((weekEnd.getTimeInMillis() - getTopOfHour(System.currentTimeMillis()) + HOUR - 1) / HOUR);
+        final int size = GlobalSettings.Display.getModernDashboard()
+                ? Math.max(weekHours, GlobalSettings.Dashboard.getTimeLineChartSize())
+                : GlobalSettings.Dashboard.getTimeLineChartSize();
         final TimeLine timeLine = new TimeLine(size);
         final Collection<Subject> scanSubjects = new ArrayList<>();
 

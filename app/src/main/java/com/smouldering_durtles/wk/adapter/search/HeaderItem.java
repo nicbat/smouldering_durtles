@@ -24,6 +24,9 @@ import javax.annotation.Nullable;
 public abstract class HeaderItem extends ContainerItem {
     private final String tag;
     private boolean collapsed = false;
+    private boolean suppressed = false;
+
+    public final void setSuppressed(boolean suppressed) { this.suppressed = suppressed; }
 
     /**
      * The constructor.
@@ -63,8 +66,8 @@ public abstract class HeaderItem extends ContainerItem {
 
     @Override
     public final int getCount() {
-        int count = 1;
-        if (!collapsed) {
+        int count = suppressed ? 0 : 1;
+        if (suppressed || !collapsed) {
             for (final ResultItem item: items) {
                 count += item.getCount();
             }
@@ -74,11 +77,11 @@ public abstract class HeaderItem extends ContainerItem {
 
     @Override
     public final @Nullable ResultItem getItem(final int position) {
-        if (position == 0) {
+        if (!suppressed && position == 0) {
             return this;
         }
-        if (!collapsed) {
-            int pos = position - 1;
+        if (suppressed || !collapsed) {
+            int pos = position - (suppressed ? 0 : 1);
             for (final ResultItem item: items) {
                 final int count = item.getCount();
                 if (pos < count) {

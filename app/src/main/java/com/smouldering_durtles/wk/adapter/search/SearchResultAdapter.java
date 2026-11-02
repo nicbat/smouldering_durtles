@@ -317,6 +317,7 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
             }
             start = end;
         }
+        if (modern) rootItem.simplifyHeaders();
         numSubjects = size;
         notifyDataSetChanged();
     }

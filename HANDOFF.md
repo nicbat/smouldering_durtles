@@ -74,7 +74,68 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest milestone — lesson cleanup and Jōyō/JLPT density (2026-11-02)
+## Latest milestone — phone-feedback refinements (2026-11-02)
+
+Implemented all six requested refinements in the existing View architecture:
+
+- Related subject pages opened from lessons now share `LessonStyle`'s compact adaptive
+  headline, quiet Listen/Add actions, semantic dividers and Details disclosure. Browse
+  restores disclosure expansion on fragment recreation. Review visibility policy is separate.
+- `ModernUi.button` clears the inherited platform state-list animator and translationZ,
+  in addition to elevation. The old animator could raise a button again on press/focus
+  after the rounded Material background was installed, causing the reported shading.
+  Button roles, ripple, enablement and existing listeners remain.
+- `SentencePresentation`: tap a hidden English translation to reveal it, tap again to
+  re-blur; hold either language to copy its original full sentence. Accessibility actions
+  name Copy/Reveal/Hide. Same-text rebind keeps reveal state; changed text resets it and
+  disabling translation hiding clears the mask. API 33+ uses the system clipboard feedback;
+  older versions show a short copied message.
+- Modern search suppresses singleton headers at both levels while retaining the original
+  tree, collapse tags, sorting and ID order. A suppressed collapsed header cannot conceal
+  subjects. One type across stages keeps stage headings; one stage across types keeps type
+  headings; a completely uniform result has subject cards directly. Classic is unchanged.
+- Modern forecast: seven non-scrolling daily strips with exact totals and shared hourly
+  intensity scale, local midnight-to-midnight bounds and a noon marker. Calendar grouping
+  handles DST. Tap a day for every covered hour or day totals, then an hour for exact
+  category/cumulative/level-up-path counts. All days reaches longer configured horizons.
+  Modern loads at least through the end of the next seven calendar dates; settings explain
+  the week minimum and hide the old plot-only controls. The first slot still includes
+  overdue reviews. The model contains scheduled reviews, without projecting repeat reviews.
+  Classic keeps its configured hourly horizon/plot. Horizon/dashboard changes refresh LiveTimeLine.
+- `SrsStageNotifier`: flat neutral, wrapping old-stage → new-stage notice with new direction
+  vectors and a polite accessibility announcement. It lives outside the question glyph;
+  modern timing is a short fade/hold/fade. Existing SRS-event conditions and preference remain.
+
+Verification: debug/release/test APKs build successfully, including release vital lint.
+- Android 16/API 36.1: **122 tests, 0 failures**, 125.518 seconds.
+- Android 11/API 30: **122 tests, 0 failures**, 119.714 seconds.
+- Build log: `/tmp/smoky-feedback-build.log`. Final full-suite logs:
+  `/tmp/smoky-feedback-api36-verified-tests.log`,
+  `/tmp/smoky-feedback-api30-verified-tests.log`. Persistent ignored copies:
+  `test-results/feedback-api36-instrumentation.txt` and
+  `test-results/feedback-api30-instrumentation.txt`.
+- New tests: `study/UiFeedbackTest.kt` (4); two search singleton-group cases; two additional
+  forecast cases (calendar/DST aggregation and a populated week). Existing forecast dialog
+  navigation now covers days → hours → exact counts. Counts, order and saved hidden-group
+  tags, actual sentence clipboard contents, blur toggles and disabled/pressed controls are asserted.
+- Captures inspected: `captures/smoky-feedback/after/`, including related details with a
+  populated glyph, revealed metadata and sentences; a populated seven-day forecast; and
+  light/dark/large-text notifier components. Text-bound assertions cover empty, dense,
+  Neutral and 2x forecast states. Existing real lesson layouts and image radicals are
+  covered by the full suites.
+- Initial candidate tests exposed a detached-fragment fixture and an API 36 window-focus
+  race in the dialog test. Fixtures now attach the fragment, await actual window focus,
+  and target dialog roots explicitly. A focused Utility/Forecast run also passed all 11 tests.
+  The final full-suite results above cover the final test fixtures and application source.
+- API 21 was not rerun; the existing Jackson blocker remains. Task-owned emulators were
+  stopped after verification. No real account data or study answers were submitted.
+
+No phone installation or account-bearing instrumentation. Current APK:
+`app/build/outputs/apk/debug/app-debug.apk`; install with `./install-phone.sh`.
+The forecast is a first concrete iteration for user feedback. Physical-device/TalkBack and
+long-session validation remain manual work; no grading, scheduling or submission code changed.
+
+## Previous milestone — lesson cleanup and Jōyō/JLPT density (2026-11-02)
 
 User requested lesson cleanup and denser Jōyō/JLPT panels. Implemented in existing Views:
 

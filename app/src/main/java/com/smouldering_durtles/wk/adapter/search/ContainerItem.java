@@ -43,6 +43,16 @@ public abstract class ContainerItem extends ResultItem {
         items.add(item);
     }
 
+    /** Hide headings that offer no choice at their level; keep the tree and collapse tags. */
+    public final void simplifyHeaders() {
+        for (ResultItem item : items) {
+            if (item instanceof HeaderItem) {
+                ((HeaderItem) item).setSuppressed(items.size() == 1);
+                ((HeaderItem) item).simplifyHeaders();
+            }
+        }
+    }
+
     /**
      * Find a direct child header item with the given tag.
      *

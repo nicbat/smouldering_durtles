@@ -19,7 +19,6 @@ package com.smouldering_durtles.wk.views;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BlurMaskFilter;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -392,26 +391,10 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
             // Add a space at the end so prevent the blur from getting clipped
             english.setText("- " + sentence.getEnglish() + " ");
             english.setBackgroundColor(Constants.TRANSPARENT);
-            english.setClickableAndNotFocusable(false);
-            if (GlobalSettings.SubjectInfo.getHideSentenceTranslations()) {
-
-                TextView textView = (TextView) english.getDelegate();
-                if (textView != null) {
-                    float radius = textView.getTextSize() / 3;
-                    BlurMaskFilter filter = new BlurMaskFilter(radius, BlurMaskFilter.Blur.NORMAL);
-                    textView.getPaint().setMaskFilter(filter);
-                }
-
-                english.setClickableAndNotFocusable(true);
-                english.setOnClickListener(v -> safe(() -> {
-                    english.setClickableAndNotFocusable(false);
-                    if (textView == null) {
-                        return;
-                    }
-
-                    textView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                    textView.getPaint().setMaskFilter(null);
-                }));
+            if (japanese.getDelegate() instanceof TextView && english.getDelegate() instanceof TextView) {
+                com.smouldering_durtles.wk.study.SentencePresentation.bind(
+                        (TextView) japanese.getDelegate(), (TextView) english.getDelegate(),
+                        sentence.getJapanese(), sentence.getEnglish(), GlobalSettings.SubjectInfo.getHideSentenceTranslations());
             }
 
             japanese.setVisibility(show);

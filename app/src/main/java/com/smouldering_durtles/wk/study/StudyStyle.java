@@ -67,6 +67,13 @@ public final class StudyStyle {
         final View question = root.findViewById(R.id.questionView);
         if (!(question instanceof ViewGroup) || !(question.getParent() instanceof LinearLayout)) return;
         final LinearLayout page = (LinearLayout) question.getParent();
+        final View notifier = root.findViewById(R.id.levelUpToastText);
+        if (notifier != null && notifier.getParent() == question) {
+            ((ViewGroup) question).removeView(notifier);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+            params.setMargins(dp(root, 16), dp(root, 8), dp(root, 16), dp(root, 4));
+            page.addView(notifier, page.indexOfChild(question) + 1, params);
+        }
         final View inputFrame = root.findViewById(R.id.questionEditFrame);
         final View feedback = root.findViewById(R.id.questionEdit);
         final View anchor = inputFrame != null ? inputFrame : feedback != null ? feedback : root.findViewById(R.id.questionType);

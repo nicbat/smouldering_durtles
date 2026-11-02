@@ -93,6 +93,8 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     public void onViewCreatedLocal(final View view, final @Nullable Bundle savedInstanceState) {
         scrollView.setDelegate(view, R.id.scrollView);
         subjectInfo.setDelegate(view, R.id.subjectInfo);
+        if (savedInstanceState != null) com.smouldering_durtles.wk.study.LessonStyle.restoreDetails(view,
+                savedInstanceState.getBoolean("detailsExpanded"));
 
         scrollView.setSwipeListener(this);
         final View previous = view.findViewById(R.id.previousSubject);
@@ -113,6 +115,13 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
                         });
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        if (getView() != null) state.putBoolean("detailsExpanded",
+                com.smouldering_durtles.wk.study.LessonStyle.isDetailsExpanded(getView()));
     }
 
     @Override

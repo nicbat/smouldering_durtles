@@ -16,6 +16,8 @@
   -->
 
 <resources>
+    <item type="id" name="sentenceTranslation"/>
+    <item type="id" name="sentenceRevealed"/>
     <item type="id" name="textWatcherAdded"/>
     <item type="id" name="themeCustomizationIndex"/>
     <item type="id" name="advancedSearchSwitchTag"/>

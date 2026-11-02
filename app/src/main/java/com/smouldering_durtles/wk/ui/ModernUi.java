@@ -160,6 +160,9 @@ public final class ModernUi {
         button.setMinimumHeight(dp(button, 48));
         button.setPadding(dp(button, 16), dp(button, 8), dp(button, 16), dp(button, 8));
         button.setElevation(0);
+        // The platform Button animator otherwise restores elevation/translationZ on press.
+        button.setStateListAnimator(null);
+        button.setTranslationZ(0);
     }
 
     public static void chrome(AbstractActivity activity) {

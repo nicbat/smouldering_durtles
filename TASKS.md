@@ -5,14 +5,28 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Lesson presentation cleanup and compact Jōyō/JLPT progress, following the density/color
-pass (`c9a4760`). Continue using [UI_GUIDE.md](UI_GUIDE.md); widgets remain last. Keep
-Classic, custom palettes, grading and scheduling intact.
+Phone-feedback refinements: shared lesson/related-item details, button press-state shadows,
+sentence reveal/copy actions, singleton search headings, daily review forecast and SRS notices.
+Continue using [UI_GUIDE.md](UI_GUIDE.md); widgets remain last. Keep Classic, custom palettes,
+grading and scheduling intact.
 
 The last agent-confirmed phone installation was **5749f22**. The user now has
 `./install-phone.sh` and may have updated independently; installed revision has not been
 rechecked. Do not run instrumentation on the phone. Push tested changes to
 `origin/smoky-durtles/foundation`; installation remains a separate user action/request.
+
+## Current phone-feedback pass
+
+- [x] Related subject details share the compact headline, audio, divider and metadata treatment.
+- [x] Disable inherited elevation/translationZ animations on styled modern buttons.
+- [x] Tap translations to reveal or re-blur; hold either language to copy the original sentence.
+- [x] Suppress singleton search headings at either level; retain ordering, counts and collapse tags.
+- [x] Daily forecast strips: first week without internal scrolling, tappable days/hours, full horizon.
+- [x] Local calendar/DST aggregation, exact daily/category/cumulative/level-up counts; Classic retained.
+- [x] Flat SRS transition notice with old/new stages outside the question glyph.
+- [x] Debug/release/test builds pass; **122 tests pass on Android 16 and Android 11**.
+  Populated/light/dark/large-text captures inspected; evidence recorded in HANDOFF.
+- [ ] User iteration on forecast density and interactions after installing with `./install-phone.sh`.
 
 ## Lesson and curriculum panel cleanup
 

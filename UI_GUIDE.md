@@ -123,6 +123,11 @@ landscape; do not rely solely on black/white backgrounds. With the keyboard open
 input and primary action must remain reachable by scrolling. Keep editor state, IME
 options, focus behavior and grading callbacks unchanged.
 
+Modern buttons styled through `ModernUi` disable the inherited state-list elevation animator
+and reset translationZ as well as elevation. Replacing the background and setting elevation
+once does not prevent Android from restoring a pressed/focused shadow. Keep the shaped
+ripple for touch feedback.
+
 Lessons have a stable Previous/Next action bar below the scrolling content, with the
 lesson position above. Keep the original controls/listeners and the last-item Start quiz
 behavior. A compact subject header pairs a bounded glyph with meaning/accepted readings;
@@ -140,6 +145,18 @@ rich-text emphasis. Keep the synonyms field available for in-place updates; a qu
 action can replace its strong filled treatment without changing its handler. Use outlineVariant
 for lesson dividers instead of importing the Classic palette’s high-contrast rules.
 
+Browsing subject details, including related subjects opened during lessons, share the compact
+adaptive headline, quiet audio/Add actions, dividers and Details disclosure. Restore disclosure
+state on fragment recreation. Review answer-visibility rules remain independent.
+
+Example translations toggle reveal/blur on each tap. Hold either language to copy the original
+full sentence (without the display bullet); give accessibility actions explicit Copy / Reveal /
+Hide labels. Reset blur for changed text and clear the mask when translation hiding is off.
+
+SRS change notices show both old and new stages with a small, neutral direction icon. Put the
+notice outside the question glyph, use a flat Material surface and scalable wrapping text, and
+announce it politely. Preserve the existing preference and session event conditions.
+
 Use readable section labels for mnemonics, readings, examples and metadata. Related
 subjects may be compact cards. Do not surround every paragraph with another card.
 Summaries show one accuracy figure, the actual item total, a small accuracy bar and a
@@ -153,8 +170,11 @@ width independently of labels. Session logs retain restricted-mode hiding and cl
 
 Put keyword search before the large level index. Level buttons form a compact, evenly
 spaced grid with a visible current-level state. Filters use full-width outlined fields
-when side labels would squeeze them; include units in the field label. Keep result
-ordering, grouping, counts, collapsed state and item IDs unchanged.
+when side labels would squeeze them; include units in the field label. Keep result ordering,
+counts and item IDs unchanged. Modern results suppress any singleton heading at either level:
+multiple stages with one type keep just stage headings; one stage with several types keeps
+just type headings. Preserve the underlying group tree and saved collapse tags; a suppressed
+heading must not keep its subjects invisibly collapsed. Classic retains its original headings.
 
 ### Dashboard, settings and tools
 
@@ -174,12 +194,16 @@ Keep chart aggregation and search callbacks untouched. Density comes from struct
   kanji tracked in the app, not a claim of complete school/JLPT syllabus coverage. Tap
   a row for all four mutually exclusive stage buckets. Keep 48dp targets and stack
   label/count at large text sizes. The old panels had no search action to preserve.
-- Forecast: total across the configured horizon and busiest hour first, then a compact
-  plot. Reserve separate measured bands for ticks/legend/actions. Measure localized ticks
-  before drawing; skip labels that cannot fit. Tap an hour for exact counts, cumulative
-  load and level-up items; expose the hourly list to accessibility and keyboard clicks.
-  Label the cumulative line's separate scale. Neutral segments need visible separators
-  and the line needs a contrasting stroke. Never overlay every count on a dense bar chart.
+- Forecast: total and busiest hour above a week of horizontal day strips. Each strip spans
+  local midnight to midnight, with exact daily total and hour intensity on a common scale;
+  a small noon gap provides orientation. Group by calendar date, including 23/25-hour DST
+  days. Today includes overdue work; unobserved partial-day hours stay blank. Do not infer
+  future repeat reviews. At most seven 48dp-or-taller rows appear in the overview; an All days
+  action reaches the entire configured horizon. Tap a day for its hours and day totals,
+  then an hour for category, cumulative and level-up-path counts. Keyboard/TalkBack
+  activation opens the named daily list. Modern loads at least the current calendar week;
+  Classic retains its hourly plot and chart settings. Hide irrelevant waterfall/grid/visible-
+  hour controls in Modern and explain the horizon's week minimum in settings.
 
 Avoid increasing density by shrinking all text, disabling scaling or overlapping controls.
 Use a compact overview plus reachable detail, and validate the actual populated view.
@@ -197,7 +221,8 @@ existing confirmation and enable/disable behavior.
 - `ui/ModernUi.java`: scoped color resolution and stable-class button roles. Use
   `button(button, ButtonRole.PRIMARY/SECONDARY/TEXT)`; repeated styling preserves the role.
 - `ui/LearningColors.java`: optional learning-color presentation; never mutate semantic palettes.
-- `study/LessonStyle.java`: lesson-only navigation, adaptive headline, and metadata disclosure.
+- `study/LessonStyle.java`: lesson navigation plus shared lesson/browse adaptive headline and metadata disclosure.
+- `study/SentencePresentation.java`, `SrsStageNotifier.java`: sentence actions and transient stage-change presentation.
 - `views/CoverageProgressRowView.java`: Jōyō/JLPT overview with exact stage details.
 - `study/SummaryPresentation.java`: compact item-accuracy summary and adaptive breakdown.
 - `ui/UtilityStyle.java`: utility gutters and constrained form/action layout corrections.

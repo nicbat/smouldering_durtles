@@ -1,0 +1,10 @@
+<resources>
+    <string name="sentence_hidden">Translation hidden. Tap to reveal. Touch and hold to copy.</string>
+    <string name="sentence_reveal">Reveal translation</string>
+    <string name="sentence_hide">Hide translation</string>
+    <string name="sentence_copy">Copy sentence</string>
+    <string name="sentence_clip_label">Example sentence</string>
+    <string name="sentence_copied">Sentence copied</string>
+    <string name="srs_stage_change">%1$s → %2$s</string>
+    <string name="srs_stage_change_accessibility">SRS stage changed from %1$s to %2$s</string>
+</resources>

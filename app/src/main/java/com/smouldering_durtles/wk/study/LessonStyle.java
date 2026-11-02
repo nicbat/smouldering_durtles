@@ -20,13 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 import static com.smouldering_durtles.wk.util.ViewUtil.getNearestEnclosingViewOfType;
 
-/** Lesson-only presentation. Existing views, visibility rules, and listeners own study behavior. */
+/** Shared lesson and browsing details presentation; navigation remains lesson-specific. */
 public final class LessonStyle {
     private LessonStyle() { }
     private static int dp(View view, int value) { return ModernUi.dp(view, value); }
     private static boolean isLesson(SubjectInfoView view) {
         return ModernUi.isModern(view.getContext())
-                && view.getContainerType() == SubjectInfoView.ContainerType.LESSON_PRESENTATION;
+                && (view.getContainerType() == SubjectInfoView.ContainerType.LESSON_PRESENTATION
+                || view.getContainerType() == SubjectInfoView.ContainerType.BROWSE);
     }
 
     public static void navigation(View root, int position, int total) {

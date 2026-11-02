@@ -324,26 +324,34 @@ public final class SessionActivity extends AbstractActivity {
         }
         FloatingUiState.showSrsStageChangedToast = false;
 
-        final String htmlMessage = String.format("<img src=\"*\"/>  %s", FloatingUiState.toastNewSrsStage.getName());
-        final CharSequence message = TextUtil.renderHtml(htmlMessage, source -> {
-            final int imageId = FloatingUiState.toastNewSrsStage.compareTo(FloatingUiState.toastOldSrsStage) > 0
-                    ? R.drawable.ic_arrow_up : R.drawable.ic_arrow_down;
-            final @Nullable Drawable img = ContextCompat.getDrawable(this, imageId);
-            if (img != null) {
-                img.setBounds(0, 0, dp2px(20), dp2px(20));
-            }
-            return img;
-        });
-        view.setText(message);
+        final boolean modern = view.getDelegate() instanceof android.widget.TextView
+                && com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getDelegate().getContext());
+        view.clearAnimation();
+        if (modern) {
+            com.smouldering_durtles.wk.study.SrsStageNotifier.bind((android.widget.TextView) view.getDelegate(),
+                    FloatingUiState.toastOldSrsStage, FloatingUiState.toastNewSrsStage);
+        } else {
+            final String htmlMessage = String.format("<img src=\"*\"/>  %s", FloatingUiState.toastNewSrsStage.getName());
+            final CharSequence message = TextUtil.renderHtml(htmlMessage, source -> {
+                final int imageId = FloatingUiState.toastNewSrsStage.compareTo(FloatingUiState.toastOldSrsStage) > 0
+                        ? R.drawable.ic_arrow_up : R.drawable.ic_arrow_down;
+                final @Nullable Drawable img = ContextCompat.getDrawable(this, imageId);
+                if (img != null) {
+                    img.setBounds(0, 0, dp2px(20), dp2px(20));
+                }
+                return img;
+            });
+            view.setText(message);
+        }
 
         final Animation fadeIn = new AlphaAnimation(0, 1);
         fadeIn.setInterpolator(new DecelerateInterpolator());
-        fadeIn.setDuration(500);
+        fadeIn.setDuration(modern ? 120 : 500);
 
         final Animation fadeOut = new AlphaAnimation(1, 0);
         fadeOut.setInterpolator(new AccelerateInterpolator());
-        fadeOut.setStartOffset(750);
-        fadeOut.setDuration(1500);
+        fadeOut.setStartOffset(modern ? 1500 : 750);
+        fadeOut.setDuration(modern ? 180 : 1500);
 
         final AnimationSet animationSet = new AnimationSet(false);
         animationSet.addAnimation(fadeIn);

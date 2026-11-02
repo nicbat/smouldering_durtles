@@ -5,7 +5,16 @@
     <string name="forecast_empty">No reviews scheduled in this window</string>
     <string name="forecast_details_action">View hourly details</string>
     <string name="forecast_scroll_action">Swipe chart or view hourly details</string>
-    <string name="forecast_accessibility">Activate to browse every hour and its exact review counts. The first hour includes overdue reviews.</string>
+    <string name="forecast_accessibility">Activate to choose a day, then browse every hour and its exact review counts. The first hour includes overdue reviews.</string>
+    <string name="forecast_day_legend">Midnight to midnight; the gap marks noon. Stronger color means more reviews. Tap a day for hours.</string>
+    <string name="forecast_days_action">All days and hourly details</string>
+    <string name="forecast_today">Today</string>
+    <string name="forecast_horizon_title">Forecast horizon</string>
+    <string name="forecast_classic_horizon_title">Timeline chart size</string>
+    <string name="forecast_horizon_summary">At least %1$d days; the overview shows the first week</string>
+    <string name="forecast_daily_title">Reviews by day</string>
+    <string name="forecast_day_totals">Day totals</string>
+    <string name="forecast_partial_days">Today starts with the current hour, including overdue reviews. The final day ends at the forecast horizon. Counts include scheduled reviews only.</string>
     <string name="forecast_hourly_title">Reviews by hour</string>
     <string name="forecast_hour_count">%1$s: %2$d reviews</string>
     <string name="forecast_reviews">%1$d reviews</string>

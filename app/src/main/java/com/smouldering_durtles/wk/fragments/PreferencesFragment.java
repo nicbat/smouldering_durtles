@@ -91,6 +91,12 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(final @Nullable Bundle savedInstanceState, final @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
+        forecastPreferences(GlobalSettings.Display.getModernDashboard());
+        Preference modernDashboard = findPreference("modern_dashboard");
+        if (modernDashboard != null) modernDashboard.setOnPreferenceChangeListener((preference, value) -> {
+            forecastPreferences(Boolean.TRUE.equals(value));
+            return true;
+        });
 
         if (GlobalSettings.Display.getModernSettings()) {
             removeIconSpace(getPreferenceScreen());
@@ -123,6 +129,20 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
 
             // Set initial state
             notAlwaysHideWKPref.setChecked(!alwaysHideWKPref.isChecked());
+        }
+    }
+
+    private void forecastPreferences(boolean modern) {
+        for (String key : new String[]{"show_waterfall_line", "timeline_chart_grid_style", "timeline_chart_size_shown"}) {
+            Preference preference = findPreference(key);
+            if (preference != null) preference.setVisible(!modern);
+        }
+        ListPreference horizon = findPreference("timeline_chart_size");
+        if (horizon != null) {
+            horizon.setTitle(modern ? R.string.forecast_horizon_title : R.string.forecast_classic_horizon_title);
+            if (modern) horizon.setSummaryProvider(preference -> getString(R.string.forecast_horizon_summary,
+                    Math.max(7, (GlobalSettings.Dashboard.getTimeLineChartSize() + 23) / 24)));
+            else horizon.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         }
     }
 

@@ -202,6 +202,51 @@ class SearchAppearanceTest {
         } }
     }
 
+    @Test fun singletonSearchGroupsFlattenWithoutLosingCountsOrderOrCollapseTags() {
+        fixture().use { scenario -> scenario.onActivity {
+            adapter.setSortOrder(com.smouldering_durtles.wk.enums.SearchSortOrder.STAGE_TYPE)
+            val a = subject(90301, SubjectType.WANIKANI_VOCAB, "一", "One", "いち")
+            val b = subject(90302, SubjectType.WANIKANI_VOCAB, "二", "Two", "に", 2)
+            // Use distinct levels too, independent of the built-in SRS fixture.
+            adapter.setSortOrder(com.smouldering_durtles.wk.enums.SearchSortOrder.LEVEL_TYPE)
+            adapter.setResult(arrayListOf(a, b))
+            assertEquals(4, adapter.itemCount) // two levels, with no repeated Vocabulary subheading
+            assertEquals(R.id.viewTypeResultLevelHeader, adapter.getItemViewType(0))
+            assertEquals(R.id.viewTypeResultVocabulary, adapter.getItemViewType(1))
+            assertArrayEquals(longArrayOf(a.id, b.id), adapter.subjectIds)
+            adapter.setCollapsedTags(listOf("1 WANIKANI_VOCAB"))
+            adapter.setResult(arrayListOf(a, b))
+            assertEquals(4, adapter.itemCount) // an obsolete hidden heading cannot hide its subjects
+            assertTrue(adapter.collapsedTags.contains("1 WANIKANI_VOCAB"))
+            adapter.setResult(arrayListOf(a, subject(90303, SubjectType.WANIKANI_KANJI, "一", "One", "いち")))
+            assertEquals(3, adapter.itemCount) // one level is hidden, two type headings remain; vocab stays collapsed
+            adapter.setCollapsedTags(emptyList())
+            adapter.setResult(arrayListOf(a))
+            assertEquals(1, adapter.itemCount)
+            assertEquals(1, adapter.numSubjects)
+            adapter.setModern(false)
+            adapter.setResult(arrayListOf(a))
+            assertEquals(3, adapter.itemCount) // Classic retains the original tree presentation
+        } }
+    }
+
+    @Test fun oneSrsStageAcrossTypesAndOneTypeAcrossStagesLoseRedundantNesting() {
+        fixture().use { scenario -> scenario.onActivity {
+            adapter.setSortOrder(com.smouldering_durtles.wk.enums.SearchSortOrder.STAGE_TYPE)
+            val masterVocab = subject(90401, SubjectType.WANIKANI_VOCAB, "一", "One", "いち", itemStage = 7)
+            val masterKanji = subject(90402, SubjectType.WANIKANI_KANJI, "一", "One", "いち", itemStage = 7)
+            adapter.setResult(arrayListOf(masterVocab, masterKanji))
+            assertEquals(4, adapter.itemCount) // type groups only, no redundant Master parent
+            assertEquals(R.id.viewTypeResultItemTypeHeader, adapter.getItemViewType(0))
+            val guruVocab = subject(90403, SubjectType.WANIKANI_VOCAB, "二", "Two", "に", itemStage = 5)
+            adapter.setResult(arrayListOf(masterVocab, guruVocab))
+            assertEquals(4, adapter.itemCount) // SRS groups only, no repeated Vocabulary children
+            assertEquals(R.id.viewTypeResultSrsStageHeader, adapter.getItemViewType(0))
+            assertEquals(R.id.viewTypeResultVocabulary, adapter.getItemViewType(1))
+            assertArrayEquals(longArrayOf(guruVocab.id, masterVocab.id), adapter.subjectIds)
+        } }
+    }
+
     private fun layoutList(widthDp: Int) {
         val density = list.resources.displayMetrics.density
         val width = (widthDp * density).toInt()
@@ -295,11 +340,11 @@ class SearchAppearanceTest {
         subject(90003, SubjectType.WANIKANI_VOCAB, "一生懸命", "With all one’s might; as hard as one can", "いっしょうけんめい"),
         subject(90004, SubjectType.WANIKANI_KANA_VOCAB, "ありがとう", "Thank you", null)
     )
-    private fun subject(id: Long, type: SubjectType, text: String, meaning: String, reading: String?) = Subject(SubjectEntity().apply {
-        this.id = id; this.type = type; characters = text; slug = text; level = 1
+    private fun subject(id: Long, type: SubjectType, text: String, meaning: String, reading: String?, itemLevel: Int = 1, itemStage: Long = 1) = Subject(SubjectEntity().apply {
+        this.id = id; this.type = type; characters = text; slug = text; level = itemLevel
         meanings = "[{\"meaning\":\"$meaning\",\"primary\":true,\"accepted_answer\":true}]"
         readings = if (reading == null) "[]" else "[{\"reading\":\"$reading\",\"primary\":true,\"accepted_answer\":true}]"
-        srsStageId = 1
+        srsStageId = itemStage
     })
     private fun save(context: Context, name: String, view: View) {
         if (view.width <= 0 || view.height <= 0) return

@@ -29,9 +29,6 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.format.DateUtils;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,6 +55,7 @@ import com.smouldering_durtles.wk.model.TimeLine;
 import com.smouldering_durtles.wk.util.ThemeUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -88,7 +86,9 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     private boolean modern;
     // Separate measured text bands keep labels out of the plot, including at 2x font scale.
     private final List<RectF> modernTextBounds = new ArrayList<>();
-    private int selectedSlot = -1;
+    private final List<DayEntry> days = new ArrayList<>();
+    private final List<RectF> dayBounds = new ArrayList<>();
+    private static final int OVERVIEW_DAYS = 7;
     private float originX = 0;
     private float originY = 0;
     private float axisSizeX = 0;
@@ -474,23 +474,8 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
                         DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_TIME));
     }
 
-    private CharSequence modernLegend() {
-        SpannableStringBuilder result = new SpannableStringBuilder();
-        for (int i = 0; i < legendLabels.length; i++) {
-            if (i > 0) result.append("   ");
-            int start = result.length();
-            result.append("●");
-            result.setSpan(new ForegroundColorSpan(segmentColors[i]), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            result.append("\u00A0").append(legendLabels[i]);
-        }
-        if (GlobalSettings.Dashboard.getShowWaterfallLine()) {
-            result.append("\n");
-            int start = result.length();
-            result.append("━");
-            result.setSpan(new ForegroundColorSpan(colorPrimary), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            result.append(" ").append(getContext().getString(R.string.forecast_line_scale, totalCount));
-        }
-        return result;
+    private String modernLegend() {
+        return getContext().getString(R.string.forecast_day_legend);
     }
 
     @SuppressWarnings("deprecation") // API 21-compatible; the builder is API 23+.
@@ -503,18 +488,31 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     }
 
     private String modernAction() {
-        return getContext().getString(numShownBars < entries.size()
-                ? R.string.forecast_scroll_action : R.string.forecast_details_action);
+        return getContext().getString(R.string.forecast_days_action);
+    }
+
+    private String dayLabel(DayEntry day) {
+        if (DateUtils.isToday(day.start)) return getContext().getString(R.string.forecast_today);
+        return DateUtils.formatDateTime(getContext(), day.start,
+                DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL
+                        | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH);
+    }
+
+    private String daySummary(DayEntry day) {
+        return getContext().getString(R.string.forecast_hour_count, dayLabel(day), day.count);
     }
 
     private int modernHeight(int width) {
         int contentWidth = Math.max(1, width - getPaddingLeft() - getPaddingRight());
-        int textHeight = modernText(modernSummary(), contentWidth, 16, colorPrimary).getHeight()
-                + modernText(modernPeak(), contentWidth, 12, colorPrimaryTonedDown).getHeight()
-                + modernText(modernLegend(), contentWidth, 12, colorPrimaryTonedDown).getHeight()
-                + modernText(modernAction(), contentWidth, 14, colorPrimary).getHeight();
-        paint.setTextSize(12 * labelDensity);
-        return getPaddingTop() + getPaddingBottom() + textHeight + (int) Math.ceil(152 * density + paint.getFontSpacing());
+        int height = getPaddingTop() + getPaddingBottom()
+                + modernText(modernSummary(), contentWidth, 16, colorPrimary).getHeight()
+                + modernText(modernPeak(), contentWidth, 12, colorPrimaryTonedDown).getHeight() + (int) (16 * density);
+        for (DayEntry day : days.subList(0, Math.min(OVERVIEW_DAYS, days.size()))) {
+            height += Math.max((int) (48 * density), modernText(daySummary(day), contentWidth, 14,
+                    colorPrimary).getHeight() + (int) (26 * density));
+        }
+        return height + modernText(modernLegend(), contentWidth, 12, colorPrimaryTonedDown).getHeight()
+                + modernText(modernAction(), contentWidth, 14, colorPrimary).getHeight() + (int) (20 * density);
     }
 
     private float drawModernText(Canvas canvas, CharSequence text, float y, float size, int color) {
@@ -531,109 +529,88 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
         return y + layout.getHeight();
     }
 
-    private void modernLabel(Canvas canvas, String label, float x, float baseline) {
-        paint.setTextAlign(Paint.Align.LEFT);
-        canvas.drawText(label, x, baseline, paint);
-        modernTextBounds.add(new RectF(x, baseline + paint.ascent(), x + paint.measureText(label), baseline + paint.descent()));
-    }
-
-    /** Modern chart is an overview; exact hourly counts belong in the accessible detail list. */
+    /** One midnight-to-midnight strip per calendar day; no sideways scrolling or tiny axis labels. */
     private void drawModern(Canvas canvas) {
         modernTextBounds.clear();
+        dayBounds.clear();
         paint.setTypeface(Typeface.DEFAULT);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(0);
         float y = drawModernText(canvas, modernSummary(), getPaddingTop(), 16, colorPrimary);
-        y = drawModernText(canvas, modernPeak(), y + 4 * density, 12, colorPrimaryTonedDown);
-        float plotTop = y + 12 * density;
-        axisSizeY = 108 * density;
-        originY = plotTop + axisSizeY;
-        paint.setTextSize(12 * labelDensity);
-        boolean grid = GlobalSettings.Dashboard.getTimeLineChartGridStyle()
-                != com.smouldering_durtles.wk.enums.TimeLineBarChartGridStyle.OFF;
-        int gridMax = GlobalSettings.Dashboard.getTimeLineChartGridStyle()
-                == com.smouldering_durtles.wk.enums.TimeLineBarChartGridStyle.FOR_WATERFALL ? totalCount : maxBarCount;
-        String maxLabel = Integer.toString(gridMax);
-        originX = getPaddingLeft() + (grid ? paint.measureText(maxLabel) + 8 * density : 0);
-        axisSizeX = Math.max(density, getWidth() - getPaddingRight() - originX);
-        barAdvance = axisSizeX / Math.max(1, numShownBars);
-        scrollOffset = Math.max(0, Math.min(scrollOffset, entries.size() * barAdvance - axisSizeX));
-        pixelsPerUnit = axisSizeY / Math.max(1, maxBarCount);
-        pixelsPerUnitCumulative = axisSizeY / Math.max(1, totalCount);
-        if (grid) {
-            paint.setColor(colorPrimaryTonedDown);
-            modernLabel(canvas, maxLabel, getPaddingLeft(), plotTop - paint.ascent());
-            if (gridMax > 0) modernLabel(canvas, "0", getPaddingLeft(), originY - paint.descent());
-            paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutlineVariant));
+        y = drawModernText(canvas, modernPeak(), y + 4 * density, 12, colorPrimaryTonedDown) + 12 * density;
+        int track = MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerHighest);
+        int accent = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary);
+        float left = getPaddingLeft();
+        float right = getWidth() - getPaddingRight();
+        for (DayEntry day : days.subList(0, Math.min(OVERVIEW_DAYS, days.size()))) {
+            float top = y;
+            y = drawModernText(canvas, daySummary(day), y, 14, colorPrimary);
+            float barTop = y + 6 * density;
+            float barBottom = barTop + 12 * density;
+            RectF strip = new RectF(left, barTop, right, barBottom);
+            paint.setColor(track);
+            canvas.drawRoundRect(strip, 3 * density, 3 * density, paint);
+            canvas.save();
+            android.graphics.Path clip = new android.graphics.Path();
+            clip.addRoundRect(strip, 3 * density, 3 * density, android.graphics.Path.Direction.CW);
+            canvas.clipPath(clip);
+            for (int i = day.first; i < day.end; i++) {
+                BarEntry entry = entries.get(i);
+                if (entry.barCount == 0) continue;
+                float x = left + (right - left) * (firstSlot + i * HOUR - day.start) / (day.finish - day.start);
+                float end = left + (right - left) * (firstSlot + (i + 1) * HOUR - day.start) / (day.finish - day.start);
+                float intensity = .22f + .78f * entry.barCount / Math.max(1, maxBarCount);
+                paint.setColor(androidx.core.graphics.ColorUtils.blendARGB(track, accent, intensity));
+                canvas.drawRect(x, barTop, Math.max(x + density, end - density), barBottom, paint);
+            }
+            canvas.restore();
+            // Noon is a spatial reference, without squeezing 24 labels into a phone-width row.
+            Calendar noon = Calendar.getInstance();
+            noon.setTimeInMillis(day.start);
+            noon.set(Calendar.HOUR_OF_DAY, 12);
+            float middle = left + (right - left) * (noon.getTimeInMillis() - day.start) / (day.finish - day.start);
+            paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface));
             paint.setStrokeWidth(density);
-            canvas.drawLine(originX, plotTop, originX + axisSizeX, plotTop, paint);
-            canvas.drawLine(originX, plotTop + axisSizeY / 2, originX + axisSizeX, plotTop + axisSizeY / 2, paint);
-            canvas.drawLine(originX, originY, originX + axisSizeX, originY, paint);
+            canvas.drawLine(middle, barTop, middle, barBottom, paint);
+            paint.setStrokeWidth(0);
+            y = Math.max(top + 48 * density, barBottom + 8 * density);
+            dayBounds.add(new RectF(left, top, right, y));
         }
-        canvas.save();
-        canvas.clipRect(originX, plotTop, originX + axisSizeX, originY);
-        paint.setStrokeWidth(0);
+        y = drawModernText(canvas, modernLegend(), y + 4 * density, 12, colorPrimaryTonedDown);
+        drawModernText(canvas, modernAction(), y + 12 * density, 14, accent);
+    }
+
+    private void buildDays() {
+        days.clear();
+        DayEntry current = null;
         for (BarEntry entry : entries) {
-            float left = originX + barAdvance * entry.index - scrollOffset + barAdvance * .15f;
-            float right = left + barAdvance * .7f;
-            if (right < originX || left > originX + axisSizeX) continue;
-            float bottom = originY;
-            for (int j = 0; j < entry.values.length; j++) {
-                paint.setColor(segmentColors[j]);
-                float top = bottom - entry.values[j] * pixelsPerUnit;
-                canvas.drawRect(left, top, right, bottom, paint);
-                if (entry.values[j] > 0 && bottom < originY
-                        && "neutral".equals(GlobalSettings.Display.getLearningColors())) {
-                    paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
-                    paint.setStrokeWidth(density);
-                    canvas.drawLine(left, bottom, right, bottom, paint);
-                    paint.setStrokeWidth(0);
-                }
-                bottom = top;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(firstSlot + entry.index * HOUR);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            long start = calendar.getTimeInMillis();
+            if (current == null || current.start != start) {
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+                current = new DayEntry(start, calendar.getTimeInMillis(), entry.index, legendLabels.length);
+                days.add(current);
             }
-            if (entry.index == selectedSlot) {
-                paint.setColor(colorPrimary);
-                paint.setStyle(Paint.Style.STROKE);
-                paint.setStrokeWidth(2 * density);
-                canvas.drawRect(left - density, Math.min(bottom, originY - 4 * density), right + density, originY, paint);
-                paint.setStyle(Paint.Style.FILL);
-                paint.setStrokeWidth(0);
-            }
+            current.end = entry.index + 1;
+            current.count += entry.barCount;
+            current.levelUp += entry.numLevelUpItems;
+            for (int i = 0; i < entry.values.length; i++) current.values[i] += entry.values[i];
         }
-        if (GlobalSettings.Dashboard.getShowWaterfallLine()) {
-            // On-surface ink remains distinct from primary-colored bars in Neutral mode.
-            paint.setColor(colorPrimary);
-            paint.setStrokeWidth(2 * density);
-            for (int i = 1; i < entries.size(); i++) {
-                float x = originX + barAdvance * (i + .5f) - scrollOffset;
-                canvas.drawLine(x - barAdvance, originY - entries.get(i - 1).cumulativeCount * pixelsPerUnitCumulative,
-                        x, originY - entries.get(i).cumulativeCount * pixelsPerUnitCumulative, paint);
-            }
-        }
-        canvas.restore();
-        paint.setStrokeWidth(0);
-        paint.setTextSize(12 * labelDensity);
-        paint.setColor(colorPrimaryTonedDown);
-        float lastRight = originX - 8 * density;
-        float baseline = originY + 8 * density - paint.ascent();
-        // Width measured for each localized label. Never draw overlapping or offscreen ticks.
-        for (BarEntry entry : entries) {
-            float center = originX + barAdvance * (entry.index + .5f) - scrollOffset;
-            if (center < originX || center > originX + axisSizeX) continue;
-            String label = getBarLabel(entry.index);
-            float width = paint.measureText(label);
-            float left = Math.max(originX, Math.min(center - width / 2, originX + axisSizeX - width));
-            if (left < lastRight + 8 * density || left + width > originX + axisSizeX) continue;
-            modernLabel(canvas, label, left, baseline);
-            lastRight = left + width;
-        }
-        y = baseline + paint.descent() + 8 * density;
-        y = drawModernText(canvas, modernLegend(), y, 12, colorPrimaryTonedDown);
-        drawModernText(canvas, modernAction(), y + 8 * density, 14,
-                MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary));
-        if (scroller != null && !scroller.isFinished() && scroller.computeScrollOffset()) {
-            scrollOffset = Math.max(0, Math.min(entries.size() * barAdvance - axisSizeX, scroller.getCurrX()));
-            postInvalidateOnAnimation();
+    }
+
+    private static final class DayEntry {
+        final long start, finish;
+        final int first;
+        final int[] values;
+        int end, count, levelUp;
+        DayEntry(long start, long finish, int first, int buckets) {
+            this.start = start; this.finish = finish; this.first = first;
+            values = new int[buckets];
         }
     }
 
@@ -758,15 +735,14 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     @Override
     public boolean onSingleTapUp(final MotionEvent e) {
         if (!modern) return false;
-        if (barAdvance > 0 && e.getY() >= originY - axisSizeY && e.getY() <= originY
-                && e.getX() >= originX && e.getX() <= originX + axisSizeX && !entries.isEmpty()) {
-            selectedSlot = Math.max(0, Math.min(entries.size() - 1,
-                    (int) ((e.getX() - originX + scrollOffset) / barAdvance)));
-            invalidate();
-            showSlot(selectedSlot);
-        } else {
-            performClick();
+        for (int i = 0; i < dayBounds.size(); i++) {
+            if (dayBounds.get(i).contains(e.getX(), e.getY())) {
+                playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                showDay(i);
+                return true;
+            }
         }
+        performClick();
         return true;
     }
 
@@ -774,21 +750,33 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     public boolean performClick() {
         super.performClick();
         if (!modern || entries.isEmpty()) return false;
-        final String[] hours = new String[entries.size()];
-        for (int i = 0; i < hours.length; i++) {
-            hours[i] = getContext().getString(R.string.forecast_hour_count, slotRange(i), entries.get(i).barCount);
-        }
-        new MaterialAlertDialogBuilder(getContext())
-                .setTitle(R.string.forecast_hourly_title)
-                .setItems(hours, (dialog, which) -> {
-                    selectedSlot = which;
-                    scrollOffset = Math.max(0, Math.min(Math.max(0, entries.size() * barAdvance - axisSizeX),
-                            which * barAdvance - axisSizeX / 2));
-                    invalidate();
-                    showSlot(which);
-                })
+        final String[] labels = new String[days.size()];
+        for (int i = 0; i < labels.length; i++) labels[i] = daySummary(days.get(i));
+        new MaterialAlertDialogBuilder(getContext()).setTitle(R.string.forecast_daily_title)
+                .setItems(labels, (dialog, which) -> showDay(which))
                 .setNegativeButton(android.R.string.cancel, null).show();
         return true;
+    }
+
+    private void showDay(int index) {
+        DayEntry day = days.get(index);
+        String[] hours = new String[day.end - day.first];
+        for (int i = 0; i < hours.length; i++) {
+            int slot = day.first + i;
+            hours[i] = getContext().getString(R.string.forecast_hour_count, slotRange(slot), entries.get(slot).barCount);
+        }
+        new MaterialAlertDialogBuilder(getContext()).setTitle(daySummary(day))
+                .setItems(hours, (dialog, which) -> showSlot(day.first + which))
+                .setNeutralButton(R.string.forecast_day_totals, (dialog, which) -> {
+                    StringBuilder detail = new StringBuilder(getContext().getString(R.string.forecast_reviews, day.count));
+                    for (int i = 0; i < legendLabels.length; i++) detail.append("\n").append(legendLabels[i]).append(": ").append(day.values[i]);
+                    detail.append("\n\n").append(getContext().getString(R.string.forecast_level_up, day.levelUp));
+                    detail.append("\n").append(getContext().getString(R.string.forecast_cumulative, entries.get(day.end - 1).cumulativeCount));
+                    if (day.first == 0) detail.append("\n\n").append(getContext().getString(R.string.forecast_partial_days));
+                    new MaterialAlertDialogBuilder(getContext()).setTitle(dayLabel(day)).setMessage(detail)
+                            .setPositiveButton(android.R.string.ok, null).show();
+                })
+                .setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private String slotRange(int index) {
@@ -817,7 +805,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     @Override
     public boolean onScroll(final MotionEvent e1, final MotionEvent e2, final float distanceX, final float distanceY) {
         safe(() -> {
-            scrollOffset = Math.max(0, Math.min(entries.size() * barAdvance - axisSizeX, Math.max(0, scrollOffset + distanceX)));
+            if (!modern) scrollOffset = Math.max(0, Math.min(entries.size() * barAdvance - axisSizeX, Math.max(0, scrollOffset + distanceX)));
             final float distance = prevVerticalScrollRawY - e2.getRawY();
             dispatchNestedScroll(0, 0, 0, (int) distance, null);
             prevVerticalScrollRawY = e2.getRawY();
@@ -833,6 +821,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
 
     @Override
     public boolean onFling(final MotionEvent e1, final MotionEvent e2, final float velocityX, final float velocityY) {
+        if (modern) { dispatchNestedFling(0, -velocityY, false); return true; }
         safe(() -> {
             if (scroller == null) {
                 scroller = new Scroller(getContext());
@@ -1005,9 +994,12 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             for (int i = 0; i < segmentColors.length; i++) {
                 segmentColors[i] = LearningColors.accent(getContext(), segmentColors[i]);
             }
-            selectedSlot = Math.min(selectedSlot, entries.size() - 1);
-            setContentDescription(modernSummary() + ". " + modernPeak() + ". "
-                    + getContext().getString(R.string.forecast_accessibility));
+            buildDays();
+            scrollOffset = 0;
+            StringBuilder accessible = new StringBuilder(modernSummary()).append(". ").append(modernPeak()).append(". ");
+            for (DayEntry day : days) accessible.append(daySummary(day)).append(". ");
+            accessible.append(getContext().getString(R.string.forecast_accessibility));
+            setContentDescription(accessible);
             requestLayout();
         }
 
