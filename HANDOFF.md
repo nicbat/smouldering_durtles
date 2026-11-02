@@ -16,6 +16,19 @@
 - Keep review grading, scheduling, local custom colors, and pending submissions intact while changing presentation.
 - No secrets, API tokens, signing keys, or user-data fixtures in commits. No real review submissions during automated tests.
 
+## One-command phone installation
+
+Run `./install-phone.sh` from the checkout (or invoke its absolute path). It uses Gradle's
+up-to-date/incremental checks to reuse a current debug APK, then `adb install -r` on exactly
+one authorized USB phone and launches MainActivity. Emulators and wireless debugging are
+excluded. No Git pull, uninstall, data reset, or phone instrumentation. A failed build or
+changed USB device stops installation. SDK discovery and prerequisites are in README.
+
+Verified: Bash syntax; eight isolated mock cases (success, no phone, multiple phones,
+unauthorized, build failure, missing APK, changed phone, installation failure). Actual
+Gradle check: **39 tasks up-to-date**, no rebuild, log `/tmp/smoky-install-up-to-date.log`.
+Creating/verifying this command did not install anything on the connected Pixel.
+
 ## Build and test
 
 Local SDK: `/home/nicbat/Android/Sdk`; JDK 17. Supply SDK via environment rather than overwriting local configuration.

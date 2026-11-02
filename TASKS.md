@@ -14,6 +14,13 @@ The phone still has **5749f22**, installed on 2026-10-30. This milestone is not 
 wait for the user's installation request. Never run instrumentation on the account-bearing
 phone. Push tested work to `origin/smoky-durtles/foundation`.
 
+## Phone install command
+
+- [x] `./install-phone.sh`: check/reuse the latest local debug build, install over USB,
+  preserve data, and open the app. Gradle rebuilds only changed inputs.
+- [x] Verify missing/ambiguous/unauthorized/disconnected phone and build/install failures;
+  unchanged actual build reports all 39 tasks up-to-date. See README/HANDOFF.
+
 ## Current density/color pass
 
 - [x] Single item-accuracy summary, compact subject breakdown, real empty state, retained actions.

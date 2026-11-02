@@ -27,6 +27,26 @@ font/color tools and audio-download controls are included. Study grading, schedu
 and submission logic are unchanged. The color wheel, custom subject diagrams and
 Android-owned pickers retain their specialized UI.
 
+## Install on your USB-connected phone
+
+From this checkout, run:
+
+```sh
+./install-phone.sh
+```
+
+Enable USB debugging and accept the authorization prompt on exactly one USB-connected
+phone. The command checks the current local checkout with Gradle, reuses the existing
+APK when up to date, builds changed inputs when needed, then installs **Smoky Durtles - Dev**
+and opens it. There is still a short Gradle check even when no build work is needed.
+It preserves app data, ignores emulators/wireless devices, and stops if the build fails
+or the USB phone changes. It does not pull Git updates or run tests on your phone.
+
+Use JDK 17 and the SDK setup below. The script finds the SDK through `ANDROID_HOME`,
+`ANDROID_SDK_ROOT`, or the usual Linux/macOS SDK locations; otherwise `adb` must be on PATH
+and Gradle must have its SDK configured. You can also run the script by its full path
+from another directory. Run `./install-phone.sh --help` for a reminder.
+
 ## Local development build
 
 Use JDK 17 and the Android SDK with platform 36. Set `ANDROID_HOME` to your SDK
