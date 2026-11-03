@@ -202,7 +202,10 @@ public final class BrowseActivity extends AbstractActivity {
 
     /** Move between adjacent items without adding another detail-page Back step. */
     public void pageSubjectInfoFragment(final long id, final long[] ids, final FragmentTransitionAnimation animation) {
-        loadSubjectInfoFragment(id, ids, animation, true);
+        if (com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()
+                && getCurrentFragment() instanceof SubjectInfoFragment) {
+            ((SubjectInfoFragment) getCurrentFragment()).pageToSubject(id, ids, animation);
+        } else loadSubjectInfoFragment(id, ids, animation, true);
     }
 
     private void loadSubjectInfoFragment(final long id, final long[] ids,

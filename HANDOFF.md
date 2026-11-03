@@ -74,7 +74,77 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest milestone — phone-feedback refinements (2026-11-02)
+## Latest milestone — dashboard and study iteration (2026-11-02)
+
+Implemented the follow-up feedback in the existing View/Compose architecture:
+
+- Forecast day strips and their totals now show new arrivals, with available-now backlog
+  reported separately. The shared upcoming-hour color scale excludes backlog and uses
+  logarithmic intensity so smaller arrivals remain visible. Tapping a day opens a simple
+  hour / proportional bar / exact count view with Previous/Next day navigation. It no
+  longer opens nested category/cumulative statistics. These are scheduled assignments,
+  without projecting repeated reviews; Classic's plot is retained.
+- Recent unlocks and burns use a compact grid of the existing latest ten subjects within
+  30 days. Full item/type/meaning/date descriptions and subject navigation remain. The
+  rounded 6dp level bars share the Jōyō/JLPT geometry, retain the 90% marker, and use
+  multiple stage colors. Original mode preserves stored palettes.
+- The normal SRS legend fits all five stages on one row. A persisted inline toggle
+  splits Apprentice I–IV and Guru I–II into nine exact-count/search targets. Large text
+  can wrap; full accessibility names accompany abbreviated labels.
+- Tagged Listen controls disable when app mute is on, refresh immediately on toolbar
+  mute changes and on activity resume, and expose a Muted state. The playback guard remains.
+- Modern adjacent subject pages reuse the current fragment/view/back-stack entry, load
+  before fading, guard against repeated input and discard stale async results. Modern
+  session transitions use short 12dp fades. Animation preferences/system disablement
+  remain respected. No measured frame-rate improvement is claimed; phone feedback remains.
+- Dashboard and notifications share `LevelUpPath`: unpassed current-level kanji and
+  their unpassed radical prerequisites. `passedAt` is permanent, so demotions after first
+  Guru do not re-enter this path. Stop at the 90% kanji target or subscription ceiling;
+  vocabulary is excluded. Counts include only eligible lessons and currently due reviews.
+  Independent dashboard/settings switches prioritize these items ahead of the existing
+  base queue without dropping other items or changing eligibility/scheduling. Switching
+  off clears an equivalent legacy LEVEL_UP_FIRST setting but preserves other priorities.
+- Notification text omits zero lessons/reviews and absent level-up counts. Positive path
+  counts appear in compact subtext and expanded text. Path changes or a category becoming
+  zero refresh an existing notification silently even in Only new reviews mode.
+
+Design references: [WaniKani level progress](https://knowledge.wanikani.com/widgets/level-progress/),
+[leveling up](https://knowledge.wanikani.com/wanikani/getting-started/level-up/), and
+[API assignment/subject fields](https://docs.api.wanikani.com/20170710/). The label is
+"on level-up path": a single review does not necessarily trigger level-up.
+
+Verification: debug/release/test APK builds pass, including release vital lint.
+- Android 16/API 36.1: **133 tests, 0 failures**, 140.586 seconds.
+- Android 11/API 30: **133 tests, 0 failures**, 131.937 seconds.
+- Build: `/tmp/smoky-dashboard2-final-build.log`. Full-suite logs:
+  `/tmp/smoky-dashboard2-api36-final-tests.log` and
+  `/tmp/smoky-dashboard2-api30-final-tests.log`. Persistent ignored copies:
+  `test-results/dashboard2-api36-instrumentation.txt` and
+  `test-results/dashboard2-api30-instrumentation.txt`.
+- Ten new `DashboardIterationTest` cases cover milestone/prerequisite rules, an isolated
+  in-memory Room database's availability/hidden/subscription filters, available timeline
+  counts, stable priority, legacy switch migration, old serialized notification contexts,
+  disappearing categories, backlog scaling, exact hourly bars, mute, SRS splits/search,
+  and compact recent-item targets. An additional Compose case checks dashboard counts
+  and independent priority controls. Existing navigation tests assert fragment/view and
+  back-stack reuse; existing forecast tests exercise the simplified hourly dialog.
+- The final full runs cover the application source. A subsequent screenshot-only test
+  helper change selects the dialog by semantics rather than root index; that focused
+  Compose test passes on API 30 (**1 test**, 2.802s), log
+  `/tmp/smoky-dashboard2-dialog-capture-tests.log`.
+- Inspected populated captures in `captures/smoky-dashboard2/after/`: 500 available now
+  with 1–8 future arrivals, hourly dialog, compact recent items, grouped/split SRS,
+  large-text SRS fallback, multicolor level bar, dashboard counts and priority dialog.
+  Earlier candidate failures were fixture-only (raw SQL timestamp defaults and ambiguous
+  screenshot roots); the final suites above pass with those fixtures corrected.
+- API 21 was not rerun; the existing Jackson blocker remains. Task-owned emulators
+  were stopped after verification. No real account fixtures or study answers submitted.
+
+No phone installation or account-bearing instrumentation; `./install-phone.sh` remains
+the separate installation action. Real notification rendering, physical-device/TalkBack
+and motion feedback remain manual. Grading, scheduling and submission code is unchanged.
+
+## Previous milestone — phone-feedback refinements (2026-11-02)
 
 Implemented all six requested refinements in the existing View architecture:
 

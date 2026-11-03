@@ -1,5 +1,7 @@
 package com.smouldering_durtles.wk.dashboard
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +14,8 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -35,6 +39,27 @@ class DashboardOverviewTest {
         compose.onNodeWithText("Browse subjects").performClick()
         compose.runOnIdle { assertEquals(1, reviews); assertEquals(1, lessons); assertEquals(1, browses) }
         saveScreenshot("dashboard-light.png")
+    }
+
+    @Test fun levelUpCountsAndIndependentPriorityControlsAreVisible() {
+        var lessons by androidx.compose.runtime.mutableStateOf(false)
+        var reviews by androidx.compose.runtime.mutableStateOf(false)
+        compose.setContent {
+            DashboardTheme(false) {
+                DashboardOverview(DashboardState(ready = true, reviews = 42, lessons = 12, level = 8,
+                    levelUpLessons = 2, levelUpReviews = 6, prioritizeLessons = lessons, prioritizeReviews = reviews), true,
+                    {}, {}, {}, {}, { l, r -> lessons = l; reviews = r })
+            }
+        }
+        compose.onNodeWithText("2 on level-up path").assertIsDisplayed()
+        compose.onNodeWithText("6 on level-up path").assertIsDisplayed()
+        saveScreenshot("dashboard2-level-up-overview.png")
+        compose.onNodeWithText("Level-up priority").performClick()
+        compose.onNodeWithText("Prioritize level-up lessons").performClick()
+        compose.runOnIdle { assertTrue(lessons); assertFalse(reviews) }
+        compose.onNodeWithText("Prioritize level-up reviews").performClick()
+        compose.runOnIdle { assertTrue(lessons); assertTrue(reviews) }
+        saveScreenshot("dashboard2-level-up-options.png", dialog = true)
     }
 
     @Test fun activeSessionOnlyOffersResume() {
@@ -95,10 +120,11 @@ class DashboardOverviewTest {
         saveScreenshot("dashboard-large-text.png")
     }
 
-    private fun saveScreenshot(name: String) {
+    private fun saveScreenshot(name: String, dialog: Boolean = false) {
         // Synthetic UI state only. Files are private to the disposable test installation.
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
+        val bitmap = (if (dialog) compose.onNode(isDialog()) else compose.onRoot())
+            .captureToImage().asAndroidBitmap()
         File(context.filesDir, name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 }

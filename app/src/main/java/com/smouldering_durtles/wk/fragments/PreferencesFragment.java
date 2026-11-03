@@ -92,6 +92,8 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(final @Nullable Bundle savedInstanceState, final @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
         forecastPreferences(GlobalSettings.Display.getModernDashboard());
+        levelUpPreference("lesson_level_up_first", com.smouldering_durtles.wk.enums.SessionType.LESSON);
+        levelUpPreference("review_level_up_first", com.smouldering_durtles.wk.enums.SessionType.REVIEW);
         Preference modernDashboard = findPreference("modern_dashboard");
         if (modernDashboard != null) modernDashboard.setOnPreferenceChangeListener((preference, value) -> {
             forecastPreferences(Boolean.TRUE.equals(value));
@@ -130,6 +132,16 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
             // Set initial state
             notAlwaysHideWKPref.setChecked(!alwaysHideWKPref.isChecked());
         }
+    }
+
+    private void levelUpPreference(String key, com.smouldering_durtles.wk.enums.SessionType type) {
+        TwoStatePreference preference = findPreference(key);
+        if (preference == null) return;
+        preference.setChecked(GlobalSettings.getOrderPriority(type) == com.smouldering_durtles.wk.enums.SessionPriority.LEVEL_UP_FIRST);
+        preference.setOnPreferenceChangeListener((p, value) -> {
+            GlobalSettings.setLevelUpPriority(type, Boolean.TRUE.equals(value));
+            return true;
+        });
     }
 
     private void forecastPreferences(boolean modern) {

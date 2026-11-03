@@ -206,7 +206,8 @@ public final class SessionActivity extends AbstractActivity {
             final FragmentManager manager = getSupportFragmentManager();
             final FragmentTransaction transaction = manager.beginTransaction();
             if (GlobalSettings.Display.getSlideAnimations()) {
-                animation.apply(transaction);
+                if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) animation.applyModern(transaction);
+                else animation.apply(transaction);
             }
             transaction.replace(R.id.fragment, newFragment);
             transaction.commitNow();

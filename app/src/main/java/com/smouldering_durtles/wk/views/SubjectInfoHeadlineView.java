@@ -267,6 +267,7 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
                 layoutParams.width = WRAP_CONTENT;
                 layoutParams.height = WRAP_CONTENT;
                 com.smouldering_durtles.wk.ui.ModernUi.style(playButton);
+                com.smouldering_durtles.wk.study.AudioButtonState.bind(playButton);
                 buttonsColumn.addView(playButton, layoutParams);
             } else {
                 for (final Reading r : subject.getReadings()) {
@@ -280,7 +281,8 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
                     layoutParams.width = WRAP_CONTENT;
                     layoutParams.height = WRAP_CONTENT;
                     com.smouldering_durtles.wk.ui.ModernUi.style(playButton);
-                    buttonsColumn.addView(playButton, layoutParams);
+                    com.smouldering_durtles.wk.study.AudioButtonState.bind(playButton);
+                buttonsColumn.addView(playButton, layoutParams);
                 }
             }
         }

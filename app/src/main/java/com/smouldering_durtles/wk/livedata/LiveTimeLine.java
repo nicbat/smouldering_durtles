@@ -85,14 +85,14 @@ public final class LiveTimeLine extends ConservativeLiveData<TimeLine> {
 
         if (!vacationMode) {
             db.subjectCollectionsDao().getAvailableLessonItems(maxLevel).forEach(subject -> {
-                timeLine.addLesson(subject);
+                timeLine.addLesson(subject, com.smouldering_durtles.wk.model.LevelUpPath.includes(subject, levelUpIds));
                 scanSubjects.add(subject);
             });
 
             final long ahead = size * HOUR;
             final long cutoff = System.currentTimeMillis() + ahead;
             db.subjectCollectionsDao().getUpcomingReviewItems(maxLevel, cutoff).forEach(subject -> {
-                timeLine.addReview(subject, !subject.isPassed() && levelUpIds.contains(subject.getId()));
+                timeLine.addReview(subject, com.smouldering_durtles.wk.model.LevelUpPath.includes(subject, levelUpIds));
                 scanSubjects.add(subject);
             });
 

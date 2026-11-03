@@ -31,6 +31,11 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.getTopOfHour;
  */
 public final class TimeLine {
     private final long createdAt;
+    private int numLevelUpLessons;
+    private int numLevelUpReviews;
+    public int getNumLevelUpLessons() { return numLevelUpLessons; }
+    public int getNumLevelUpReviews() { return numLevelUpReviews; }
+    public long getCreatedAt() { return createdAt; }
     private final long firstSlot;
     private final List<Subject> availableLessons = new ArrayList<>();
     private final List<Subject> availableReviews = new ArrayList<>();
@@ -135,7 +140,12 @@ public final class TimeLine {
      * @param lesson the lesson to add
      */
     public void addLesson(final Subject lesson) {
+        addLesson(lesson, false);
+    }
+
+    public void addLesson(final Subject lesson, final boolean levelUp) {
         availableLessons.add(lesson);
+        if (levelUp) numLevelUpLessons++;
     }
 
     /**
@@ -150,6 +160,7 @@ public final class TimeLine {
         }
         if (review.getAvailableAt() < createdAt) {
             availableReviews.add(review);
+            if (requiredForLevelUp) numLevelUpReviews++;
         }
 
         final long delay = review.getAvailableAt() - firstSlot;

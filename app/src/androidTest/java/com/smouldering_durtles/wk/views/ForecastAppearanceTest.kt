@@ -72,7 +72,7 @@ class ForecastAppearanceTest {
         for ((width, fontScale) in listOf(360 to 1f, 280 to 2f)) {
             fixture(timeline, width, fontScale) { chart ->
                 assertTextFits(chart)
-                assertTrue(chart.contentDescription.contains("${timeline.timeLine.sumOf { it.size }} reviews"))
+                assertTrue(chart.contentDescription.contains("${timeline.timeLine.sumOf { it.size }} new reviews"))
                 assertTrue(chart.contentDescription.contains("48-hour forecast"))
                 capture(chart, "forecast-dense-${width}-${fontScale}")
             }
@@ -91,7 +91,7 @@ class ForecastAppearanceTest {
             .putBoolean("show_waterfall_line", true).commit()
         fixture(TimeLine(24), 280, 2f) { chart ->
             assertTextFits(chart)
-            assertTrue(chart.contentDescription.contains("0 reviews"))
+            assertTrue(chart.contentDescription.contains("0 new reviews"))
             assertTrue(chart.contentDescription.contains("No reviews scheduled"))
             assertTrue(details(chart, 0).contains("Cumulative: 0 reviews"))
             capture(chart, "forecast-empty-280-2")
@@ -171,10 +171,15 @@ class ForecastAppearanceTest {
             }
             onView(withText(R.string.forecast_daily_title)).inRoot(isDialog()).check(matches(isDisplayed()))
             onData(anything()).inRoot(isDialog()).atPosition(0).perform(click())
-            onData(anything()).inRoot(isDialog()).atPosition(0).perform(click())
-            onView(withText(containsString("Cumulative: 2 reviews"))).inRoot(isDialog()).check(matches(isDisplayed()))
-            onView(withText(containsString("includes overdue"))).inRoot(isDialog()).check(matches(isDisplayed()))
-            onView(withText(android.R.string.ok)).inRoot(isDialog()).perform(click())
+            onView(androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom(HourlyReviewChart::class.java))
+                .inRoot(isDialog()).check(matches(isDisplayed()))
+            instrumentation.uiAutomation.takeScreenshot().also { bitmap ->
+                File(instrumentation.targetContext.filesDir, "dashboard2-hourly-dialog.png").outputStream().use {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+                bitmap.recycle()
+            }
+            onView(withText(R.string.forecast_close)).inRoot(isDialog()).perform(click())
         }
     }
 
@@ -197,7 +202,7 @@ class ForecastAppearanceTest {
                 val bounds = TimeLineBarChart::class.java.getDeclaredField("dayBounds").apply { isAccessible = true }.get(chart) as List<RectF>
                 assertEquals(7, bounds.size)
                 assertTrue(bounds.all { it.height() >= 48 * chart.resources.displayMetrics.density - 1 })
-                assertTrue(chart.contentDescription.contains("336 reviews"))
+                assertTrue(chart.contentDescription.contains("336 new reviews"))
                 assertTextFits(chart)
                 capture(chart, "forecast-calendar-week")
             }

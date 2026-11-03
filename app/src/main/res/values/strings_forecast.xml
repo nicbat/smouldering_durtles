@@ -6,7 +6,7 @@
     <string name="forecast_details_action">View hourly details</string>
     <string name="forecast_scroll_action">Swipe chart or view hourly details</string>
     <string name="forecast_accessibility">Activate to choose a day, then browse every hour and its exact review counts. The first hour includes overdue reviews.</string>
-    <string name="forecast_day_legend">Midnight to midnight; the gap marks noon. Stronger color means more reviews. Tap a day for hours.</string>
+    <string name="forecast_day_legend">New arrivals only; midnight to midnight, with noon marked. Tap a day for hourly counts.</string>
     <string name="forecast_days_action">All days and hourly details</string>
     <string name="forecast_today">Today</string>
     <string name="forecast_horizon_title">Forecast horizon</string>

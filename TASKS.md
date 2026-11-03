@@ -5,15 +5,31 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
-Phone-feedback refinements: shared lesson/related-item details, button press-state shadows,
-sentence reveal/copy actions, singleton search headings, daily review forecast and SRS notices.
-Continue using [UI_GUIDE.md](UI_GUIDE.md); widgets remain last. Keep Classic, custom palettes,
-grading and scheduling intact.
+Dashboard iteration: hourly arrivals separate from backlog, compact recent items and rounded
+multicolor progress, one-row/split SRS keys, mute consistency, lighter item paging, and
+shared level-up-path counts/priority/notifications. Continue using [UI_GUIDE.md](UI_GUIDE.md).
+Widgets remain last; preserve grading, scheduling, eligible queues and stored palettes.
 
 The last agent-confirmed phone installation was **5749f22**. The user now has
 `./install-phone.sh` and may have updated independently; installed revision has not been
 rechecked. Do not run instrumentation on the phone. Push tested changes to
 `origin/smoky-durtles/foundation`; installation remains a separate user action/request.
+
+## Current dashboard iteration
+
+- [x] Tapped-day hourly bars with exact counts and day navigation; remove nested statistical details.
+- [x] Exclude available-now backlog from upcoming-hour colors and counts; show it separately.
+- [x] Compact recent unlock/burn tiles retain the latest-ten/30-day query and subject navigation.
+- [x] Rounded 6dp multicolor level bars share Jōyō/JLPT geometry and keep exact counts/90% markers.
+- [x] Compact SRS key plus persisted Apprentice I–IV/Guru I–II split, exact counts and search actions.
+- [x] Disable/re-enable Listen controls on mute changes and activity return.
+- [x] Reuse adjacent detail fragment/back-stack entry; prefetch before short fades, cancel stale loads.
+- [x] Shared level-up path from unpassed current-level kanji/prerequisites and permanent passedAt.
+- [x] Available path counts and independent accessible lesson/review priority switches on dashboard/settings.
+- [x] Notifications include positive path counts; omit all zero-count categories and update silently.
+- [x] Debug/release/test builds; **133 tests pass on Android 16 and Android 11**;
+  populated visual review complete and exact evidence recorded in HANDOFF.
+- [ ] Physical-device feedback on motion and forecast/legend density after `./install-phone.sh`.
 
 ## Current phone-feedback pass
 

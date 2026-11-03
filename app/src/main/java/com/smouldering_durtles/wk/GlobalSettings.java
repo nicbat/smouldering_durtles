@@ -374,6 +374,16 @@ public final class GlobalSettings {
         }
     }
 
+    /** Dedicated level-up switch, with an explicit off also clearing the equivalent legacy choice. */
+    public static void setLevelUpPriority(SessionType type, boolean enabled) {
+        if (type != SessionType.LESSON && type != SessionType.REVIEW) return;
+        String prefix = type == SessionType.LESSON ? "lesson" : "review";
+        android.content.SharedPreferences.Editor edit = prefs().edit().putBoolean(prefix + "_level_up_first", enabled);
+        if (!enabled && "LEVEL_UP_FIRST".equals(prefs().getString(prefix + "_order_priority", null)))
+            edit.putString(prefix + "_order_priority", "NONE");
+        edit.apply();
+    }
+
     /**
      * Get the session order priority for the given session type.
      *
@@ -2255,6 +2265,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SessionPriority getOrderPriority() {
+            if (prefs().getBoolean("lesson_level_up_first", false)) return SessionPriority.LEVEL_UP_FIRST;
             if (!getAdvancedEnabled()) {
                 return SessionPriority.NONE;
             }
@@ -2570,6 +2581,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SessionPriority getOrderPriority() {
+            if (prefs().getBoolean("review_level_up_first", false)) return SessionPriority.LEVEL_UP_FIRST;
             if (!getAdvancedEnabled()) {
                 return SessionPriority.NONE;
             }

@@ -1,0 +1,25 @@
+<resources>
+    <string name="audio_muted">Muted</string>
+    <string name="recent_unlocks_compact">Recent unlocks · last 30 days</string>
+    <string name="recent_burns_compact">Recent burns · last 30 days</string>
+    <string name="srs_split_stages">Split Apprentice and Guru</string>
+    <string name="srs_group_stages">Group stages</string>
+    <string name="forecast_new_summary">%1$d new reviews in %2$d-hour forecast</string>
+    <string name="forecast_available_now">%1$d available now</string>
+    <string name="forecast_previous_day">Previous day</string>
+    <string name="forecast_close">Close</string>
+    <string name="forecast_next_day">Next day</string>
+    <string name="level_up_priority_title">Level-up priority</string>
+    <string name="level_up_priority_lessons">Prioritize level-up lessons</string>
+    <string name="level_up_priority_reviews">Prioritize level-up reviews</string>
+    <string name="level_up_path_explanation">Unpassed current-level kanji and the radicals that unlock them. Applies to new sessions and keeps other items in the queue.</string>
+    <string name="level_up_available_count">%1$d on level-up path</string>
+    <string name="notification_lessons">%1$d lessons available</string>
+    <string name="notification_reviews">%1$d reviews available</string>
+    <string name="notification_path_lessons">%1$d lessons</string>
+    <string name="notification_path_reviews">%1$d reviews</string>
+    <string name="notification_level_up">Level-up path: %1$s</string>
+    <string name="notification_both_title">New lessons and reviews available</string>
+    <string name="notification_lessons_title">New lessons available</string>
+    <string name="notification_reviews_title">New reviews available</string>
+</resources>

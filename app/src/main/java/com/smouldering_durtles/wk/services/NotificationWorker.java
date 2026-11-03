@@ -40,7 +40,6 @@ import com.smouldering_durtles.wk.livedata.LiveTimeLine;
 import com.smouldering_durtles.wk.model.AlertContext;
 import com.smouldering_durtles.wk.util.Logger;
 
-import java.util.Locale;
 
 import javax.annotation.Nullable;
 
@@ -55,16 +54,7 @@ public final class NotificationWorker {
     }
 
     private static void postNotification(final boolean needsSound, final AlertContext ctx) {
-        final String title;
-        final String text;
-        if (ctx.getNumLessons() > 0) {
-            title = "New lessons and reviews available";
-            text = String.format(Locale.ROOT, "%d lessons and %d reviews available", ctx.getNumLessons(), ctx.getNumReviews());
-        }
-        else {
-            title = "New reviews available";
-            text = String.format(Locale.ROOT, "%d reviews available", ctx.getNumReviews());
-        }
+        final StudyNotificationText message = new StudyNotificationText(WkApplication.getInstance(), ctx);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             final String name = "NewReviewsChannel";
@@ -90,8 +80,10 @@ public final class NotificationWorker {
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(WkApplication.getInstance(), "NewReviewsChannel");
         builder.setSmallIcon(R.drawable.ic_stat_name);
-        builder.setContentTitle(title);
-        builder.setContentText(text);
+        builder.setContentTitle(message.title);
+        builder.setContentText(message.summary);
+        if (!message.levelUp.isEmpty()) builder.setSubText(message.levelUp);
+        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message.expanded));
         builder.setPriority(GlobalSettings.Other.getNotificationPriority().getCompatPriority());
         builder.setCategory(GlobalSettings.Other.getNotificationCategory().getCompatCategory());
         builder.setContentIntent(pendingIntent);
@@ -126,17 +118,26 @@ public final class NotificationWorker {
         });
     }
 
+    /** Keep path counts and disappearing categories accurate even in "only new reviews" mode. */
+    private static boolean detailsChanged(AlertContext before, AlertContext after) {
+        return before.getNumLevelUpLessons() != after.getNumLevelUpLessons()
+                || before.getNumLevelUpReviews() != after.getNumLevelUpReviews()
+                || before.getNumLessons() > 0 && after.getNumLessons() == 0
+                || before.getNumReviews() > 0 && after.getNumReviews() == 0;
+    }
+
     private static void processAlarmHelper(final AlertContext ctx) {
         if (GlobalSettings.Other.getEnableNotifications()) {
             final AppDatabase db = WkApplication.getDatabase();
             final NotificationUpdateFrequency frequency = GlobalSettings.Other.getNotificationUpdateFrequency();
             final long topOfHour1 = getTopOfHour(System.currentTimeMillis());
-            boolean needsPost = false;
+            boolean needsPost = !db.propertiesDao().getNotificationSet() && (ctx.getNumLessons() > 0 || ctx.getNumReviews() > 0);
             boolean needsSound = false;
             if (db.propertiesDao().getNotificationSet() && ctx.getNumLessons() == 0 && ctx.getNumReviews() == 0) {
                 needsPost = true;
             }
             final AlertContext lastCtx = db.propertiesDao().getLastNotificationAlertContext();
+            if (db.propertiesDao().getNotificationSet() && detailsChanged(lastCtx, ctx)) needsPost = true;
             if (ctx.getNewestAvailableAt() > lastCtx.getNewestAvailableAt()) {
                 needsPost = true;
                 needsSound = true;

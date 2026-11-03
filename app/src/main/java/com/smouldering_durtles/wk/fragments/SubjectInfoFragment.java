@@ -43,6 +43,8 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     private final ViewProxy subjectInfo = new ViewProxy();
 
     private @Nullable Subject currentSubject = null;
+    private boolean paging = false;
+    private long pageGeneration = 0;
 
     /**
      * The constructor.
@@ -124,6 +126,62 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
                 com.smouldering_durtles.wk.study.LessonStyle.isDetailsExpanded(getView()));
     }
 
+    /** Keep the current page and back-stack entry until the adjacent subject is ready. */
+    public void pageToSubject(long id, long[] ids, FragmentTransitionAnimation direction) {
+        if (paging || !interactionEnabled) return;
+        paging = true;
+        final long generation = pageGeneration;
+        updateNavigation();
+        runAsync(this, () -> WkApplication.getDatabase().subjectDao().getById(id), result -> {
+            if (generation != pageGeneration) return;
+            if (getView() == null || !isAdded()) { paging = false; return; }
+            if (result == null) { paging = false; updateNavigation(); return; }
+            showAdjacentSubject(result, ids, direction);
+        });
+    }
+
+    /** Present an already loaded adjacent item without replacing this fragment or its back-stack entry. */
+    public void showAdjacentSubject(Subject result, long[] ids, FragmentTransitionAnimation direction) {
+        if (getView() == null) { paging = false; return; }
+        paging = true;
+        updateNavigation();
+        View content = getView().findViewById(R.id.scrollView);
+        Runnable bind = () -> {
+            if (getView() == null) { paging = false; return; }
+            currentSubject = result;
+            requireArguments().putLong("id", result.getId());
+            requireArguments().putLongArray("ids", ids);
+            updateViews();
+            ((android.widget.ScrollView) content).scrollTo(0, 0);
+        };
+        boolean animations = direction != FragmentTransitionAnimation.NONE && GlobalSettings.Display.getSlideAnimations()
+                && (android.os.Build.VERSION.SDK_INT < 26 || android.animation.ValueAnimator.areAnimatorsEnabled());
+        if (!animations) { bind.run(); paging = false; updateNavigation(); return; }
+        float offset = com.smouldering_durtles.wk.ui.ModernUi.dp(content, 12)
+                * (direction == FragmentTransitionAnimation.LTR ? -1 : 1);
+        content.animate().cancel();
+        content.animate().alpha(0).translationX(-offset).setDuration(70).withEndAction(() -> {
+            bind.run();
+            content.setTranslationX(offset);
+            content.animate().alpha(1).translationX(0).setDuration(140)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .withEndAction(() -> { paging = false; updateNavigation(); }).start();
+        }).start();
+    }
+
+    @Override
+    public void onDestroyView() {
+        pageGeneration++;
+        paging = false;
+        if (getView() != null) {
+            View content = getView().findViewById(R.id.scrollView);
+            content.animate().cancel();
+            content.setAlpha(1);
+            content.setTranslationX(0);
+        }
+        super.onDestroyView();
+    }
+
     @Override
     public @Nullable String getToolbarTitle() {
         return null;
@@ -137,11 +195,13 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     @Override
     public void enableInteraction() {
         interactionEnabled = true;
+        updateNavigation();
     }
 
     @Override
     public void disableInteraction() {
         interactionEnabled = false;
+        updateNavigation();
     }
 
     @Override
@@ -175,8 +235,8 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
             for (int i = 0; i < ids.length; i++) if (ids[i] == currentSubject.getId()) { index = i; break; }
         }
         view.findViewById(R.id.subjectNavigation).setVisibility(index >= 0 && ids.length > 1 ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.previousSubject).setEnabled(index > 0);
-        view.findViewById(R.id.nextSubject).setEnabled(index >= 0 && index < ids.length - 1);
+        view.findViewById(R.id.previousSubject).setEnabled(index > 0 && interactionEnabled && !paging);
+        view.findViewById(R.id.nextSubject).setEnabled(index >= 0 && index < ids.length - 1 && interactionEnabled && !paging);
     }
 
     private void goToAdjacentSubject(AbstractActivity activity, long id, long[] ids,
@@ -190,7 +250,7 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     public void onSwipeLeft(final SwipingScrollView view) {
         final @Nullable AbstractActivity activity = getAbstractActivity();
         final @Nullable Bundle args = getArguments();
-        if (currentSubject == null || activity == null || args == null) {
+        if (!interactionEnabled || paging || currentSubject == null || activity == null || args == null) {
             return;
         }
         final long[] ids = args.getLongArray("ids");
@@ -209,7 +269,7 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     public void onSwipeRight(final SwipingScrollView view) {
         final @Nullable AbstractActivity activity = getAbstractActivity();
         final @Nullable Bundle args = getArguments();
-        if (currentSubject == null || activity == null || args == null) {
+        if (!interactionEnabled || paging || currentSubject == null || activity == null || args == null) {
             return;
         }
         final long[] ids = Objects.requireNonNull(args.getLongArray("ids"));

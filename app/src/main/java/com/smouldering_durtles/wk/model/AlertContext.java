@@ -20,6 +20,12 @@ package com.smouldering_durtles.wk.model;
  * The context of information needed for widget updates and notifications.
  */
 public final class AlertContext {
+    private int numLevelUpLessons = 0;
+    private int numLevelUpReviews = 0;
+    public int getNumLevelUpLessons() { return numLevelUpLessons; }
+    public void setNumLevelUpLessons(int value) { numLevelUpLessons = value; }
+    public int getNumLevelUpReviews() { return numLevelUpReviews; }
+    public void setNumLevelUpReviews(int value) { numLevelUpReviews = value; }
     private int numLessons = 0;
     private int numReviews = 0;
     private long newestAvailableAt = 0L;

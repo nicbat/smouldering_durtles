@@ -87,13 +87,10 @@ public final class LevelProgressBarView extends View {
         }
         dirty = false;
 
-        height = dp2px(DashboardStyle.isModern(getContext()) ? 8 : 24);
+        height = dp2px(DashboardStyle.isModern(getContext()) ? 6 : 24);
         lineThickness = dp2px(2);
 
-        colors = ActiveTheme.getLevelProgressionBucketColors().clone();
-        if (DashboardStyle.isModern(getContext())) {
-            for (int i = 0; i < colors.length; i++) colors[i] = LearningColors.accent(getContext(), colors[i]);
-        }
+        colors = palette(getContext());
 
         targetColor = DashboardStyle.isModern(getContext())
                 ? MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
@@ -103,6 +100,22 @@ public final class LevelProgressBarView extends View {
         for (final int value: values) {
             total += value;
         }
+    }
+
+    public static int[] palette(Context context) {
+        int[] colors = ActiveTheme.getLevelProgressionBucketColors().clone();
+        if (!DashboardStyle.isModern(context)) return colors;
+        String mode = GlobalSettings.Display.getLearningColors();
+        if ("original".equals(mode)) return colors;
+        int track = MaterialColors.getColor(context, com.google.android.material.R.attr.colorSurfaceContainerHighest, 0);
+        int primary = MaterialColors.getColor(context, androidx.appcompat.R.attr.colorPrimary, 0);
+        int apprentice = "neutral".equals(mode) ? primary : MaterialColors.getColor(context, com.google.android.material.R.attr.colorTertiary, primary);
+        colors[0] = primary;
+        for (int i = 1; i <= 7; i++) colors[i] = androidx.core.graphics.ColorUtils.blendARGB(track, apprentice, .9f - (i - 1) * .08f);
+        colors[8] = "neutral".equals(mode) ? androidx.core.graphics.ColorUtils.blendARGB(track, primary, .25f)
+                : MaterialColors.getColor(context, com.google.android.material.R.attr.colorSecondaryContainer, track);
+        colors[9] = track;
+        return colors;
     }
 
     @Override
@@ -117,6 +130,13 @@ public final class LevelProgressBarView extends View {
 
             final int width = getWidth() - getPaddingLeft() - getPaddingRight();
             long done = 0;
+            canvas.save();
+            if (DashboardStyle.isModern(getContext())) {
+                android.graphics.Path clip = new android.graphics.Path();
+                clip.addRoundRect(getPaddingLeft(), getPaddingTop(), getPaddingLeft() + width,
+                        getPaddingTop() + height, height / 2f, height / 2f, android.graphics.Path.Direction.CW);
+                canvas.clipPath(clip);
+            }
 
             for (int i=0; i<Math.min(values.length, colors.length); i++) {
                 final int value = values[i];
@@ -140,6 +160,7 @@ public final class LevelProgressBarView extends View {
                 done += value;
             }
 
+            canvas.restore();
             if (showTarget) {
                 final long threshold = (total * 9 + 9) / 10;
                 final int start = getPaddingLeft() + (int) ((threshold * width) / total) - lineThickness / 2;

@@ -51,6 +51,11 @@ public final class LiveAlertContext extends ConservativeLiveData<AlertContext> {
         final int maxLevel = db.propertiesDao().getUserMaxLevelGranted();
         final long now = System.currentTimeMillis();
         final AlertContext ctx = db.subjectAggregatesDao().getAlertContext(maxLevel, now);
+        java.util.Collection<Long> ids = db.subjectCollectionsDao().getLevelUpIds(db.propertiesDao().getUserLevel(), maxLevel);
+        if (!ids.isEmpty()) {
+            ctx.setNumLevelUpLessons(db.subjectAggregatesDao().countLevelUpLessons(ids, maxLevel));
+            ctx.setNumLevelUpReviews(db.subjectAggregatesDao().countLevelUpReviews(ids, maxLevel, now));
+        }
         instance.postValue(ctx);
     }
 

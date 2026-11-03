@@ -60,4 +60,12 @@ public enum FragmentTransitionAnimation {
      * @param transaction the transaction to modify
      */
     public abstract void apply(FragmentTransaction transaction);
+
+    /** Small travel and opacity avoid moving two entire, expensive detail trees across the display. */
+    public void applyModern(FragmentTransaction transaction) {
+        if (this == NONE) return;
+        transaction.setReorderingAllowed(true);
+        transaction.setCustomAnimations(this == LTR ? R.anim.modern_ltr_enter : R.anim.modern_rtl_enter,
+                R.anim.modern_item_exit);
+    }
 }

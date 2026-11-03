@@ -92,9 +92,7 @@ public final class LevelProgressView extends TableLayout {
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket9));
 
             for (int i=0; i<legendBuckets.size(); i++) {
-                int color = ActiveTheme.getLevelProgressionBucketColors()[i];
-                legendBuckets.get(i).setBackgroundColor(DashboardStyle.isModern(getContext())
-                        ? LearningColors.accent(getContext(), color) : color);
+                legendBuckets.get(i).setBackgroundColor(LevelProgressBarView.palette(getContext())[i]);
             }
         });
     }

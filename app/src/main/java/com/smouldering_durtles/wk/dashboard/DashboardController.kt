@@ -43,6 +43,10 @@ class DashboardController private constructor() {
                     ready = ready,
                     lessons = timeline.numAvailableLessons,
                     reviews = timeline.numAvailableReviews,
+                    levelUpLessons = timeline.numLevelUpLessons,
+                    levelUpReviews = timeline.numLevelUpReviews,
+                    prioritizeLessons = GlobalSettings.AdvancedLesson.getOrderPriority() == com.smouldering_durtles.wk.enums.SessionPriority.LEVEL_UP_FIRST,
+                    prioritizeReviews = GlobalSettings.AdvancedReview.getOrderPriority() == com.smouldering_durtles.wk.enums.SessionPriority.LEVEL_UP_FIRST,
                     activeSession = !session.isInactive,
                     vacation = LiveVacationMode.getInstance().get(),
                     level = LiveLevelDuration.getInstance().get().level,
@@ -65,7 +69,12 @@ class DashboardController private constructor() {
             view.setContent {
                 DashboardTheme(dynamicColor) {
                     DashboardOverview(controller.state, controller.actionsEnabled,
-                        { reviews.run() }, { lessons.run() }, { resume.run() }, { browse.run() })
+                        { reviews.run() }, { lessons.run() }, { resume.run() }, { browse.run() },
+                        { lessonFirst, reviewFirst ->
+                            GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.LESSON, lessonFirst)
+                            GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.REVIEW, reviewFirst)
+                            refresh()
+                        })
                 }
             }
             return controller

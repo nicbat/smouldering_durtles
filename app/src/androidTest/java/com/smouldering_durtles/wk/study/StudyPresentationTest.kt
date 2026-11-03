@@ -364,9 +364,14 @@ class StudyPresentationTest {
                 activity.loadSubjectInfoFragment(ids[0], ids, FragmentTransitionAnimation.NONE)
                 manager.executePendingTransactions()
                 assertEquals(1, manager.backStackEntryCount)
-                activity.pageSubjectInfoFragment(ids[1], ids, FragmentTransitionAnimation.NONE)
+                val original = manager.findFragmentById(R.id.fragment) as SubjectInfoFragment
+                val originalView = original.requireView()
+                original.showAdjacentSubject(adjacent(ids[1]), ids, FragmentTransitionAnimation.NONE)
                 manager.executePendingTransactions()
-                activity.pageSubjectInfoFragment(ids[2], ids, FragmentTransitionAnimation.NONE)
+                original.showAdjacentSubject(adjacent(ids[2]), ids, FragmentTransitionAnimation.NONE)
+                assertSame(original, manager.findFragmentById(R.id.fragment))
+                assertSame(originalView, original.requireView())
+                assertEquals(ids[2], original.requireArguments().getLong("id"))
                 manager.executePendingTransactions()
                 assertEquals(1, manager.backStackEntryCount)
                 assertTrue(manager.popBackStackImmediate())
@@ -397,14 +402,14 @@ class StudyPresentationTest {
                     activity.loadSubjectInfoFragment(ids[1], ids, FragmentTransitionAnimation.NONE)
                     manager.executePendingTransactions()
                     assertEquals(parentCount + 1, manager.backStackEntryCount)
-                    activity.pageSubjectInfoFragment(ids[2], ids, FragmentTransitionAnimation.NONE)
+                    (manager.findFragmentById(R.id.fragment) as SubjectInfoFragment).showAdjacentSubject(adjacent(ids[2]), ids, FragmentTransitionAnimation.NONE)
                     manager.executePendingTransactions()
                     assertEquals(parentCount + 1, manager.backStackEntryCount)
                     assertTrue(manager.popBackStackImmediate())
                     assertEquals(ids[0], manager.findFragmentById(R.id.fragment)!!.requireArguments().getLong("id"))
                     assertEquals(parentCount, manager.backStackEntryCount)
                     if (deepLink) {
-                        activity.pageSubjectInfoFragment(ids[1], ids, FragmentTransitionAnimation.NONE)
+                        (manager.findFragmentById(R.id.fragment) as SubjectInfoFragment).showAdjacentSubject(adjacent(ids[1]), ids, FragmentTransitionAnimation.NONE)
                         manager.executePendingTransactions()
                         assertEquals(0, manager.backStackEntryCount)
                         assertEquals(ids[1], manager.findFragmentById(R.id.fragment)!!.requireArguments().getLong("id"))
@@ -505,6 +510,11 @@ class StudyPresentationTest {
             assertEquals(before, subject.meaningSynonyms)
         }
     }
+
+    private fun adjacent(subjectId: Long) = Subject(SubjectEntity().apply {
+        id = subjectId; type = SubjectType.WANIKANI_KANJI; level = 1; characters = "一"; srsStageId = 1
+        meanings = """[{"meaning":"One","primary":true,"accepted_answer":true}]"""
+    })
 
     private fun capture(context: Context, view: View, name: String) {
         val metrics = context.resources.displayMetrics

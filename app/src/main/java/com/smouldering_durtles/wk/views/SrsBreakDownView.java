@@ -53,6 +53,7 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  * A custom view that shows the SRS breakdown on the dashboard.
  */
 public final class SrsBreakDownView extends ConstraintLayout {
+    private SrsBreakDown latest;
     private final List<ViewProxy> counts = new ArrayList<>();
     private final List<ViewProxy> views = new ArrayList<>();
 
@@ -179,6 +180,74 @@ public final class SrsBreakDownView extends ConstraintLayout {
         }));
     }
 
+    private void splitPresentation(SrsBreakDown model) {
+        android.widget.LinearLayout content = (android.widget.LinearLayout) findViewById(R.id.srsDistributionBar).getParent();
+        DashboardLegendLayout split = findViewById(R.id.srsSplitLegend);
+        if (split == null) {
+            split = new DashboardLegendLayout(getContext(), null);
+            split.setId(R.id.srsSplitLegend);
+            content.addView(split, new android.widget.LinearLayout.LayoutParams(-1, -2));
+            TextView toggle = new TextView(getContext());
+            toggle.setId(R.id.srsSplitToggle);
+            toggle.setTextSize(14);
+            toggle.setTextColor(com.google.android.material.color.MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary));
+            toggle.setMinHeight(com.smouldering_durtles.wk.ui.ModernUi.dp(this, 48));
+            toggle.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            toggle.setFocusable(true);
+            toggle.setOnClickListener(v -> {
+                android.content.SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(getContext());
+                prefs.edit().putBoolean("srs_split_stages", !prefs.getBoolean("srs_split_stages", false)).apply();
+                update(latest);
+            });
+            content.addView(toggle, new android.widget.LinearLayout.LayoutParams(-1, -2));
+        }
+        boolean expanded = androidx.preference.PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("srs_split_stages", false);
+        findViewById(R.id.srsLegend).setVisibility(expanded ? GONE : VISIBLE);
+        split.setVisibility(expanded ? VISIBLE : GONE);
+        ((TextView) findViewById(R.id.srsSplitToggle)).setText(expanded ? R.string.srs_group_stages : R.string.srs_split_stages);
+        androidx.core.view.ViewCompat.setStateDescription(findViewById(R.id.srsSplitToggle), getContext().getString(
+                expanded ? R.string.lesson_expanded : R.string.lesson_collapsed));
+        SrsDistributionBarView bar = findViewById(R.id.srsDistributionBar);
+        if (!expanded) { bar.setColors(null); return; }
+        split.removeAllViews();
+        int[] values = new int[9];
+        int[] colors = java.util.Arrays.copyOfRange(ActiveTheme.getStageDeepBucketColors(), 2, 11);
+        String[] labels = {"A1", "A2", "A3", "A4", "G1", "G2", "Master", "Enl.", "Burned"};
+        String[] full = {"Apprentice I", "Apprentice II", "Apprentice III", "Apprentice IV", "Guru I", "Guru II", "Master", "Enlightened", "Burned"};
+        for (int i = 0; i < 9; i++) {
+            final int bucket = i;
+            values[i] = model.getPost60DeepCount(i + 2);
+            TextView cell = new TextView(getContext());
+            cell.setText(labels[i] + "\n" + NumberFormat.getIntegerInstance().format(values[i]));
+            cell.setTextSize(12);
+            cell.setGravity(android.view.Gravity.CENTER);
+            cell.setMinHeight(com.smouldering_durtles.wk.ui.ModernUi.dp(this, 48));
+            cell.setTextColor(com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface));
+            cell.setContentDescription(full[i] + ", " + values[i]);
+            cell.setFocusable(true);
+            android.graphics.drawable.ColorDrawable swatch = new android.graphics.drawable.ColorDrawable(LearningColors.accent(getContext(), colors[i]));
+            swatch.setBounds(0, 0, com.smouldering_durtles.wk.ui.ModernUi.dp(this, 16), com.smouldering_durtles.wk.ui.ModernUi.dp(this, 3));
+            cell.setCompoundDrawables(null, null, null, swatch);
+            cell.setCompoundDrawablePadding(com.smouldering_durtles.wk.ui.ModernUi.dp(this, 4));
+            cell.setOnClickListener(v -> safe(() -> {
+                if (actmentRef == null) return;
+                AdvancedSearchParameters parameters = new AdvancedSearchParameters();
+                if (bucket < 4) {
+                    int end = bucket == 3 ? SrsSystemRepository.getMaxNumApprenticeStages() : bucket + 1;
+                    for (int n = bucket; n < end; n++) parameters.srsStages.add("prepass:" + n);
+                } else if (bucket < 6) {
+                    int start = bucket - 4;
+                    int end = bucket == 5 ? SrsSystemRepository.getMaxNumGuruStages() : start + 1;
+                    for (int n = start; n < end; n++) parameters.srsStages.add("pass:" + n);
+                } else parameters.srsStages.add(new String[]{"master", "enlightened", "burned"}[bucket - 6]);
+                actmentRef.get().goToSearchResult(2, Converters.getObjectMapper().writeValueAsString(parameters), null);
+            }));
+            split.addView(cell);
+        }
+        bar.setColors(colors);
+        bar.setValues(values);
+    }
+
     /**
      * Set the lifecycle owner for this view, to hook LiveData observers to.
      *
@@ -199,6 +268,7 @@ public final class SrsBreakDownView extends ConstraintLayout {
      * @param srsBreakDown the SRS breakdown summary
      */
     private void update(final SrsBreakDown srsBreakDown) {
+        latest = srsBreakDown;
         if (GlobalSettings.getFirstTimeSetup() == 0 || !GlobalSettings.Dashboard.getShowSrsBreakdown()) {
             setVisibility(GONE);
             return;
@@ -221,6 +291,7 @@ public final class SrsBreakDownView extends ConstraintLayout {
         }
         if (modern) {
             ((SrsDistributionBarView) findViewById(R.id.srsDistributionBar)).setValues(distribution);
+            splitPresentation(srsBreakDown);
             ((TextView) findViewById(R.id.srsDistributionTotal)).setText(total == 0
                     ? getContext().getString(R.string.dashboard_srs_empty)
                     : getContext().getString(R.string.dashboard_srs_total, NumberFormat.getIntegerInstance().format(total)));

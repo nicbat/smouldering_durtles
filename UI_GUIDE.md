@@ -145,9 +145,18 @@ rich-text emphasis. Keep the synonyms field available for in-place updates; a qu
 action can replace its strong filled treatment without changing its handler. Use outlineVariant
 for lesson dividers instead of importing the Classic palette’s high-contrast rules.
 
+Listen buttons carry an audio-action tag and reflect the persisted app mute flag immediately
+on creation, toolbar mute changes and return to the activity. Keep stateful icon/text tint
+consistent with disabled controls; preserve AudioUtil's independent playback guard.
+
 Browsing subject details, including related subjects opened during lessons, share the compact
 adaptive headline, quiet audio/Add actions, dividers and Details disclosure. Restore disclosure
-state on fragment recreation. Review answer-visibility rules remain independent.
+state on fragment recreation. Review answer-visibility rules remain independent. Adjacent
+modern detail pages reuse the existing fragment, keep the current content until the next
+subject has loaded, and bind during a short fade. Keep the footer fixed, preserve Back
+behavior, and cancel pending transitions/loads when the view is destroyed. Modern study
+transitions use small travel and opacity; Classic retains full slides and the animation
+preference remains authoritative. Do not claim a frame-rate gain without profiling.
 
 Example translations toggle reveal/blur on each tap. Hold either language to copy the original
 full sentence (without the display bullet); give accessibility actions explicit Copy / Reveal /
@@ -182,11 +191,16 @@ Group level and time metadata; distinguish the main study action from Browse. Ch
 labels and legends need stable alignment and wrapping, not a new card for each value.
 Keep chart aggregation and search callbacks untouched. Density comes from structure:
 
-- Level progress: label and exact passed/total count on one line when they fit; an 8dp
-  segmented bar underneath. Stack the text at larger sizes and keep the 48dp row target.
+- Level progress: label and exact passed/total count on one line when they fit; a rounded
+  6dp segmented bar underneath, matching the Jōyō/JLPT geometry. Modern Subtle uses primary
+  for passed, tertiary shades for Apprentice, secondaryContainer for lessons and a neutral
+  locked track; Neutral uses one accent, while Original keeps the stored custom palette. Stack the text at larger sizes and keep the 48dp row target.
   Preserve the rounded-up 90% pass target, including for small totals.
-- SRS: one 12dp proportion bar, total, then a two-column tappable stage legend with exact
-  counts (one column at large text/narrow widths). Do not replace counts with percentages.
+- SRS: one 12dp proportion bar, total, then a compact five-cell tappable key with exact
+  counts on one row when space permits. Short visible labels keep full stage names in
+  accessibility descriptions. Split Apprentice/Guru is a persisted local control: nine
+  stage cells and matching segments, wrapping as needed. Keep 48dp targets, scalable text
+  and exact search filters; do not force nine cells into a narrow viewport.
   Post-60 charts expose named stage counts through a visible action and accessibility
   summary; a neutral chart must not depend on a remembered color-to-stage mapping.
 - Jōyō/JLPT: one compact row per grade/level with a 6dp progress bar and exact
@@ -194,16 +208,25 @@ Keep chart aggregation and search callbacks untouched. Density comes from struct
   kanji tracked in the app, not a claim of complete school/JLPT syllabus coverage. Tap
   a row for all four mutually exclusive stage buckets. Keep 48dp targets and stack
   label/count at large text sizes. The old panels had no search action to preserve.
-- Forecast: total and busiest hour above a week of horizontal day strips. Each strip spans
-  local midnight to midnight, with exact daily total and hour intensity on a common scale;
-  a small noon gap provides orientation. Group by calendar date, including 23/25-hour DST
-  days. Today includes overdue work; unobserved partial-day hours stay blank. Do not infer
-  future repeat reviews. At most seven 48dp-or-taller rows appear in the overview; an All days
-  action reaches the entire configured horizon. Tap a day for its hours and day totals,
-  then an hour for category, cumulative and level-up-path counts. Keyboard/TalkBack
-  activation opens the named daily list. Modern loads at least the current calendar week;
-  Classic retains its hourly plot and chart settings. Hide irrelevant waterfall/grid/visible-
-  hour controls in Modern and explain the horizon's week minimum in settings.
+- Forecast: show **new arrivals** across the horizon and list **available now** separately.
+  The existing backlog must not set the scale for future hours. Daily intensity uses a
+  shared logarithmic scale for upcoming counts; a selected day's horizontal bars are linear
+  and display exact hourly counts. Keep the overview to seven calendar-day strips with a
+  noon marker, DST-aware grouping and an All days picker. Tap a day directly into one
+  hour/bar/count chart, with Previous/Next day actions; avoid category/cumulative drilldowns
+  in this primary flow. Empty hours remain visible, overdue work is listed separately,
+  and counts project scheduled arrivals only. Classic retains its hourly plot/settings.
+- Recent unlocks/burns: compact responsive tiles for the existing latest ten subjects within
+  30 days. Keep every item tappable with a 48dp target, full name/date/meaning in accessibility
+  and tooltip text, and intact subject navigation. Vocabulary uses readable two-line text
+  with ellipsis, while image radicals keep their renderer; do not shrink long words to fit.
+- Level-up path: unpassed current-level kanji plus their unpassed radical prerequisites.
+  Use permanent passedAt milestones, not the current SRS label. Stop at the rounded-up
+  90% kanji target or subscription ceiling. Count only available lessons/reviews on the
+  dashboard and in notifications. Lesson/review priority switches use the existing subject
+  comparator, ahead of the remaining eligible queue, and never change eligibility or due
+  dates. Their labels explain that changes apply to new sessions. Omit zero-count lesson,
+  review and path categories in notifications.
 
 Avoid increasing density by shrinking all text, disabling scaling or overlapping controls.
 Use a compact overview plus reachable detail, and validate the actual populated view.

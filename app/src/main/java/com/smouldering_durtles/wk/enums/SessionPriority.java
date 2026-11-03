@@ -67,7 +67,8 @@ public enum SessionPriority {
                 return base;
             }
             final Comparator<Subject> c = (o1, o2) -> Boolean.compare(
-                    !o2.isPassed() && levelUpIds.contains(o2.getId()), !o1.isPassed() && levelUpIds.contains(o1.getId()));
+                    com.smouldering_durtles.wk.model.LevelUpPath.includes(o2, levelUpIds),
+                    com.smouldering_durtles.wk.model.LevelUpPath.includes(o1, levelUpIds));
             return c.thenComparing(base);
         }
     },

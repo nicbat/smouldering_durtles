@@ -244,6 +244,11 @@
             app:defaultValue="24"
             app:useSimpleSummaryProvider="true"/>
 
+        <SwitchPreferenceCompat app:key="lesson_level_up_first" app:title="@string/level_up_priority_lessons"
+            app:summary="@string/level_up_path_explanation" app:defaultValue="false" app:singleLineTitle="false"/>
+        <SwitchPreferenceCompat app:key="review_level_up_first" app:title="@string/level_up_priority_reviews"
+            app:summary="@string/level_up_path_explanation" app:defaultValue="false" app:singleLineTitle="false"/>
+
         <SwitchPreferenceCompat
             app:key="show_srs_breakdown"
             app:title="Show SRS breakdown"

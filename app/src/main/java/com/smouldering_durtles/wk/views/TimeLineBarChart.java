@@ -76,6 +76,8 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     private String[] legendLabels = new String[0];
     private int maxBarCount = 0;
     private int totalCount = 0;
+    private int availableNow = 0;
+    private int maxUpcomingCount = 1;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect rect = new Rect();
     private int colorPrimary = 0;
@@ -462,14 +464,17 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     }
 
     private String modernSummary() {
-        return getContext().getString(R.string.forecast_summary, totalCount, entries.size());
+        return getContext().getString(R.string.forecast_new_summary, totalCount - availableNow, entries.size());
     }
 
+    private int newCount(BarEntry entry) { return Math.max(0, entry.barCount - (entry.index == 0 ? availableNow : 0)); }
+
     private String modernPeak() {
-        if (totalCount == 0) return getContext().getString(R.string.forecast_empty);
+        String now = availableNow > 0 ? getContext().getString(R.string.forecast_available_now, availableNow) + "\n" : "";
+        if (entries.isEmpty() || totalCount == availableNow) return now + getContext().getString(R.string.forecast_empty);
         BarEntry peak = entries.get(0);
-        for (BarEntry entry : entries) if (entry.barCount > peak.barCount) peak = entry;
-        return getContext().getString(R.string.forecast_peak, peak.barCount,
+        for (BarEntry entry : entries) if (newCount(entry) > newCount(peak)) peak = entry;
+        return now + getContext().getString(R.string.forecast_peak, newCount(peak),
                 DateUtils.formatDateTime(getContext(), firstSlot + peak.index * HOUR,
                         DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_TIME));
     }
@@ -499,7 +504,7 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     }
 
     private String daySummary(DayEntry day) {
-        return getContext().getString(R.string.forecast_hour_count, dayLabel(day), day.count);
+        return getContext().getString(R.string.forecast_hour_count, dayLabel(day), day.count - (day.first == 0 ? availableNow : 0));
     }
 
     private int modernHeight(int width) {
@@ -556,10 +561,10 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             canvas.clipPath(clip);
             for (int i = day.first; i < day.end; i++) {
                 BarEntry entry = entries.get(i);
-                if (entry.barCount == 0) continue;
+                if (newCount(entry) == 0) continue;
                 float x = left + (right - left) * (firstSlot + i * HOUR - day.start) / (day.finish - day.start);
                 float end = left + (right - left) * (firstSlot + (i + 1) * HOUR - day.start) / (day.finish - day.start);
-                float intensity = .22f + .78f * entry.barCount / Math.max(1, maxBarCount);
+                float intensity = .25f + .75f * (float) (Math.log1p(newCount(entry)) / Math.log1p(maxUpcomingCount));
                 paint.setColor(androidx.core.graphics.ColorUtils.blendARGB(track, accent, intensity));
                 canvas.drawRect(x, barTop, Math.max(x + density, end - density), barBottom, paint);
             }
@@ -761,22 +766,19 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
     private void showDay(int index) {
         DayEntry day = days.get(index);
         String[] hours = new String[day.end - day.first];
+        int[] counts = new int[hours.length];
         for (int i = 0; i < hours.length; i++) {
             int slot = day.first + i;
-            hours[i] = getContext().getString(R.string.forecast_hour_count, slotRange(slot), entries.get(slot).barCount);
+            hours[i] = DateUtils.formatDateTime(getContext(), firstSlot + slot * HOUR, DateUtils.FORMAT_SHOW_TIME);
+            counts[i] = newCount(entries.get(slot));
         }
-        new MaterialAlertDialogBuilder(getContext()).setTitle(daySummary(day))
-                .setItems(hours, (dialog, which) -> showSlot(day.first + which))
-                .setNeutralButton(R.string.forecast_day_totals, (dialog, which) -> {
-                    StringBuilder detail = new StringBuilder(getContext().getString(R.string.forecast_reviews, day.count));
-                    for (int i = 0; i < legendLabels.length; i++) detail.append("\n").append(legendLabels[i]).append(": ").append(day.values[i]);
-                    detail.append("\n\n").append(getContext().getString(R.string.forecast_level_up, day.levelUp));
-                    detail.append("\n").append(getContext().getString(R.string.forecast_cumulative, entries.get(day.end - 1).cumulativeCount));
-                    if (day.first == 0) detail.append("\n\n").append(getContext().getString(R.string.forecast_partial_days));
-                    new MaterialAlertDialogBuilder(getContext()).setTitle(dayLabel(day)).setMessage(detail)
-                            .setPositiveButton(android.R.string.ok, null).show();
-                })
-                .setNegativeButton(android.R.string.cancel, null).show();
+        android.widget.ScrollView scroll = new android.widget.ScrollView(getContext());
+        scroll.addView(new HourlyReviewChart(getContext(), hours, counts, day.first == 0 ? availableNow : 0));
+        androidx.appcompat.app.AlertDialog.Builder dialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle(daySummary(day)).setView(scroll).setNeutralButton(R.string.forecast_close, null);
+        if (index > 0) dialog.setNegativeButton(R.string.forecast_previous_day, (d, which) -> showDay(index - 1));
+        if (index < days.size() - 1) dialog.setPositiveButton(R.string.forecast_next_day, (d, which) -> showDay(index + 1));
+        dialog.show();
     }
 
     private String slotRange(int index) {
@@ -994,6 +996,9 @@ public final class TimeLineBarChart extends View implements GestureDetector.OnGe
             for (int i = 0; i < segmentColors.length; i++) {
                 segmentColors[i] = LearningColors.accent(getContext(), segmentColors[i]);
             }
+            availableNow = Math.min(totalCount, timeLine.getNumAvailableReviews());
+            maxUpcomingCount = 1;
+            for (BarEntry entry : entries) maxUpcomingCount = Math.max(maxUpcomingCount, newCount(entry));
             buildDays();
             scrollOffset = 0;
             StringBuilder accessible = new StringBuilder(modernSummary()).append(". ").append(modernPeak()).append(". ");

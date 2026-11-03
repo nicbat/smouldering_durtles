@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-/** Equal-width, content-height legend cells. Large text naturally falls back to one column. */
+/** Compact equal-width legend cells; full stage names remain in accessibility descriptions. */
 public final class DashboardLegendLayout extends ViewGroup {
     private int columns = 1;
     private int gap;
@@ -16,8 +16,8 @@ public final class DashboardLegendLayout extends ViewGroup {
         int available = Math.max(0, width - getPaddingLeft() - getPaddingRight());
         float density = getResources().getDisplayMetrics().density;
         gap = Math.round(8 * density);
-        int minCell = Math.round(144 * density * Math.max(1, getResources().getConfiguration().fontScale));
-        columns = Math.max(1, Math.min(5, (available + gap) / (minCell + gap)));
+        int minCell = Math.round(48 * density * Math.max(1, getResources().getConfiguration().fontScale));
+        columns = Math.max(1, Math.min(Math.max(1, getChildCount()), (available + gap) / (minCell + gap)));
         int cellWidth = Math.max(0, (available - gap * (columns - 1)) / columns);
         int height = getPaddingTop() + getPaddingBottom();
         for (int i = 0; i < getChildCount(); i += columns) {

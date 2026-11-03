@@ -71,7 +71,7 @@ public abstract class SubjectAggregatesDao {
      * @param cutoff the current date
      * @return a POJO containing the results
      */
-    @Query("SELECT numLessons, numReviews, newestAvailableAt, upcomingAvailableAt FROM "
+    @Query("SELECT numLessons, numReviews, newestAvailableAt, upcomingAvailableAt, 0 AS numLevelUpLessons, 0 AS numLevelUpReviews FROM "
             + "(SELECT COUNT(*) AS numLessons FROM subject WHERE hiddenAt=0 AND object IS NOT NULL "
             + "AND level <= :maxLevel AND unlockedAt!=0 AND startedAt=0 AND (resurrectedAt!=0 OR burnedAt=0)), "
             + "(SELECT COUNT(*) AS numReviews FROM subject WHERE hiddenAt=0 AND object IS NOT NULL "
@@ -82,6 +82,14 @@ public abstract class SubjectAggregatesDao {
             + "AND level <= :maxLevel AND availableAt!=0 AND availableAt > :cutoff)"
             + ";")
     public abstract AlertContext getAlertContext(int maxLevel, long cutoff);
+
+    @Query("SELECT COUNT(*) FROM subject WHERE id IN (:ids) AND hiddenAt=0 AND object IN ('radical','kanji')"
+            + " AND passedAt=0 AND level <= :maxLevel AND unlockedAt!=0 AND startedAt=0 AND (resurrectedAt!=0 OR burnedAt=0)")
+    public abstract int countLevelUpLessons(java.util.Collection<Long> ids, int maxLevel);
+
+    @Query("SELECT COUNT(*) FROM subject WHERE id IN (:ids) AND hiddenAt=0 AND object IN ('radical','kanji')"
+            + " AND passedAt=0 AND level <= :maxLevel AND availableAt!=0 AND availableAt < :now")
+    public abstract int countLevelUpReviews(java.util.Collection<Long> ids, int maxLevel, long now);
 
     /**
      * Room-generated method: get the date the user reached a level by looking at the earliest unlockedAt date

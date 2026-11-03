@@ -350,6 +350,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
             onResumeLocal();
+            com.smouldering_durtles.wk.study.AudioButtonState.refresh(findViewById(android.R.id.content));
             styleActivityContent();
             refreshToolbarAppearance();
             enableInteraction();
@@ -485,6 +486,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
         if (itemId == R.id.action_mute) {
             final boolean muted = !WkApplication.getDatabase().propertiesDao().getIsMuted();
             WkApplication.getDatabase().propertiesDao().setIsMuted(muted);
+            com.smouldering_durtles.wk.study.AudioButtonState.refresh(findViewById(android.R.id.content), muted);
             final int imageId = muted
                     ? R.drawable.ic_volume_off_24dp
                     : R.drawable.ic_volume_up_24dp;

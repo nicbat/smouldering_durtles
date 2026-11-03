@@ -114,6 +114,27 @@ public abstract class LiveSubjectTableView extends TableLayout {
             ids[i] = subjects.get(i).getId();
         }
 
+        if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
+                && (this instanceof LiveRecentUnlocksSubjectTableView || this instanceof LiveBurnedItemsSubjectTableView)) {
+            while (getChildCount() > 1) removeViewAt(1);
+            android.widget.TextView title = (android.widget.TextView) ((android.view.ViewGroup) getChildAt(0)).getChildAt(0);
+            title.setText(this instanceof LiveRecentUnlocksSubjectTableView ? R.string.recent_unlocks_compact : R.string.recent_burns_compact);
+            title.setTextSize(16);
+            android.widget.TableRow.LayoutParams titleParams = (android.widget.TableRow.LayoutParams) title.getLayoutParams();
+            titleParams.width = MATCH_PARENT;
+            titleParams.gravity = android.view.Gravity.START;
+            title.setLayoutParams(titleParams);
+            title.setPadding(0, 0, 0, com.smouldering_durtles.wk.ui.ModernUi.dp(this, 4));
+            android.widget.TableRow row = new android.widget.TableRow(getContext());
+            RecentSubjectGrid grid = new RecentSubjectGrid(getContext(), subjects, actment, this::getExtraText);
+            android.widget.TableRow.LayoutParams params = new android.widget.TableRow.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            params.span = 2;
+            row.addView(grid, params);
+            addView(row, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+            setVisibility(VISIBLE);
+            return;
+        }
+
         int i = 1;
 
         for (final Subject subject: subjects) {

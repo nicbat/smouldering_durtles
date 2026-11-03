@@ -14,6 +14,8 @@ import com.smouldering_durtles.wk.ui.LearningColors;
 public final class SrsDistributionBarView extends View {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int[] values = new int[5];
+    private int[] customColors;
+    public void setColors(int[] colors) { customColors = colors == null ? null : colors.clone(); invalidate(); }
     public SrsDistributionBarView(Context context, AttributeSet attrs) { super(context, attrs); }
 
     public void setValues(int[] counts) { values = counts.clone(); invalidate(); }
@@ -26,7 +28,7 @@ public final class SrsDistributionBarView extends View {
         long total = 0;
         for (int count : values) total += Math.max(0, count);
         if (total == 0) return;
-        int[] colors = ActiveTheme.getShallowStageBucketColors5();
+        int[] colors = customColors == null ? ActiveTheme.getShallowStageBucketColors5() : customColors;
         long done = 0;
         boolean rtl = getLayoutDirection() == LAYOUT_DIRECTION_RTL;
         for (int i = 0; i < Math.min(values.length, colors.length); i++) {

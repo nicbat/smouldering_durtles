@@ -314,14 +314,7 @@ public abstract class SubjectCollectionsDao {
      * @return the collection of IDs
      */
     public final Collection<Long> getLevelUpIds(final int userLevel, final int maxLevel) {
-        final Collection<Long> result = new HashSet<>();
-        if (userLevel < maxLevel) {
-            for (final Subject subject: getKanjiForLevel(userLevel)) {
-                result.add(subject.getId());
-                result.addAll(subject.getComponentSubjectIds());
-            }
-        }
-        return result;
+        return com.smouldering_durtles.wk.model.LevelUpPath.ids(getKanjiForLevel(userLevel), userLevel, maxLevel);
     }
 
     /**
