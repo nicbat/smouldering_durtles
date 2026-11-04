@@ -120,6 +120,7 @@ class DashboardAppearanceTest {
 
     @Test fun largeTextAndDarkChartsRemainReadable() {
         fixture(dark = true, fontScale = 2f).use { scenario ->
+            capture(scenario, "dashboard-large-dark-overview", R.id.modernDashboard)
             capture(scenario, "dashboard-large-dark-forecast", R.id.timeLineBarChart)
             capture(scenario, "dashboard-large-dark-levels", R.id.levelProgressView)
             scenario.onActivity { activity ->

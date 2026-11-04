@@ -74,7 +74,27 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest milestone — small dashboard/review changes (2026-11-03)
+## Latest fix — dashboard dark-mode text (2026-11-03)
+
+The collapsible overview's transparent Compose Surface inherited the default black content
+color because its Android View parent cannot supply Compose's content color. Explicitly
+set `contentColor = MaterialTheme.colorScheme.onSurface`. This fixes ordinary count labels,
+upcoming text and loading/empty/active-session/vacation messages while preserving each
+button's own foreground/background pairing.
+
+The new embedded-overview test first reproduced black text in dark mode, then passed with
+the fix. It checks resolved text colors and 4.5:1 minimum contrast across light/dark,
+static/dynamic palettes and all five overview states. All **40 dashboard tests pass** on
+Android 16/API 36.1 (37.514 seconds); debug/release/test APK builds and release vital lint
+pass. Inspected dark dynamic, light static and actual embedded 2x-text dark screenshots.
+Logs: `/tmp/smoky-dashboard-contrast-before.log` (expected pre-fix failure),
+`/tmp/smoky-dashboard-contrast-build.log`, `/tmp/smoky-dashboard-contrast-tests.log`.
+Ignored evidence: `test-results/dashboard-contrast-api36.txt`,
+`captures/smoky-dashboard-contrast/`. The full suite below was not repeated for this fix.
+No phone tests/installation or account submissions; the isolated emulator was stopped
+without saving state. Install using `./install-phone.sh` when requested.
+
+## Previous milestone — small dashboard/review changes (2026-11-03)
 
 - Connection errors no longer display the large home-screen banner or duplicate overview
   message. A red dot marks the standard overflow icon, with an accessible error description

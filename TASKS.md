@@ -24,6 +24,7 @@ rechecked. Do not run instrumentation on the phone. Push tested changes to
 - [x] SRS notices use a separate toast window, preserving editor geometry, focus and draft.
 - [x] Critical-condition subjects share the compact grid and retain accuracy/navigation context.
 - [x] All modern dashboard sections have independent persisted collapse controls, including setup/help.
+- [x] Embedded overview explicitly sets its theme foreground; dark mode no longer falls back to black for plain labels/messages.
 - [x] Modern study transitions replace immediately; Classic keeps its existing animation setting.
 - [x] Debug/release/test builds and all **136 tests pass on Android 16**; populated/light/dark/large-text/IME screenshots reviewed. Evidence in HANDOFF.
 - [ ] Physical-device feedback after the user installs with `./install-phone.sh`.

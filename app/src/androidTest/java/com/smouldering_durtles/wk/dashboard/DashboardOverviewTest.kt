@@ -4,11 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -23,6 +29,48 @@ import java.io.File
 
 class DashboardOverviewTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun embeddedOverviewKeepsReadableTextAcrossThemesAndStates() {
+        var dark by androidx.compose.runtime.mutableStateOf(false)
+        var dynamic by androidx.compose.runtime.mutableStateOf(false)
+        var state by androidx.compose.runtime.mutableStateOf(DashboardState())
+        var expectedInk = Color.Unspecified
+        var surface = Color.Unspecified
+        compose.setContent {
+            DashboardTheme(dynamic, dark) {
+                expectedInk = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                surface = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow
+                // The real parent is an Android View: its background does not provide Compose content color.
+                Box(Modifier.background(surface)) {
+                    DashboardOverview(state, true, {}, {}, {}, {}, showTitle = false)
+                }
+            }
+        }
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val ready = DashboardState(ready = true, reviews = 42, lessons = 12, upcoming = "Next review fixture")
+        val cases = listOf(
+            DashboardState() to context.getString(com.smouldering_durtles.wk.R.string.dashboard_loading),
+            DashboardState(ready = true) to context.getString(com.smouldering_durtles.wk.R.string.dashboard_caught_up),
+            ready.copy(activeSession = true) to context.getString(com.smouldering_durtles.wk.R.string.dashboard_session_waiting),
+            ready.copy(vacation = true) to context.getString(com.smouldering_durtles.wk.R.string.dashboard_vacation),
+            ready to "Next review fixture")
+        for (useDark in listOf(true, false)) for (useDynamic in listOf(false, true)) {
+            for ((model, message) in cases) {
+                compose.runOnIdle { dark = useDark; dynamic = useDynamic; state = model }
+                compose.waitForIdle()
+                val labels = listOf(message) + if (model.ready) listOf("Reviews ready", "Lessons ready") else emptyList()
+                for (label in labels) {
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    compose.onNodeWithText(label).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    val actualInk = layouts.single().layoutInput.style.color
+                    assertEquals("$label (dark=$useDark, dynamic=$useDynamic)", expectedInk, actualInk)
+                    assertTrue("$label must contrast with the card", androidx.core.graphics.ColorUtils.calculateContrast(
+                        actualInk.toArgb(), surface.toArgb()) >= 4.5)
+                }
+            }
+            saveScreenshot("dashboard-embedded-dark-$useDark-dynamic-$useDynamic.png")
+        }
+    }
 
     @Test fun readyActionsDispatchExactlyOnce() {
         var reviews = 0

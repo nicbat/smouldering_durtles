@@ -71,7 +71,9 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                 }
             }, confirmButton = { TextButton(onClick = { showPriority = false }) { Text(stringResource(android.R.string.ok)) } })
     }
-    Surface(shape = RoundedCornerShape(16.dp), color = if (showTitle) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent) {
+    Surface(shape = RoundedCornerShape(16.dp),
+        color = if (showTitle) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface) {
         Column(Modifier.fillMaxWidth().padding(if (showTitle) 16.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (showTitle) Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold)

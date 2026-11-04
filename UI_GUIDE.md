@@ -101,6 +101,10 @@ container color as text ink. Learning colors are now an explicit presentation pr
 palettes or subject data. Always transform the foreground and its actual parent fill
 together, especially transparent custom-drawn glyphs and image radicals. Resolve roles
 from the scoped view context, including the independently enabled modern dashboard.
+Compose content embedded in an Android View must explicitly pair transparent surfaces with
+`contentColor = MaterialTheme.colorScheme.onSurface`; an Android parent cannot provide
+Compose's content color, and transparency otherwise falls back to black. Verify the embedded
+variant in dark mode, including ordinary labels and loading/empty/session messages.
 Correct/incorrect answer feedback keeps its separate status palette. The session summary
 uses one neutral accuracy panel with explicit Correct/Errors counts, without colored
 outlines pretending to be extra data. Search metadata names the subject type even in
