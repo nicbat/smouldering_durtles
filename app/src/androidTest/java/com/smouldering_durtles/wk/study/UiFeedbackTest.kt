@@ -153,17 +153,28 @@ class UiFeedbackTest {
                 root.findViewById<SubjectInfoView>(R.id.subjectInfo).apply {
                     setContainerType(SubjectInfoView.ContainerType.BROWSE); setMaxFontSize(100); setSubject(activity, subject)
                 }
-                val notifier = root.findViewById<TextView>(R.id.levelUpToastText)
+                measure(root, width, 640)
+                val answer = root.findViewById<TextView>(R.id.questionEdit)
+                val before = android.graphics.Rect().also { answer.getGlobalVisibleRect(it) }
                 for ((old, new) in listOf(4L to 5L, 7L to 5L, 8L to 9L)) {
-                    SrsStageNotifier.bind(notifier, system.getStage(old), system.getStage(new))
-                    notifier.visibility = View.VISIBLE
+                    val toast = SrsStageNotifier.show(context, system.getStage(old), system.getStage(new))
+                    @Suppress("DEPRECATION") val notifier = toast.view as TextView
+                    notifier.measure(View.MeasureSpec.makeMeasureSpec(((width - 32) * context.resources.displayMetrics.density).toInt(), View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+                    notifier.layout(0, 0, notifier.measuredWidth, notifier.measuredHeight)
                     measure(root, width, 640)
+                    val during = android.graphics.Rect().also { answer.getGlobalVisibleRect(it) }
+                    assertEquals(before, during)
+                    assertEquals(View.GONE, root.findViewById<View>(R.id.levelUpToastText).visibility)
                     assertTrue(notifier.text.contains(system.getStage(old).name))
                     assertTrue(notifier.text.contains(system.getStage(new).name))
                     assertNotSame(root.findViewById<View>(R.id.questionView), notifier.parent)
                     assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE, notifier.accessibilityLiveRegion)
                     assertTrue(notifier.layout.height <= notifier.height - notifier.compoundPaddingTop - notifier.compoundPaddingBottom)
                     save(notifier, "feedback-notifier-$dark-$old-$new")
+                    toast.cancel()
+                    measure(root, width, 640)
+                    assertEquals(before, android.graphics.Rect().also { answer.getGlobalVisibleRect(it) })
                 }
             }
         } }

@@ -15,6 +15,27 @@ import com.smouldering_durtles.wk.ui.ModernUi;
 public final class SrsStageNotifier {
     private SrsStageNotifier() { }
 
+    /** A separate toast window never participates in measuring the question or answer editor. */
+    @SuppressWarnings("deprecation")
+    public static android.widget.Toast show(android.content.Context context, SrsSystem.Stage oldStage, SrsSystem.Stage newStage) {
+        TextView notice = new TextView(context);
+        bind(notice, oldStage, newStage);
+        notice.setMaxWidth(context.getResources().getDisplayMetrics().widthPixels - ModernUi.dp(notice, 32));
+        android.widget.Toast toast = new android.widget.Toast(context);
+        toast.setView(notice);
+        toast.setDuration(android.widget.Toast.LENGTH_SHORT);
+        if (context instanceof android.app.Activity) {
+            androidx.core.view.WindowInsetsCompat insets = androidx.core.view.ViewCompat.getRootWindowInsets(
+                    ((android.app.Activity) context).getWindow().getDecorView());
+            if (insets != null && insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime())) {
+                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
+                        insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom + ModernUi.dp(notice, 16));
+            }
+        }
+        toast.show();
+        return toast;
+    }
+
     public static void bind(TextView view, SrsSystem.Stage oldStage, SrsSystem.Stage newStage) {
         int ink = MaterialColors.getColor(view, com.google.android.material.R.attr.colorOnSurface);
         view.setText(view.getContext().getString(R.string.srs_stage_change, oldStage.getName(), newStage.getName()));

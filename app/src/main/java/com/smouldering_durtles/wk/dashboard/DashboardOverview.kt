@@ -51,7 +51,8 @@ fun DashboardTheme(dynamicColor: Boolean, dark: Boolean = isSystemInDarkTheme(),
 fun DashboardOverview(state: DashboardState, enabled: Boolean,
                       onReviews: () -> Unit, onLessons: () -> Unit,
                       onResume: () -> Unit, onBrowse: () -> Unit,
-                      onPriorityChange: (Boolean, Boolean) -> Unit = { _, _ -> }) {
+                      onPriorityChange: (Boolean, Boolean) -> Unit = { _, _ -> },
+                      showTitle: Boolean = true) {
     var showPriority by remember { mutableStateOf(false) }
     if (showPriority) {
         AlertDialog(onDismissRequest = { showPriority = false },
@@ -70,9 +71,9 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                 }
             }, confirmButton = { TextButton(onClick = { showPriority = false }) { Text(stringResource(android.R.string.ok)) } })
     }
-    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.titleLarge,
+    Surface(shape = RoundedCornerShape(16.dp), color = if (showTitle) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent) {
+        Column(Modifier.fillMaxWidth().padding(if (showTitle) 16.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (showTitle) Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold)
             if (state.level > 0) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -128,9 +129,7 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                 }
                 if (state.upcoming.isNotEmpty()) Text(state.upcoming, style = MaterialTheme.typography.bodyMedium)
             }
-            if (state.syncError) {
-                Text(stringResource(R.string.dashboard_sync_error), color = MaterialTheme.colorScheme.error)
-            } else if (state.syncing) {
+            if (state.syncing && !state.syncError) {
                 Text(stringResource(R.string.dashboard_syncing), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

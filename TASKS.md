@@ -5,6 +5,9 @@ Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session
 
 ## Current milestone
 
+November 3 feedback: quiet connection status, stationary SRS toasts, compact critical items,
+persisted collapsible dashboard sections and immediate modern study page changes.
+
 Dashboard iteration: hourly arrivals separate from backlog, compact recent items and rounded
 multicolor progress, one-row/split SRS keys, mute consistency, lighter item paging, and
 shared level-up-path counts/priority/notifications. Continue using [UI_GUIDE.md](UI_GUIDE.md).
@@ -14,6 +17,16 @@ The last agent-confirmed phone installation was **5749f22**. The user now has
 `./install-phone.sh` and may have updated independently; installed revision has not been
 rechecked. Do not run instrumentation on the phone. Push tested changes to
 `origin/smoky-durtles/foundation`; installation remains a separate user action/request.
+
+## Current small-changes pass
+
+- [x] Connection errors use an overflow red dot and Retry action; recovery clears both.
+- [x] SRS notices use a separate toast window, preserving editor geometry, focus and draft.
+- [x] Critical-condition subjects share the compact grid and retain accuracy/navigation context.
+- [x] All modern dashboard sections have independent persisted collapse controls, including setup/help.
+- [x] Modern study transitions replace immediately; Classic keeps its existing animation setting.
+- [x] Debug/release/test builds and all **136 tests pass on Android 16**; populated/light/dark/large-text/IME screenshots reviewed. Evidence in HANDOFF.
+- [ ] Physical-device feedback after the user installs with `./install-phone.sh`.
 
 ## Current dashboard iteration
 

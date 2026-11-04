@@ -24,7 +24,7 @@ class DashboardController private constructor() {
     companion object {
         @JvmStatic
         fun attach(view: ComposeView, owner: LifecycleOwner, reviews: Runnable, lessons: Runnable,
-                   resume: Runnable, browse: Runnable, dynamicColor: Boolean): DashboardController {
+                   resume: Runnable, browse: Runnable, dynamicColor: Boolean, showTitle: Boolean = true): DashboardController {
             val controller = DashboardController()
             val context = view.context
             fun refresh() {
@@ -74,7 +74,7 @@ class DashboardController private constructor() {
                             GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.LESSON, lessonFirst)
                             GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.REVIEW, reviewFirst)
                             refresh()
-                        })
+                        }, showTitle = showTitle)
                 }
             }
             return controller

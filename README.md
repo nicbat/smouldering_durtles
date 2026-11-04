@@ -19,7 +19,9 @@ Existing subject/SRS palettes remain independent of Material accents.
 **Modern dashboard** and **Wallpaper colors on dashboard** control the dashboard separately.
 Its Compose Material 3 overview launches the existing study actions. Custom forecast,
 SRS, level and statistics Views retain their calculations and navigation, with refreshed
-surfaces and scalable labels. Recent/critical/burned subjects keep WaniKani colors.
+surfaces and scalable labels. Recent/critical/burned subjects use compact grids and keep
+WaniKani colors. Tap any dashboard section heading to minimize it; each section remembers
+its state. Connection errors appear as a red dot on the overflow menu, with Retry inside.
 
 The rest of the app keeps its existing Views and behavior, with Material menus/dialogs,
 outlined inputs, sliders, rounded actions and coherent page styling. Advanced filters,

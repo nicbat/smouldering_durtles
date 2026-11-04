@@ -84,6 +84,7 @@ public final class MainActivity extends AbstractActivity {
     private @Nullable DashboardController dashboardController;
     private boolean modernDashboard;
     private boolean dynamicDashboard;
+    private @Nullable android.graphics.drawable.Drawable normalOverflowIcon;
 
     private final ViewProxy apiErrorView = new ViewProxy();
     private final ViewProxy apiKeyRejectedView = new ViewProxy();
@@ -119,7 +120,32 @@ public final class MainActivity extends AbstractActivity {
         if (GlobalSettings.Display.getModernDashboard() && getToolbar() != null) {
             com.smouldering_durtles.wk.ui.MaterialToolbar.tintIcons(getToolbar(), menu);
         }
-        return super.onPrepareOptionsMenu(menu);
+        boolean prepared = super.onPrepareOptionsMenu(menu);
+        updateConnectionIndicator(menu);
+        return prepared;
+    }
+
+    private void updateConnectionIndicator(@Nullable android.view.Menu menu) {
+        if (getToolbar() == null) return;
+        boolean error = LiveApiState.getInstance().get() == ApiState.ERROR;
+        if (normalOverflowIcon == null) {
+            normalOverflowIcon = getToolbar().getOverflowIcon();
+        }
+        if (normalOverflowIcon != null) getToolbar().setOverflowIcon(error
+                ? new com.smouldering_durtles.wk.dashboard.ConnectionStatusIcon(normalOverflowIcon)
+                : normalOverflowIcon);
+        java.util.ArrayList<View> buttons = new java.util.ArrayList<>();
+        CharSequence normalDescription = getText(androidx.appcompat.R.string.abc_action_menu_overflow_description);
+        getToolbar().findViewsWithText(buttons, normalDescription, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+        getToolbar().findViewsWithText(buttons, getText(R.string.dashboard_connection_menu), View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+        for (View button : buttons) button.setContentDescription(error ? getText(R.string.dashboard_connection_menu) : normalDescription);
+        if (menu != null) {
+            android.view.MenuItem retry = menu.findItem(R.id.action_connection_retry);
+            if (retry != null) {
+                retry.setVisible(error);
+                retry.setOnMenuItemClickListener(item -> { retryApiError(); return true; });
+            }
+        }
     }
 
     @Override
@@ -141,7 +167,7 @@ public final class MainActivity extends AbstractActivity {
         if (modernDashboard) {
             dashboardController = DashboardController.attach(
                     dashboard, this, this::startReviewSession, this::startLessonSession, this::resumeSession,
-                    () -> goToActivity(BrowseActivity.class), dynamicDashboard);
+                    () -> goToActivity(BrowseActivity.class), dynamicDashboard, false);
             dashboardController.setInteractionEnabled(interactionEnabled);
         }
 
@@ -168,8 +194,9 @@ public final class MainActivity extends AbstractActivity {
         resumeButton.setOnClickListener(v -> resumeSession());
 
         LiveApiState.getInstance().observe(this, t -> safe(() -> {
-            apiErrorView.setVisibility(t == ApiState.ERROR);
+            apiErrorView.setVisibility(false);
             apiKeyRejectedView.setVisibility(t == ApiState.API_KEY_REJECTED);
+            updateConnectionIndicator(getMenu());
         }));
 
         final @Nullable AvailableSessionsView availableSessionsView = findViewById(R.id.availableSessionsView);

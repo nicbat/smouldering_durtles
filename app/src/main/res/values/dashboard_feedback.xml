@@ -1,0 +1,12 @@
+<resources>
+    <string name="dashboard_critical_title">Critical condition items</string>
+    <string name="dashboard_level_progress_title">Level progression</string>
+    <string name="dashboard_breakdown_title">Lesson and review breakdown</string>
+    <string name="dashboard_keyboard_title">Keyboard help</string>
+    <string name="dashboard_setup_title">Setup</string>
+    <string name="dashboard_api_token_title">API token needs attention</string>
+    <string name="dashboard_collapsed">Collapsed</string>
+    <string name="dashboard_expanded">Expanded</string>
+    <string name="dashboard_connection_retry">Connection error · Retry</string>
+    <string name="dashboard_connection_menu">More options, connection error</string>
+</resources>

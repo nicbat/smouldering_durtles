@@ -3,7 +3,6 @@ package com.smouldering_durtles.wk.dashboard;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.InsetDrawable;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +49,29 @@ public final class DashboardStyle {
             com.smouldering_durtles.wk.ui.ModernUi.style(view);
         }
         for (int id : new int[] {R.id.apiErrorView, R.id.apiKeyRejectedView}) errorPanel((LinearLayout) activity.findViewById(id));
+        int[][] panels = {{R.id.modernDashboard, R.string.dashboard_title},
+                {R.id.levelProgressView, R.string.dashboard_level_progress_title},
+                {R.id.post60ProgressView, R.string.dashboard_post60_title},
+                {R.id.joyoProgressView, R.string.coverage_joyo_title},
+                {R.id.jlptProgressView, R.string.coverage_jlpt_title},
+                {R.id.lessonReviewBreakdownView, R.string.dashboard_breakdown_title},
+                {R.id.recentUnlocksView, R.string.recent_unlocks_compact},
+                {R.id.criticalConditionView, R.string.dashboard_critical_title},
+                {R.id.burnedItemsView, R.string.recent_burns_compact},
+                {R.id.keyboardHelpView, R.string.dashboard_keyboard_title},
+                {R.id.firstTimeSetupView, R.string.dashboard_setup_title},
+                {R.id.apiKeyRejectedView, R.string.dashboard_api_token_title}};
+        for (int[] entry : panels) {
+            View view = activity.findViewById(entry[0]);
+            if (view instanceof ViewGroup && entry[0] != R.id.modernDashboard
+                    && entry[0] != R.id.lessonReviewBreakdownView && entry[0] != R.id.keyboardHelpView
+                    && entry[0] != R.id.firstTimeSetupView && entry[0] != R.id.apiKeyRejectedView) {
+                ((ViewGroup) view).getChildAt(0).setVisibility(View.GONE);
+            }
+            view.setBackgroundColor(Color.TRANSPARENT);
+            view.setPadding(0, 0, 0, 0);
+            CollapsibleDashboardPanel.wrap(view, activity.getText(entry[1]));
+        }
     }
 
     private static void heading(TextView title) {
@@ -140,38 +162,7 @@ public final class DashboardStyle {
 
     /** Adds a heading to an existing chart. A hidden chart takes no space, including its heading. */
     public static void titledPanel(View chart, int title) {
-        ViewGroup parent = (ViewGroup) chart.getParent();
-        int index = parent.indexOfChild(chart);
-        ViewGroup.LayoutParams old = chart.getLayoutParams();
-        int chartHeight = old.height;
-        parent.removeView(chart);
-        Panel panel = new Panel(chart, title);
-        LinearLayout.LayoutParams outer = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        panel.addView(chart, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, chartHeight));
         chart.setBackgroundColor(Color.TRANSPARENT);
-        parent.addView(panel, index, outer);
-    }
-
-    private static final class Panel extends LinearLayout {
-        private final View chart;
-        Panel(View chart, int title) {
-            super(chart.getContext());
-            this.chart = chart;
-            setOrientation(VERTICAL);
-            setBackground(new InsetDrawable(surface(this), 0, dp(this, 12), 0, 0));
-            setPadding(dp(this, 12), dp(this, 24), dp(this, 12), dp(this, 12));
-            TextView heading = new TextView(getContext());
-            heading.setText(title);
-            heading.setTextAppearance(getContext(), com.google.android.material.R.style.TextAppearance_Material3_TitleLarge);
-            heading.setTextColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface));
-            heading.setPadding(0, 0, 0, dp(this, 12));
-            ViewCompat.setAccessibilityHeading(heading, true);
-            addView(heading);
-        }
-        @Override protected void onMeasure(int widthSpec, int heightSpec) {
-            if (chart.getVisibility() == GONE) setMeasuredDimension(MeasureSpec.getSize(widthSpec), 0);
-            else super.onMeasure(widthSpec, heightSpec);
-        }
+        CollapsibleDashboardPanel.wrap(chart, chart.getResources().getText(title));
     }
 }

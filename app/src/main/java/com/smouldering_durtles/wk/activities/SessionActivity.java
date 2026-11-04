@@ -66,6 +66,7 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  * </p>
  */
 public final class SessionActivity extends AbstractActivity {
+    private @Nullable android.widget.Toast srsToast;
     private static final Logger LOGGER = Logger.get(SessionActivity.class);
 
     private final Session session = Session.getInstance();
@@ -125,7 +126,10 @@ public final class SessionActivity extends AbstractActivity {
 
     @Override
     protected void onPauseLocal() {
-        //
+        if (srsToast != null) {
+            srsToast.cancel();
+            srsToast = null;
+        }
     }
 
     @Override
@@ -205,9 +209,9 @@ public final class SessionActivity extends AbstractActivity {
             collapseSearchBox();
             final FragmentManager manager = getSupportFragmentManager();
             final FragmentTransaction transaction = manager.beginTransaction();
-            if (GlobalSettings.Display.getSlideAnimations()) {
-                if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) animation.applyModern(transaction);
-                else animation.apply(transaction);
+            // Modern study pages replace immediately so the prompt and editor stay visually steady.
+            if (!com.smouldering_durtles.wk.ui.ModernUi.isModern(this) && GlobalSettings.Display.getSlideAnimations()) {
+                animation.apply(transaction);
             }
             transaction.replace(R.id.fragment, newFragment);
             transaction.commitNow();
@@ -329,8 +333,11 @@ public final class SessionActivity extends AbstractActivity {
                 && com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getDelegate().getContext());
         view.clearAnimation();
         if (modern) {
-            com.smouldering_durtles.wk.study.SrsStageNotifier.bind((android.widget.TextView) view.getDelegate(),
+            view.setVisibility(View.GONE);
+            if (srsToast != null) srsToast.cancel();
+            srsToast = com.smouldering_durtles.wk.study.SrsStageNotifier.show(this,
                     FloatingUiState.toastOldSrsStage, FloatingUiState.toastNewSrsStage);
+            return;
         } else {
             final String htmlMessage = String.format("<img src=\"*\"/>  %s", FloatingUiState.toastNewSrsStage.getName());
             final CharSequence message = TextUtil.renderHtml(htmlMessage, source -> {
@@ -347,12 +354,12 @@ public final class SessionActivity extends AbstractActivity {
 
         final Animation fadeIn = new AlphaAnimation(0, 1);
         fadeIn.setInterpolator(new DecelerateInterpolator());
-        fadeIn.setDuration(modern ? 120 : 500);
+        fadeIn.setDuration(500);
 
         final Animation fadeOut = new AlphaAnimation(1, 0);
         fadeOut.setInterpolator(new AccelerateInterpolator());
-        fadeOut.setStartOffset(modern ? 1500 : 750);
-        fadeOut.setDuration(modern ? 180 : 1500);
+        fadeOut.setStartOffset(750);
+        fadeOut.setDuration(1500);
 
         final AnimationSet animationSet = new AnimationSet(false);
         animationSet.addAnimation(fadeIn);

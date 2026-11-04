@@ -104,7 +104,7 @@ class DashboardAppearanceTest {
                 for (id in listOf(R.id.timeLineBarChart, R.id.srsBreakDownView)) {
                     val chart = activity.findViewById<View>(id)
                     assertEquals(View.GONE, chart.visibility)
-                    val panel = chart.parent as View
+                    val panel = chart.parent.parent as View
                     panel.measure(View.MeasureSpec.makeMeasureSpec(900, View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
                     assertEquals(0, panel.measuredHeight)
@@ -163,7 +163,7 @@ class DashboardAppearanceTest {
             overview.setContent {
                 DashboardTheme(false, dark) {
                     DashboardOverview(DashboardState(ready = true, level = 8, daysAtLevel = 4.5,
-                        reviews = 42, lessons = 12), true, {}, {}, {}, {})
+                        reviews = 42, lessons = 12), true, {}, {}, {}, {}, showTitle = false)
                 }
             }
             actment = Proxy.newProxyInstance(Actment::class.java.classLoader, arrayOf(Actment::class.java)) { _, method, args ->

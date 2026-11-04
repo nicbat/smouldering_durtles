@@ -114,11 +114,11 @@ public abstract class LiveSubjectTableView extends TableLayout {
             ids[i] = subjects.get(i).getId();
         }
 
-        if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
-                && (this instanceof LiveRecentUnlocksSubjectTableView || this instanceof LiveBurnedItemsSubjectTableView)) {
+        if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())) {
             while (getChildCount() > 1) removeViewAt(1);
             android.widget.TextView title = (android.widget.TextView) ((android.view.ViewGroup) getChildAt(0)).getChildAt(0);
-            title.setText(this instanceof LiveRecentUnlocksSubjectTableView ? R.string.recent_unlocks_compact : R.string.recent_burns_compact);
+            title.setText(this instanceof LiveRecentUnlocksSubjectTableView ? R.string.recent_unlocks_compact
+                    : this instanceof LiveBurnedItemsSubjectTableView ? R.string.recent_burns_compact : R.string.dashboard_critical_title);
             title.setTextSize(16);
             android.widget.TableRow.LayoutParams titleParams = (android.widget.TableRow.LayoutParams) title.getLayoutParams();
             titleParams.width = MATCH_PARENT;

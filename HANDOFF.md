@@ -74,7 +74,46 @@ ANDROID_HOME=/home/nicbat/Android/Sdk ./gradlew assembleDebug assembleRelease as
 Debug ID: `com.smoky_durtles.wk.debug`; release ID: `com.smoky_durtles.wk`.
 Java namespace remains `com.smouldering_durtles.wk`. Release currently uses debug signing; it is a local development artifact.
 
-## Latest milestone — dashboard and study iteration (2026-11-02)
+## Latest milestone — small dashboard/review changes (2026-11-03)
+
+- Connection errors no longer display the large home-screen banner or duplicate overview
+  message. A red dot marks the standard overflow icon, with an accessible error description
+  and a Connection error · Retry menu action. Both clear on recovery. API-token rejection
+  retains its own actionable error panel.
+- Modern SRS changes use a separate foreground toast window with the existing old/new-stage
+  text and direction icon. It cannot resize the review layout; an open IME places the notice
+  above the keyboard. A newer notice replaces the previous one; activity pause cancels it.
+  Existing event/preference gates and Classic presentation remain.
+- Critical-condition subjects share the compact recent-item grid, retaining the existing
+  query/order, all IDs, accuracy descriptions/tooltips and subject navigation.
+- Every modern dashboard section has a 48dp-minimum heading/arrow disclosure, with per-section
+  persisted state. This includes the overview, forecast, SRS, level/Post-60/Jōyō/JLPT,
+  lesson/review breakdown, recent/critical/burned subjects, setup/help and token-error panels.
+  The separate content host preserves data-driven visibility/updates while collapsed,
+  removes hidden-section spacing, and blocks collapsed descendants from focus/accessibility.
+- Modern study fragments replace immediately without slide/fade transitions. Classic keeps
+  the existing slide preference; adjacent subject-detail paging retains its separate fade.
+  This is a motion change, without a measured frame-rate claim.
+
+Debug/release/test builds pass, including release vital lint. The final full Android 16/API
+36.1 run passed **136 tests, 0 failures** (112.214 seconds). Three added tests cover all panel
+disclosures/persistence/data visibility, compact critical-item navigation/accuracy, and the
+real dashboard's connection indicator/recovery. Expanded study tests verify unchanged editor
+geometry, draft and focus with a real visible IME while the toast appears/disappears.
+Inspected populated overview/forecast, light and dark/2x critical grids and collapsed headings,
+the actual toolbar dot, wrapping stage notices and the toast above the open keyboard.
+
+Logs: `/tmp/smoky-small-changes-build.log`, `/tmp/smoky-small-changes-final-api36.log`;
+an ignored copy is `test-results/small-changes-api36-instrumentation.txt`. Regeneratable
+screenshots are in ignored `captures/smoky-small-changes/`. Tests use synthetic in-memory
+study/subject fixtures on the explicitly targeted emulator; no account-bearing phone tests
+or real submissions. Android 11 was not rerun this pass. The task emulator was stopped
+without saving its state.
+
+Phone installation remains a separate user action using `./install-phone.sh`. Actual-device
+motion preference, extended study sessions and TalkBack remain device-validation work.
+
+## Previous milestone — dashboard and study iteration (2026-11-02)
 
 Implemented the follow-up feedback in the existing View/Compose architecture:
 

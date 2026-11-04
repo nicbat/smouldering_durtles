@@ -1,7 +1,7 @@
 # Smoky Durtles UI guide
 
 This is the design and review reference for changes across the app. Read it with
-[TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md). Updated 2026-11-02 after phone feedback
+[TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md). Updated 2026-11-03 after phone feedback
 that the first Material pass looked jarring. Widgets remain a later project.
 
 ## Direction and evidence
@@ -155,16 +155,19 @@ state on fragment recreation. Review answer-visibility rules remain independent.
 modern detail pages reuse the existing fragment, keep the current content until the next
 subject has loaded, and bind during a short fade. Keep the footer fixed, preserve Back
 behavior, and cancel pending transitions/loads when the view is destroyed. Modern study
-transitions use small travel and opacity; Classic retains full slides and the animation
-preference remains authoritative. Do not claim a frame-rate gain without profiling.
+pages replace immediately, without slide/fade animations. Classic retains its slide-animation
+preference. Subject-detail paging keeps its separate short fade. Do not claim a frame-rate
+gain without profiling.
 
 Example translations toggle reveal/blur on each tap. Hold either language to copy the original
 full sentence (without the display bullet); give accessibility actions explicit Copy / Reveal /
 Hide labels. Reset blur for changed text and clear the mask when translation hiding is off.
 
 SRS change notices show both old and new stages with a small, neutral direction icon. Put the
-notice outside the question glyph, use a flat Material surface and scalable wrapping text, and
-announce it politely. Preserve the existing preference and session event conditions.
+notice in a separate foreground toast window, use a flat Material surface and scalable wrapping
+text, and announce it politely. Showing/dismissing it must not move the answer editor or change
+its focus, draft or IME state. Cancel the previous notice before showing another and cancel it
+when the activity pauses. Preserve the existing preference and session event conditions.
 
 Use readable section labels for mnemonics, readings, examples and metadata. Related
 subjects may be compact cards. Do not surround every paragraph with another card.
@@ -190,6 +193,14 @@ heading must not keep its subjects invisibly collapsed. Classic retains its orig
 Group level and time metadata; distinguish the main study action from Browse. Chart
 labels and legends need stable alignment and wrapping, not a new card for each value.
 Keep chart aggregation and search callbacks untouched. Density comes from structure:
+
+Every modern dashboard section has a tappable heading and expansion arrow, including the
+study overview and setup/help panels. Persist each section independently. Collapsing the
+body must not change its data-driven visibility or stop updates; a hidden/empty section
+must take no space, and reopening it must expose the current data and original actions.
+Keep collapsed descendants out of accessibility/focus navigation. Connection errors use a
+small red dot on the overflow icon and a Retry menu action, clearing on recovery. A rejected
+API token retains its actionable error panel.
 
 - Level progress: label and exact passed/total count on one line when they fit; a rounded
   6dp segmented bar underneath, matching the Jōyō/JLPT geometry. Modern Subtle uses primary
@@ -220,6 +231,8 @@ Keep chart aggregation and search callbacks untouched. Density comes from struct
   30 days. Keep every item tappable with a 48dp target, full name/date/meaning in accessibility
   and tooltip text, and intact subject navigation. Vocabulary uses readable two-line text
   with ellipsis, while image radicals keep their renderer; do not shrink long words to fit.
+  Critical-condition items share these tiles with their existing query/order and accuracy
+  percentages in accessibility/tooltip descriptions; the 30-day limit applies only to recent items.
 - Level-up path: unpassed current-level kanji plus their unpassed radical prerequisites.
   Use permanent passedAt milestones, not the current SRS label. Stop at the rounded-up
   90% kanji target or subscription ceiling. Count only available lessons/reviews on the

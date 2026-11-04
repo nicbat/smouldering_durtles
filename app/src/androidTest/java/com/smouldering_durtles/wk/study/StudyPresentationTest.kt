@@ -327,6 +327,36 @@ class StudyPresentationTest {
                     }
                     bitmap.recycle()
                 }
+                val editorBefore = android.graphics.Rect()
+                var stageToast: android.widget.Toast? = null
+                scenario.onActivity { activity ->
+                    activity.findViewById<View>(R.id.questionEdit).getGlobalVisibleRect(editorBefore)
+                    val stages = SrsSystem(9092, "Toast fixture", 0, 1, 5, 9).apply {
+                        for (i in 0L..9L) addStage(i, i * 3600)
+                        finish()
+                    }
+                    stageToast = SrsStageNotifier.show(activity, stages.getStage(4), stages.getStage(5))
+                }
+                instrumentation.waitForIdleSync()
+                android.os.SystemClock.sleep(250)
+                scenario.onActivity { activity ->
+                    val editor = activity.findViewById<EditText>(R.id.questionEdit)
+                    assertEquals(editorBefore, android.graphics.Rect().also { editor.getGlobalVisibleRect(it) })
+                    assertEquals("draft answer", editor.text.toString())
+                    assertTrue(editor.hasFocus())
+                }
+                instrumentation.uiAutomation.takeScreenshot()?.let { bitmap ->
+                    File(instrumentation.targetContext.filesDir, "feedback-review-ime-toast.png").outputStream().use {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    bitmap.recycle()
+                }
+                scenario.onActivity { activity ->
+                    stageToast?.cancel()
+                    assertEquals(editorBefore, android.graphics.Rect().also {
+                        activity.findViewById<View>(R.id.questionEdit).getGlobalVisibleRect(it)
+                    })
+                }
                 scenario.onActivity { activity -> androidx.core.view.WindowCompat.getInsetsController(activity.window, activity.window.decorView)
                     .hide(androidx.core.view.WindowInsetsCompat.Type.ime()) }
                 prefs.edit().putBoolean("modern_settings", false).commit()
