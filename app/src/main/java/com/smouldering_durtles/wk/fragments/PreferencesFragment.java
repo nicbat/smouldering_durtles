@@ -54,8 +54,8 @@ import com.smouldering_durtles.wk.activities.DataImportExportActivity;
 import com.smouldering_durtles.wk.activities.FontImportActivity;
 import com.smouldering_durtles.wk.activities.FontSelectionActivity;
 import com.smouldering_durtles.wk.activities.KeyboardHelpActivity;
-import com.smouldering_durtles.wk.activities.SupportActivity;
-import com.smouldering_durtles.wk.activities.ThemeCustomizationActivity;
+import com.smouldering_durtles.wk.activities.DownloadAudioActivity;
+import com.smouldering_durtles.wk.jobs.SyncNowJob;
 import com.smouldering_durtles.wk.api.ApiState;
 import com.smouldering_durtles.wk.components.NumberRangePreference;
 import com.smouldering_durtles.wk.components.NumberRangePreferenceDialogFragment;
@@ -66,20 +66,16 @@ import com.smouldering_durtles.wk.livedata.LiveApiState;
 import com.smouldering_durtles.wk.services.JobRunnerService;
 import com.smouldering_durtles.wk.util.AudioUtil;
 import com.smouldering_durtles.wk.util.DbLogger;
-import com.smouldering_durtles.wk.util.ThemeUtil;
 
 import java.util.List;
-import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 import static com.smouldering_durtles.wk.Constants.API_KEY_PERMISSION_NOTICE;
-import static com.smouldering_durtles.wk.Constants.ENABLE_ADVANCED_WARNING;
 import static com.smouldering_durtles.wk.Constants.EXPERIMENTAL_PREFERENCE_STATUS_NOTICE;
 import static com.smouldering_durtles.wk.Constants.RESET_DATABASE_WARNING;
 import static com.smouldering_durtles.wk.Constants.RESET_TUTORIALS_WARNING;
 import static com.smouldering_durtles.wk.Constants.SUBJECT_SELECTION_NOTICE;
-import static com.smouldering_durtles.wk.util.ObjectSupport.isTrue;
 import static com.smouldering_durtles.wk.util.ObjectSupport.runAsync;
 import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
 import static com.smouldering_durtles.wk.util.TextUtil.renderHtml;
@@ -90,26 +86,14 @@ import static com.smouldering_durtles.wk.util.TextUtil.renderHtml;
 public final class PreferencesFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(final @Nullable Bundle savedInstanceState, final @Nullable String rootKey) {
+        GlobalSettings.migrateUnifiedStudySettings();
+        GlobalSettings.migrateSessionPriorities();
         setPreferencesFromResource(R.xml.preferences, rootKey);
-        forecastPreferences(GlobalSettings.Display.getModernDashboard());
-        levelUpPreference("lesson_level_up_first", com.smouldering_durtles.wk.enums.SessionType.LESSON);
-        levelUpPreference("review_level_up_first", com.smouldering_durtles.wk.enums.SessionType.REVIEW);
-        Preference modernDashboard = findPreference("modern_dashboard");
-        if (modernDashboard != null) modernDashboard.setOnPreferenceChangeListener((preference, value) -> {
-            forecastPreferences(Boolean.TRUE.equals(value));
-            return true;
-        });
-
-        if (GlobalSettings.Display.getModernSettings()) {
-            removeIconSpace(getPreferenceScreen());
-            Preference lightTheme = findPreference("theme");
-            Preference darkTheme = findPreference("nightTheme");
-            Preference customColors = findPreference("theme_customization");
-            if (lightTheme != null) lightTheme.setTitle(R.string.classic_light_theme_title);
-            if (darkTheme != null) darkTheme.setTitle(R.string.classic_dark_theme_title);
-            if (customColors != null) customColors.setSummary(R.string.classic_theme_customization_summary);
-        }
-        for (String key : new String[] {"modern_settings", "settings_dynamic_color", "learning_colors"}) {
+        forecastPreferences();
+        questionOrderPreferences();
+        fontPreferences();
+        removeIconSpace(getPreferenceScreen());
+        for (String key : new String[] {"learning_colors"}) {
             Preference appearance = findPreference(key);
             if (appearance != null) appearance.setOnPreferenceChangeListener((preference, value) -> {
                 // The change listener runs before persistence. Recreate after it returns.
@@ -134,73 +118,75 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
         }
     }
 
-    private void levelUpPreference(String key, com.smouldering_durtles.wk.enums.SessionType type) {
-        TwoStatePreference preference = findPreference(key);
-        if (preference == null) return;
-        preference.setChecked(GlobalSettings.getOrderPriority(type) == com.smouldering_durtles.wk.enums.SessionPriority.LEVEL_UP_FIRST);
-        preference.setOnPreferenceChangeListener((p, value) -> {
-            GlobalSettings.setLevelUpPriority(type, Boolean.TRUE.equals(value));
+    private void questionOrderPreferences() {
+        for (String prefix : new String[]{"lesson", "review", "self_study"}) {
+            ListPreference preference = findPreference(prefix + "_question_order");
+            if (preference == null) continue;
+            String current = GlobalSettings.getQuestionOrder(prefix);
+            // Keep an existing conflicting pair intact until the user chooses a new order.
+            if ("COMBINED".equals(current)) {
+                preference.setEntries(new String[]{"Any order", "Reading before meaning", "Meaning before reading", "Keep existing combined order"});
+                preference.setEntryValues(new String[]{"ANY", "READING_FIRST", "MEANING_FIRST", "COMBINED"});
+            } else {
+                preference.setEntries(new String[]{"Any order", "Reading before meaning", "Meaning before reading"});
+                preference.setEntryValues(new String[]{"ANY", "READING_FIRST", "MEANING_FIRST"});
+            }
+            preference.setValue(current);
+            preference.setOnPreferenceChangeListener((p, value) -> {
+                GlobalSettings.setQuestionOrder(prefix, value.toString());
+                return true;
+            });
+        }
+    }
+
+    private void fontPreferences() {
+        ListPreference height = findPreference("quiz_question_height_preset");
+        if (height != null) {
+            int current = GlobalSettings.Display.getQuizQuestionViewHeight();
+            java.util.ArrayList<String> labels = new java.util.ArrayList<>(java.util.Arrays.asList(
+                    "Automatic", "Compact (112 dp)", "Comfortable (160 dp)", "Large (224 dp)"));
+            java.util.ArrayList<String> values = new java.util.ArrayList<>(java.util.Arrays.asList("0", "112", "160", "224"));
+            if (!values.contains(Integer.toString(current))) {
+                labels.add("Custom (" + current + " dp; safe minimum applies)");
+                values.add(Integer.toString(current));
+            }
+            height.setEntries(labels.toArray(new String[0]));
+            height.setEntryValues(values.toArray(new String[0]));
+            height.setValue(Integer.toString(current));
+            height.setSummaryProvider(preference -> ((ListPreference) preference).getEntry()
+                    + " · Reserves space for the main review question. Automatic grows with its text.");
+            height.setOnPreferenceChangeListener((p, value) -> {
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext()).edit()
+                        .putInt("quiz_question_view_height", Integer.parseInt(value.toString())).apply();
+                return true;
+            });
+        }
+        Preference reset = findPreference("reset_font_sizes");
+        if (reset != null) reset.setOnPreferenceClickListener(preference -> {
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext()).edit()
+                    .putInt("max_font_size_lesson", 128).putInt("max_font_size_quiz", 28)
+                    .putInt("max_font_size_browse", 64).putInt("max_font_size_quiz_text", 100)
+                    .putInt("font_size_question_edit", 14).putInt("font_size_subject_info", 14)
+                    .putInt("font_size_live_subject_table", 14).putInt("font_size_anki_answer", 18)
+                    .putInt("quiz_question_view_height", 0).apply();
+            Toast.makeText(requireContext(), "Text sizes reset", Toast.LENGTH_SHORT).show();
+            requireActivity().recreate();
             return true;
         });
     }
 
-    private void forecastPreferences(boolean modern) {
-        for (String key : new String[]{"show_waterfall_line", "timeline_chart_grid_style", "timeline_chart_size_shown"}) {
-            Preference preference = findPreference(key);
-            if (preference != null) preference.setVisible(!modern);
-        }
+    private void forecastPreferences() {
         ListPreference horizon = findPreference("timeline_chart_size");
         if (horizon != null) {
-            horizon.setTitle(modern ? R.string.forecast_horizon_title : R.string.forecast_classic_horizon_title);
-            if (modern) horizon.setSummaryProvider(preference -> getString(R.string.forecast_horizon_summary,
-                    Math.max(7, (GlobalSettings.Dashboard.getTimeLineChartSize() + 23) / 24)));
-            else horizon.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
+            horizon.setTitle(R.string.forecast_horizon_title);
+            horizon.setSummaryProvider(preference -> getString(R.string.forecast_horizon_summary,
+                    GlobalSettings.Dashboard.getTimeLineChartSize()));
         }
     }
 
     private void onViewCreatedBase(final View view, final @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.setBackgroundColor(GlobalSettings.Display.getModernSettings()
-                ? MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface)
-                : ThemeUtil.getColor(R.attr.colorBackground));
-
-        final @Nullable Preference enableAdvanced = findPreference("enable_advanced");
-        if (enableAdvanced != null) {
-            enableAdvanced.setOnPreferenceChangeListener((preference, newValue) -> safe(false, () -> {
-                final boolean enabled = isTrue(newValue);
-                if (enabled && !GlobalSettings.getAdvancedEnabled()) {
-                    dialogBuilder(view.getContext())
-                            .setTitle("Enable advanced settings?")
-                            .setMessage(renderHtml(ENABLE_ADVANCED_WARNING))
-                            .setIcon(R.drawable.ic_baseline_warning_24px)
-                            .setNegativeButton("No", (dialog, which) -> safe(() -> {
-                                GlobalSettings.setAdvancedEnabled(false);
-                                setVisibility("advanced_lesson_settings", false);
-                                setVisibility("advanced_review_settings", false);
-                                setVisibility("advanced_self_study_settings", false);
-                                setVisibility("advanced_other_settings", false);
-                                ((TwoStatePreference) preference).setChecked(false);
-                            }))
-                            .setPositiveButton("Yes", (dialog, which) -> safe(() -> {
-                                GlobalSettings.setAdvancedEnabled(true);
-                                setVisibility("advanced_lesson_settings", true);
-                                setVisibility("advanced_review_settings", true);
-                                setVisibility("advanced_self_study_settings", true);
-                                setVisibility("advanced_other_settings", true);
-                                ((TwoStatePreference) preference).setChecked(true);
-                            })).create().show();
-                    return false;
-                } else {
-                    setVisibility("advanced_lesson_settings", enabled);
-                    setVisibility("advanced_review_settings", enabled);
-                    setVisibility("advanced_self_study_settings", enabled);
-                    setVisibility("advanced_other_settings", enabled);
-                }
-                this.updateTheme();
-                requireActivity().recreate();
-                return true;
-            }));
-        }
+        view.setBackgroundColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface));
 
         setOnPreferenceClick("reset_database", preference -> safe(false, () -> {
             dialogBuilder(preference.getContext())
@@ -287,49 +273,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
             audioLocation.setVisible(true);
         }
 
-        final @Nullable ListPreference nightThemePreference = findPreference("nightTheme");
-        if (nightThemePreference != null) {
-            // Set the summary provider for night theme to update the summary when the preference changes
-            nightThemePreference.setSummaryProvider(preference -> {
-                final CharSequence entry = Objects.requireNonNull(((ListPreference) preference).getEntry());
-                return GlobalSettings.Display.getModernSettings()
-                        ? getString(R.string.classic_dark_theme_summary, entry)
-                        : entry + " is used in system wide dark mode";
-            });
-
-            // Listen for changes to update the summary for night theme accordingly
-            nightThemePreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                // Update the state of the Preference with the new value.
-                // The SummaryProvider will handle updating the summary.
-                this.updateTheme();
-                requireActivity().recreate();
-                return true;
-            });
-        }
-
-        final @Nullable ListPreference themePreference = findPreference("theme");
-        if (themePreference != null) {
-            // Set the summary provider for theme to update the summary when the preference changes
-            themePreference.setSummaryProvider(preference -> {
-                final CharSequence entry = Objects.requireNonNull(((ListPreference) preference).getEntry());
-                return GlobalSettings.Display.getModernSettings()
-                        ? getString(R.string.classic_light_theme_summary, entry)
-                        : entry + " theme is currently selected";
-            });
-
-            // Listen for changes to update the summary for theme accordingly
-            themePreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                // Update the state of the Preference with the new value.
-                // The SummaryProvider will handle updating the summary.
-                return true;
-            });
-        }
-
         setVisibility("api_key_help", LiveApiState.getInstance().get() != ApiState.OK);
-        setVisibility("advanced_lesson_settings", GlobalSettings.getAdvancedEnabled());
-        setVisibility("advanced_review_settings", GlobalSettings.getAdvancedEnabled());
-        setVisibility("advanced_self_study_settings", GlobalSettings.getAdvancedEnabled());
-        setVisibility("advanced_other_settings", GlobalSettings.getAdvancedEnabled());
         setVisibility("ime_hint_reading", Build.VERSION.SDK_INT >= Build.VERSION_CODES.N);
         setVisibility("ime_hint_meaning", Build.VERSION.SDK_INT >= Build.VERSION_CODES.N);
         setVisibility("web_password", true);
@@ -347,8 +291,45 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
         setDecimalNumberInputType("next_button_delay");
 
         setOnClickGoToActivity("about_this_app", AboutActivity.class);
-        setOnClickGoToActivity("support_and_feedback", SupportActivity.class);
-        setOnClickGoToActivity("theme_customization", ThemeCustomizationActivity.class);
+        setOnClickGoToActivity("download_audio", DownloadAudioActivity.class);
+        Preference flushTasks = findPreference("flush_tasks");
+        if (flushTasks != null) flushTasks.setOnPreferenceClickListener(preference -> {
+            dialogBuilder(requireContext()).setTitle("Discard pending sync tasks?")
+                    .setMessage(renderHtml(com.smouldering_durtles.wk.Constants.FLUSH_TASKS_WARNING))
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Discard tasks", (dialog, which) ->
+                            JobRunnerService.schedule(com.smouldering_durtles.wk.jobs.FlushTasksJob.class, ""))
+                    .show();
+            return true;
+        });
+        Preference syncNow = findPreference("sync_now");
+        if (syncNow != null) syncNow.setOnPreferenceClickListener(preference -> {
+            JobRunnerService.schedule(SyncNowJob.class, "");
+            Toast.makeText(requireContext(), "Sync requested", Toast.LENGTH_SHORT).show();
+            return true;
+        });
+        com.smouldering_durtles.wk.livedata.LiveTaskCounts.getInstance().observe(getViewLifecycleOwner(), counts -> {
+            Preference queue = findPreference("sync_queue");
+            if (queue != null && counts != null) queue.setSummary(counts.isEmpty()
+                    ? "No pending sync or download tasks"
+                    : counts.getApiCount() + " API tasks · " + counts.getAudioCount()
+                    + " audio files · " + counts.getPitchInfoCount() + " pitch files pending");
+        });
+        LiveApiState.getInstance().observe(getViewLifecycleOwner(), state -> {
+            Preference status = findPreference("sync_status");
+            if (status != null) {
+                String message;
+                switch (state) {
+                    case OK: message = "Connected to WaniKani"; break;
+                    case API_KEY_MISSING: message = "Add your WaniKani API token to connect"; break;
+                    case API_KEY_REJECTED: message = "Token rejected — check the token and its permissions"; break;
+                    case ERROR: message = "Connection failed — check your network, then tap Sync now"; break;
+                    default: message = "Ready to refresh — tap Sync now";
+                }
+                status.setSummary(message);
+            }
+            setVisibility("api_key_help", state != ApiState.OK);
+        });
         setOnClickGoToActivity("font_selection", FontSelectionActivity.class);
         setOnClickGoToActivity("font_import", FontImportActivity.class);
         setOnClickGoToActivity("keyboard_help", KeyboardHelpActivity.class);
@@ -411,8 +392,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
                 return;
             }
 
-            if (GlobalSettings.Display.getModernSettings()
-                    && (preference instanceof ListPreference || preference instanceof EditTextPreference)) {
+            if (preference instanceof ListPreference || preference instanceof EditTextPreference) {
                 final String tag = "materialPreferenceDialog";
                 if (getParentFragmentManager().findFragmentByTag(tag) != null) return;
                 final DialogFragment dialog = preference instanceof ListPreference
@@ -427,8 +407,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     }
 
     private AlertDialog.Builder dialogBuilder(Context context) {
-        return GlobalSettings.Display.getModernSettings()
-                ? new MaterialAlertDialogBuilder(context) : new AlertDialog.Builder(context);
+        return new MaterialAlertDialogBuilder(context);
     }
 
     private void removeIconSpace(PreferenceGroup group) {
@@ -531,9 +510,7 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     // In PreferencesFragment
     public void updateTheme() {
         View view = requireView();
-        view.setBackgroundColor(GlobalSettings.Display.getModernSettings()
-                ? MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface)
-                : ThemeUtil.getColor(R.attr.colorBackground));
+        view.setBackgroundColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface));
     }
 
 

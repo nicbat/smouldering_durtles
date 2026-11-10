@@ -82,85 +82,46 @@ public final class PitchInfoView extends ConstraintLayout {
     private void setPitchInfoImpl(final String kana, final Iterable<PitchInfo> pitchInfos) {
         removeAllViews();
 
-        LayoutParams params;
-
-        int lastDiagram = -1;
-
-        for (final PitchInfo info: pitchInfos) {
-            final PitchInfoDiagramView diagramView = new PitchInfoDiagramView(getContext());
-            diagramView.setId(ViewCompat.generateViewId());
-            diagramView.setPitchNumber(info.getPitchNumber());
-            diagramView.setText(kana);
-            diagramView.setTextSize(textSize + 4);
-            params = new LayoutParams(0, 0);
-            params.width = WRAP_CONTENT;
-            params.height = WRAP_CONTENT;
-            params.setMargins(0, dp2px(4), 0, 0);
-            if (lastDiagram == -1) {
-                params.topToTop = PARENT_ID;
-            }
-            else {
-                params.topToBottom = lastDiagram;
-            }
-            params.startToStart = PARENT_ID;
-            addView(diagramView, params);
-
-            final StringBuilder sb = new StringBuilder();
-            sb.append('[').append(info.getPitchNumber()).append("] ");
-            switch (info.getPitchNumber()) {
-                case 0:
-                    sb.append("平板");
-                    break;
-                case 1:
-                    sb.append("頭高");
-                    break;
-                default:
-                    if (info.getPitchNumber() == diagramView.getNumMora()) {
-                        sb.append("尾高");
-                    }
-                    else {
-                        sb.append("中高");
-                    }
-                    break;
-            }
-            if (!isEmpty(info.getPartOfSpeech())) {
-                sb.append(" (").append(info.getPartOfSpeech()).append(')');
-            }
-
-            final TextView textView = new TextView(getContext(), null, R.attr.WK_TextView_Normal);
-            textView.setText(sb.toString());
-            textView.setTextSize(textSize + 4);
-            ViewUtil.setJapaneseLocale(textView);
-            params = new LayoutParams(0, 0);
-            params.width = WRAP_CONTENT;
-            params.height = WRAP_CONTENT;
-            if (lastDiagram == -1) {
-                params.topToTop = PARENT_ID;
-            }
-            else {
-                params.topToBottom = lastDiagram;
-            }
-            params.startToEnd = diagramView.getId();
-            addView(textView, params);
-
-            lastDiagram = diagramView.getId();
+        android.widget.LinearLayout patterns = new android.widget.LinearLayout(getContext());
+        patterns.setOrientation(android.widget.LinearLayout.VERTICAL);
+        for (final PitchInfo info : pitchInfos) {
+            PitchInfoDiagramView diagram = new PitchInfoDiagramView(getContext());
+            diagram.setPitchNumber(info.getPitchNumber());
+            diagram.setText(kana);
+            diagram.setTextSize(textSize + 4);
+            android.widget.LinearLayout annotated = new android.widget.LinearLayout(getContext());
+            annotated.setOrientation(android.widget.LinearLayout.VERTICAL);
+            annotated.addView(diagram);
+            TextView reading = new TextView(getContext());
+            reading.setText(kana);
+            reading.setTextSize(textSize + 4);
+            reading.setIncludeFontPadding(false);
+            ViewUtil.setJapaneseLocale(reading);
+            annotated.addView(reading);
+            // Long readings may scroll as one annotated unit; never separate the path from its morae.
+            android.widget.HorizontalScrollView strip = new android.widget.HorizontalScrollView(getContext());
+            strip.setFillViewport(false);
+            strip.addView(annotated);
+            patterns.addView(strip, new android.widget.LinearLayout.LayoutParams(-1, -2));
+            String label = patternLabel(info.getPitchNumber(), diagram.getNumMora());
+            TextView caption = new TextView(getContext());
+            caption.setText(label + " · " + info.getPitchNumber()
+                    + (isEmpty(info.getPartOfSpeech()) ? "" : " (" + info.getPartOfSpeech() + ")"));
+            caption.setTextSize(textSize);
+            caption.setPadding(0, dp2px(4), 0, dp2px(8));
+            patterns.addView(caption, new android.widget.LinearLayout.LayoutParams(-1, -2));
+            diagram.setContentDescription(kana + ", " + label + ", " + info.getPitchNumber());
         }
+        LayoutParams params = new LayoutParams(0, WRAP_CONTENT);
+        params.startToStart = params.endToEnd = params.topToTop = PARENT_ID;
+        addView(patterns, params);
+    }
 
-        final TextView textView = new TextView(getContext(), null, R.attr.WK_TextView_Normal);
-        textView.setText(kana);
-        textView.setTextSize(textSize + 4);
-        ViewUtil.setJapaneseLocale(textView);
-        params = new LayoutParams(0, 0);
-        params.width = WRAP_CONTENT;
-        params.height = WRAP_CONTENT;
-        if (lastDiagram == -1) {
-            params.topToTop = PARENT_ID;
-        }
-        else {
-            params.topToBottom = lastDiagram;
-        }
-        params.startToStart = PARENT_ID;
-        addView(textView, params);
+    public static String patternLabel(int number, int morae) {
+        if (number == 0) return "平板 · Flat";
+        if (number == 1) return "頭高 · Falling";
+        if (number == morae) return "尾高 · Final drop";
+        return "中高 · Rise–fall";
     }
 
     /**

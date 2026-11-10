@@ -1649,7 +1649,7 @@ public final class Subject implements PronunciationAudioOwner {
             s = "";
         }
         s = "<b>Meaning mnemonic</b>: " + NL_PATTERN.matcher(s).replaceAll("<br>");
-        return renderHtml(s);
+        return androidx.core.text.HtmlCompat.fromHtml(s, androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT, null, new com.smouldering_durtles.wk.components.WaniKaniTagHandler(this));
     }
 
     /**
@@ -1662,7 +1662,7 @@ public final class Subject implements PronunciationAudioOwner {
         if (s == null) {
             s = "";
         }
-        return renderHtml(s);
+        return androidx.core.text.HtmlCompat.fromHtml(s, androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT, null, new com.smouldering_durtles.wk.components.WaniKaniTagHandler(this));
     }
 
     /**
@@ -1745,7 +1745,7 @@ public final class Subject implements PronunciationAudioOwner {
             s = "";
         }
         s = "<b>Reading mnemonic</b>: " + NL_PATTERN.matcher(s).replaceAll("<br>");
-        return renderHtml(s);
+        return androidx.core.text.HtmlCompat.fromHtml(s, androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT, null, new com.smouldering_durtles.wk.components.WaniKaniTagHandler(this));
     }
 
     /**
@@ -1758,7 +1758,7 @@ public final class Subject implements PronunciationAudioOwner {
         if (s == null) {
             s = "";
         }
-        return renderHtml(s);
+        return androidx.core.text.HtmlCompat.fromHtml(s, androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT, null, new com.smouldering_durtles.wk.components.WaniKaniTagHandler(this));
     }
 
     /**

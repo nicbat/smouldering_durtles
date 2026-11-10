@@ -57,7 +57,6 @@ import com.smouldering_durtles.wk.enums.SessionType;
 import com.smouldering_durtles.wk.fragments.AbstractFragment;
 import com.smouldering_durtles.wk.jobs.ActivityResumedJob;
 import com.smouldering_durtles.wk.jobs.AutoSyncNowJob;
-import com.smouldering_durtles.wk.jobs.FlushTasksJob;
 import com.smouldering_durtles.wk.jobs.SettingChangedJob;
 import com.smouldering_durtles.wk.jobs.SyncNowJob;
 import com.smouldering_durtles.wk.jobs.SyncSubjectJob;
@@ -80,7 +79,6 @@ import java.util.TimerTask;
 
 import javax.annotation.Nullable;
 
-import static com.smouldering_durtles.wk.Constants.FLUSH_TASKS_WARNING;
 import static com.smouldering_durtles.wk.Constants.MINUTE;
 import static com.smouldering_durtles.wk.util.ObjectSupport.isEmpty;
 import static com.smouldering_durtles.wk.util.ObjectSupport.join;
@@ -100,7 +98,6 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
     private @Nullable Timer tickTimer = null;
     private @Nullable ActiveTheme creationTheme = null;
     private boolean creationModernOverflow;
-    private boolean creationDynamicOverflow;
     private String creationLearningColors;
     private @Nullable Resources.Theme createdTheme = null;
 
@@ -149,13 +146,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             actionBar.setSubtitle(join(", ", "", "", parts) + "... ⌛");
         }
 
-        final @Nullable Menu menu = getMenu();
-        if (menu != null) {
-            final @Nullable MenuItem flushTasksItem = menu.findItem(R.id.action_flush_tasks);
-            if (t != null && flushTasksItem != null) {
-                flushTasksItem.setVisible(!t.isEmpty());
-            }
-        }
+
     }
 
     private void liveSessionStateOnChangeHelper() {
@@ -185,9 +176,8 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
         }
     }
 
-    protected boolean useModernOverflow() { return GlobalSettings.Display.getModernSettings(); }
+    protected boolean useModernOverflow() { return true; }
 
-    protected boolean useDynamicOverflow() { return GlobalSettings.Display.getSettingsDynamicColor(); }
 
     /** Screen-specific chrome, reapplied after a fragment changes its toolbar title/color. */
     public void refreshToolbarAppearance() { com.smouldering_durtles.wk.ui.ModernUi.chrome(this); }
@@ -205,14 +195,13 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
     private void onCreateBase() {
         creationTheme = ActiveTheme.getCurrentTheme();
         creationModernOverflow = useModernOverflow();
-        creationDynamicOverflow = useDynamicOverflow();
         creationLearningColors = GlobalSettings.Display.getLearningColors();
         setContentView(layoutId);
 
         final Toolbar toolbar = getToolbar();
         if (toolbar != null) {
             if (useModernOverflow()) {
-                com.smouldering_durtles.wk.ui.MaterialToolbar.styleOverflow(toolbar, useDynamicOverflow());
+                com.smouldering_durtles.wk.ui.MaterialToolbar.styleOverflow(toolbar);
             }
             final int initialPaddingTop = toolbar.getPaddingTop();
 
@@ -316,7 +305,6 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
 
             if (creationTheme != null && (creationTheme != ActiveTheme.getCurrentTheme()
                     || creationModernOverflow != useModernOverflow()
-                    || creationDynamicOverflow != useDynamicOverflow()
                     || !GlobalSettings.Display.getLearningColors().equals(creationLearningColors))) {
                 recreate();
                 return;
@@ -420,11 +408,6 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             selfStudyItem.setVisible(session.isInactive());
         }
 
-        final @Nullable MenuItem flushTasksItem = menu.findItem(R.id.action_flush_tasks);
-        if (flushTasksItem != null) {
-            flushTasksItem.setVisible(!LiveTaskCounts.getInstance().get().isEmpty());
-        }
-
         final @Nullable SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final @Nullable MenuItem searchItem = menu.findItem(R.id.action_search);
         if (searchItem != null && searchManager != null) {
@@ -433,6 +416,12 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                 @Override
                 public boolean onMenuItemActionExpand(MenuItem item) {
+                    searchView.post(() -> {
+                        searchView.setIconified(false);
+                        searchView.requestFocus();
+                        android.view.inputmethod.InputMethodManager input = (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                        if (input != null) input.showSoftInput(searchView.findFocus(), android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+                    });
                     final @Nullable AbstractFragment fragment = getCurrentFragment();
                     if (fragment != null) {
                         final @Nullable String query = fragment.getPrefillSearchQuery();
@@ -499,8 +488,12 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             goToMainActivity();
             return true;
         }
-        if (itemId == R.id.action_download_audio) {
-            goToActivity(DownloadAudioActivity.class);
+        if (itemId == R.id.action_sync_settings) {
+            goToPreferencesActivity("api_settings");
+            return true;
+        }
+        if (itemId == R.id.action_custom_reviews) {
+            com.smouldering_durtles.wk.study.SessionSelectionDialog.show(this, false);
             return true;
         }
         if (itemId == R.id.action_browse) {
@@ -612,35 +605,14 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             goToActivity(SelfStudyStartActivity.class);
             return true;
         }
-        if (itemId == R.id.action_sync_now) {
-            JobRunnerService.schedule(SyncNowJob.class, "");
-            return true;
-        }
         if (itemId == R.id.action_sync_subject) {
             final @Nullable Subject subject = getCurrentSubject();
             if (subject != null) {
                 JobRunnerService.schedule(SyncSubjectJob.class, Long.toString(subject.getId()));
             }
         }
-        if (itemId == R.id.action_flush_tasks) {
-            com.smouldering_durtles.wk.ui.ModernUi.dialog(this)
-                    .setTitle("Flush background tasks?")
-                    .setMessage(renderHtml(FLUSH_TASKS_WARNING))
-                    .setIcon(R.drawable.ic_baseline_warning_24px)
-                    .setNegativeButton("No", (dialog, which) -> {
-                    })
-                    .setPositiveButton("Yes", (dialog, which) -> safe(() -> {
-                        JobRunnerService.schedule(FlushTasksJob.class, "");
-                        Toast.makeText(this, "Background tasks flushed!", Toast.LENGTH_SHORT).show();
-                    })).create().show();
-            return true;
-        }
         if (itemId == R.id.action_about) {
             goToActivity(AboutActivity.class);
-            return true;
-        }
-        if (itemId == R.id.action_support) {
-            goToActivity(SupportActivity.class);
             return true;
         }
         if (itemId == R.id.action_test) {
@@ -708,7 +680,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
 
     /** Apply a screen-local theme before any views are inflated. */
     protected void customizeActivityTheme(final Resources.Theme theme) {
-        // Legacy activities retain their selected ActiveTheme.
+        com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
     }
 
     @Override

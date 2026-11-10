@@ -72,11 +72,8 @@ public final class SearchResultFragment extends AbstractFragment {
     @Override
     public View onCreateView(android.view.LayoutInflater inflater, @Nullable android.view.ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        if (GlobalSettings.Display.getModernSettings()) {
-            return inflater.cloneInContext(com.smouldering_durtles.wk.ui.SearchStyle.context(requireContext()))
-                    .inflate(R.layout.fragment_search_result_modern, container, false);
-        }
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.cloneInContext(com.smouldering_durtles.wk.ui.SearchStyle.context(requireContext()))
+                .inflate(R.layout.fragment_search_result_modern, container, false);
     }
     private int searchType = 0;
     private String searchParameters = "1";
@@ -97,7 +94,7 @@ public final class SearchResultFragment extends AbstractFragment {
      * The constructor.
      */
     public SearchResultFragment() {
-        super(R.layout.fragment_search_result);
+        super(R.layout.fragment_search_result_modern);
     }
 
     /**
@@ -177,12 +174,10 @@ public final class SearchResultFragment extends AbstractFragment {
     @SuppressLint("NewApi")
     @Override
     public void onViewCreatedLocal(final View view, final @Nullable Bundle savedInstanceState) {
-        adapter.setModern(com.smouldering_durtles.wk.ui.SearchStyle.isModern(view.getContext()));
         resultView.setDelegate(view, R.id.resultView);
         numHits.setDelegate(view, R.id.numHits);
         tutorialText.setDelegate(view, R.id.tutorialText);
-        tutorialDismiss.setDelegate(view, com.smouldering_durtles.wk.ui.SearchStyle.isModern(view.getContext())
-                ? R.id.tutorialDismissModern : R.id.tutorialDismiss);
+        tutorialDismiss.setDelegate(view, R.id.tutorialDismissModern);
         searchFinished = false;
         searchFailed = false;
         updateViews();
@@ -267,7 +262,7 @@ public final class SearchResultFragment extends AbstractFragment {
     @Override
     public void updateViews() {
         updateMenu();
-        if (getView() != null && com.smouldering_durtles.wk.ui.SearchStyle.isModern(requireView().getContext())) {
+        if (getView() != null) {
             final int count = adapter.getNumSubjects();
             numHits.setText(!searchFinished ? getString(R.string.search_loading)
                     : searchFailed ? getString(R.string.search_failed)
@@ -292,7 +287,7 @@ public final class SearchResultFragment extends AbstractFragment {
 
     private AlertDialog.Builder dialogBuilder() {
         final Context context = presentationContext();
-        return SearchStyle.isModern(context) ? new MaterialAlertDialogBuilder(context) : new AlertDialog.Builder(context);
+        return new MaterialAlertDialogBuilder(context);
     }
 
     private void savePreset(final String name) {
@@ -352,13 +347,12 @@ public final class SearchResultFragment extends AbstractFragment {
         }
         if (itemId == R.id.action_search_result_save_preset) {
             final Context context = presentationContext();
-            final boolean modern = SearchStyle.isModern(context);
             final LayoutInflater layoutInflater = LayoutInflater.from(context);
-            final View promptView = layoutInflater.inflate(modern ? R.layout.browse_preset_dialog_modern : R.layout.input_dialog, null);
+            final View promptView = layoutInflater.inflate(R.layout.browse_preset_dialog_modern, null);
             final ViewProxy textView = new ViewProxy(promptView, R.id.textView);
             final ViewProxy editText = new ViewProxy(promptView, R.id.editText);
             final ArrayAdapter<String> presetAdapter =
-                    new ArrayAdapter<>(context, modern ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, LiveSearchPresets.getInstance().getNames());
+                    new ArrayAdapter<>(context, R.layout.browse_spinner_item_modern, LiveSearchPresets.getInstance().getNames());
             editText.setArrayAdapter(presetAdapter);
             textView.setText("Choose a name for the search preset");
             editText.setHint("Name");

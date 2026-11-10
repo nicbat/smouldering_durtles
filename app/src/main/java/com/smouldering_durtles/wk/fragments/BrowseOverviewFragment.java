@@ -88,16 +88,13 @@ public final class BrowseOverviewFragment extends AbstractFragment {
      * The constructor.
      */
     public BrowseOverviewFragment() {
-        super(R.layout.fragment_browse_overview);
+        super(R.layout.fragment_browse_overview_modern);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle state) {
-        if (GlobalSettings.Display.getModernSettings()) {
-            return inflater.cloneInContext(SearchStyle.context(requireContext()))
-                    .inflate(R.layout.fragment_browse_overview_modern, container, false);
-        }
-        return super.onCreateView(inflater, container, state);
+        return inflater.cloneInContext(SearchStyle.context(requireContext()))
+                .inflate(R.layout.fragment_browse_overview_modern, container, false);
     }
 
     private Context presentationContext() {
@@ -105,7 +102,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
     }
 
     private AlertDialog.Builder dialogBuilder(Context context) {
-        return SearchStyle.isModern(context) ? new MaterialAlertDialogBuilder(context) : new AlertDialog.Builder(context);
+        return new MaterialAlertDialogBuilder(context);
     }
 
     @Override
@@ -143,8 +140,7 @@ public final class BrowseOverviewFragment extends AbstractFragment {
             position = LiveSearchPresets.getInstance().getNames().indexOf(selection);
         }
         final SpinnerAdapter adapter =
-                new ArrayAdapter<>(presentationContext(), SearchStyle.isModern(presentationContext())
-                        ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, names);
+                new ArrayAdapter<>(presentationContext(), R.layout.browse_spinner_item_modern, names);
         presetSpinner.setAdapter(adapter);
         if (position >= 0) {
             presetSpinner.setSelection(position);
@@ -330,19 +326,13 @@ public final class BrowseOverviewFragment extends AbstractFragment {
 
         final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         final float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        final boolean modern = SearchStyle.isModern(context);
-        int numColumns = modern
-                ? (int) ((dpWidth - 32) / (52 * Math.max(1, getResources().getConfiguration().fontScale)))
-                : Math.round(dpWidth / Constants.BROWSE_OVERVIEW_COLUMN_WIDTH);
-        if (modern && dpWidth < 600) numColumns = Math.min(6, numColumns);
+        int numColumns = (int) ((dpWidth - 32) / (52 * Math.max(1, getResources().getConfiguration().fontScale)));
+        if (dpWidth < 600) numColumns = Math.min(6, numColumns);
         if (numColumns < 1) {
             numColumns = 1;
         }
         if (numColumns > 10) {
             numColumns = 10;
-        }
-        if (!modern && numColumns < 10 && numColumns > 5) {
-            numColumns = 5;
         }
 
         @Nullable TableRow currentRow = null;
@@ -354,8 +344,8 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 currentRow = new TableRow(context);
                 currentRow.setId(ViewCompat.generateViewId());
                 rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-                rowLayoutParams.setMargins(0, dp2px(modern ? 4 : 6), 0, 0);
-                rowLayoutParams.width = modern ? MATCH_PARENT : WRAP_CONTENT;
+                rowLayoutParams.setMargins(0, dp2px(4), 0, 0);
+                rowLayoutParams.width = MATCH_PARENT;
                 rowLayoutParams.height = WRAP_CONTENT;
                 levelTable.addView(currentRow, rowLayoutParams);
             }
@@ -370,17 +360,15 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 }
             });
 
-            final TextView button = modern ? new MaterialButton(context, null, com.google.android.material.R.attr.materialButtonOutlinedStyle)
-                    : new TextView(context, null, R.attr.WK_TextView_BrowseLevelButton);
+            final TextView button = new MaterialButton(context, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
             button.setText(Integer.toString(level));
             button.setPadding(dp2px(6), dp2px(6), dp2px(6), dp2px(6));
             button.setClickable(true);
-            button.setFocusable(modern);
+            button.setFocusable(true);
             button.setContentDescription("Browse level " + level);
             button.setOnClickListener(onClick);
-            button.setGravity(modern ? Gravity.CENTER : Gravity.CENTER_HORIZONTAL);
-            if (!modern) button.setShadowLayer(3, 1, 1, Color.BLACK);
-            if (modern) {
+            button.setGravity(Gravity.CENTER);
+            {
                 button.setMinimumWidth(0);
                 button.setMinWidth(0);
                 button.setMinimumHeight(dp2px(48));
@@ -394,16 +382,16 @@ public final class BrowseOverviewFragment extends AbstractFragment {
                 levelButton.setTextColor(MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSurface));
             }
             if (level == LiveLevelDuration.getInstance().get().getLevel()) {
-                if (modern) {
+                {
                     ((MaterialButton) button).setBackgroundTintList(ColorStateList.valueOf(MaterialColors.getColor(button,
                             com.google.android.material.R.attr.colorSecondaryContainer)));
                     button.setTextColor(MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSecondaryContainer));
-                } else button.setBackgroundColor(ThemeUtil.getColor(R.attr.buttonHighlightColor));
+                }
             }
             cellLayoutParams = new TableRow.LayoutParams(0, 0);
-            cellLayoutParams.setMargins(modern ? 0 : dp2px(2), modern ? 0 : dp2px(2), modern ? dp2px(4) : 0, 0);
-            cellLayoutParams.width = modern ? 0 : MATCH_PARENT;
-            if (modern) cellLayoutParams.weight = 1;
+            cellLayoutParams.setMargins(0, 0, dp2px(4), 0);
+            cellLayoutParams.width = 0;
+            cellLayoutParams.weight = 1;
             cellLayoutParams.height = WRAP_CONTENT;
             currentRow.addView(button, cellLayoutParams);
         }

@@ -42,10 +42,6 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  */
 public final class JlptProgressView extends TableLayout {
     private final List<CoverageProgressRowView> modernRows = new ArrayList<>();
-    private final List<ViewProxy> locked = new ArrayList<>();
-    private final List<ViewProxy> prePassed = new ArrayList<>();
-    private final List<ViewProxy> passed = new ArrayList<>();
-    private final List<ViewProxy> burned = new ArrayList<>();
 
     /**
      * The constructor.
@@ -72,51 +68,15 @@ public final class JlptProgressView extends TableLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
-                ? R.layout.jlpt_progress_modern : R.layout.jlpt_progress, this);
+        inflate(getContext(), R.layout.jlpt_progress_modern, this);
 
-        if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())) {
-            int[] rows = {R.id.jlptLevel1Row, R.id.jlptLevel2Row, R.id.jlptLevel3Row, R.id.jlptLevel4Row, R.id.jlptLevel5Row};
-            for (int i = 0; i < rows.length; i++) {
-                CoverageProgressRowView row = findViewById(rows[i]);
-                row.setLabel(getContext().getString(R.string.coverage_jlpt_level, i + 1));
-                modernRows.add(row);
-            }
-            return;
+        int[] rows = {
+                R.id.jlptLevel1Row, R.id.jlptLevel2Row, R.id.jlptLevel3Row, R.id.jlptLevel4Row, R.id.jlptLevel5Row};
+        for (int i = 0; i < rows.length; i++) {
+            CoverageProgressRowView row = findViewById(rows[i]);
+            row.setLabel(getContext().getString(R.string.coverage_jlpt_level, i + 1));
+            modernRows.add(row);
         }
-
-        locked.add(new ViewProxy(this, R.id.jlptLevel1Locked));
-        locked.add(new ViewProxy(this, R.id.jlptLevel2Locked));
-        locked.add(new ViewProxy(this, R.id.jlptLevel3Locked));
-        locked.add(new ViewProxy(this, R.id.jlptLevel4Locked));
-        locked.add(new ViewProxy(this, R.id.jlptLevel5Locked));
-
-        prePassed.add(new ViewProxy(this, R.id.jlptLevel1PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.jlptLevel2PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.jlptLevel3PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.jlptLevel4PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.jlptLevel5PrePassed));
-
-        passed.add(new ViewProxy(this, R.id.jlptLevel1Passed));
-        passed.add(new ViewProxy(this, R.id.jlptLevel2Passed));
-        passed.add(new ViewProxy(this, R.id.jlptLevel3Passed));
-        passed.add(new ViewProxy(this, R.id.jlptLevel4Passed));
-        passed.add(new ViewProxy(this, R.id.jlptLevel5Passed));
-
-        burned.add(new ViewProxy(this, R.id.jlptLevel1Burned));
-        burned.add(new ViewProxy(this, R.id.jlptLevel2Burned));
-        burned.add(new ViewProxy(this, R.id.jlptLevel3Burned));
-        burned.add(new ViewProxy(this, R.id.jlptLevel4Burned));
-        burned.add(new ViewProxy(this, R.id.jlptLevel5Burned));
-
-        setColumnShrinkable(0, true);
-        setColumnShrinkable(1, true);
-        setColumnShrinkable(2, true);
-        setColumnShrinkable(3, true);
-        setColumnShrinkable(4, true);
-        setColumnStretchable(0, true);
-
-        setBackgroundResource(R.drawable.main_activity_view_background);
     }
 
     /**
@@ -134,27 +94,16 @@ public final class JlptProgressView extends TableLayout {
      * @param jlptProgress the progress
      */
     private void update(final @Nullable JlptProgress jlptProgress) {
-        if (jlptProgress == null || LiveFirstTimeSetup.getInstance().get() == 0 || !GlobalSettings.Dashboard.getShowJlptProgress()) {
+        if (jlptProgress == null || LiveFirstTimeSetup.getInstance().get() == 0
+                || !GlobalSettings.Dashboard.getShowJlptProgress()) {
             setVisibility(GONE);
             return;
         }
 
-        if (!modernRows.isEmpty()) {
-            for (int i = 0; i < modernRows.size(); i++) {
-                modernRows.get(i).setCounts(jlptProgress.getLocked(i + 1), jlptProgress.getPrePassed(i + 1),
-                        jlptProgress.getPassed(i + 1), jlptProgress.getBurned(i + 1));
-            }
-            setVisibility(VISIBLE);
-            return;
+        for (int i = 0; i < modernRows.size(); i++) {
+            modernRows.get(i).setCounts(jlptProgress.getLocked(i + 1), jlptProgress.getPrePassed(i + 1),
+                    jlptProgress.getPassed(i + 1), jlptProgress.getBurned(i + 1));
         }
-
-        for (int i=0; i<5; i++) {
-            locked.get(i).setTextOrBlankIfZero(jlptProgress.getLocked(i+1));
-            prePassed.get(i).setTextOrBlankIfZero(jlptProgress.getPrePassed(i+1));
-            passed.get(i).setTextOrBlankIfZero(jlptProgress.getPassed(i+1));
-            burned.get(i).setTextOrBlankIfZero(jlptProgress.getBurned(i+1));
-        }
-
         setVisibility(VISIBLE);
     }
 }

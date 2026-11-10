@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/toolbarColorBackground"
         android:theme="?attr/smokySettingsToolbarTheme"
-        android:elevation="4dp"
+        android:elevation="0dp"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
         tools:ignore="UnusedAttribute"/>
 
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="These fonts are used in lessons and reviews. If you choose multiple fonts, one will be chosen at random for each item."
+                android:text="Select the Japanese fonts used for study questions. Multiple selections rotate between items; no selection uses Android default. Bold variants use the same bundled font with a heavier weight."
                 style="@style/WK.TextView.Normal"/>
 
         </LinearLayout>

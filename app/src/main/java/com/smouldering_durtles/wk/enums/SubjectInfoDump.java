@@ -24,6 +24,15 @@ import javax.annotation.Nullable;
  * What to show in subject info dump after a question has been answered.
  */
 public enum SubjectInfoDump {
+    CURRENT_ANSWER() {
+        public boolean getShowMeaningAnswers(@Nullable Question q) { return q != null && q.getType().isMeaning(); }
+        public boolean getShowReadingAnswers(@Nullable Question q) { return q != null && q.getType().isReading(); }
+        public boolean getShowMeaningRelated(@Nullable Question q) { return false; }
+        public boolean getShowReadingRelated(@Nullable Question q) { return false; }
+        public boolean getShowRevealButton() { return false; }
+        public String getRevealButtonLabel() { return "Show all details"; }
+        public SubjectInfoDump getNextStage() { return ALL; }
+    },
     /**
      * Show nothing.
      */

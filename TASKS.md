@@ -1,5 +1,10 @@
 # Smoky Durtles working tasks
 
+## Current study UI overhaul
+
+Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order is static on entry with explicit controls; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
+
+
 Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session handoff;
 [FORK_PLAN.md](FORK_PLAN.md) holds architecture findings and the longer backlog.
 

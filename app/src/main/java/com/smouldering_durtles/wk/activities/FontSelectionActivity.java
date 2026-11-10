@@ -16,12 +16,9 @@
 
 package com.smouldering_durtles.wk.activities;
 
-import android.annotation.SuppressLint;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.TableLayout;
 
-import androidx.core.content.res.ResourcesCompat;
 
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.model.TypefaceConfiguration;
@@ -52,28 +49,35 @@ public final class FontSelectionActivity extends AbstractActivity {
         com.smouldering_durtles.wk.ui.ModernUi.applyTheme(this, theme);
     }
 
-    @SuppressLint("NewApi")
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
         com.smouldering_durtles.wk.ui.ModernUi.styleActivity(this);
         fontList.setDelegate(this, R.id.fontList);
-        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
+
             final android.view.View list = findViewById(R.id.fontList);
             list.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(16));
-        }
+
 
         while (fontList.getChildCount() > 1) {
             fontList.removeViewAt(1);
         }
 
-        addStaticRow(fontList, 1, -1, "Android default");
-        addStaticRow(fontList, 2, R.font.sawarabi_mincho_medium, "Sawarabi Mincho");
-        addStaticRow(fontList, 3, R.font.sawarabi_gothic_medium, "Sawarabi Gothic");
-        addStaticRow(fontList, 4, R.font.mplus_1p_regular, "M⁺ P Type-1");
-        addStaticRow(fontList, 5, R.font.kosugi_regular, "Kosugi");
-        addStaticRow(fontList, 6, R.font.kosugi_maru_regular, "Kosugi Maru");
-        addStaticRow(fontList, 7, R.font.otsutomefont_ver3, "Otsutome");
-        addStaticRow(fontList, 8, R.font.gochikakutto, "851 Gochikakutto");
+        addStaticRow(fontList, 1, "Android default");
+        addStaticRow(fontList, 2, "Sawarabi Mincho");
+        addStaticRow(fontList, 3, "Sawarabi Gothic");
+        addStaticRow(fontList, 4, "M⁺ P Type-1");
+        addStaticRow(fontList, 5, "Kosugi");
+        addStaticRow(fontList, 6, "Kosugi Maru");
+        addStaticRow(fontList, 7, "Otsutome");
+        addStaticRow(fontList, 8, "851 Gochikakutto");
+
+        addStaticRow(fontList, 9, "Android serif");
+        addStaticRow(fontList, 10, "Android bold");
+        addStaticRow(fontList, 11, "Kosugi · bold");
+        addStaticRow(fontList, 12, "Sawarabi Mincho · bold");
+
+        addStaticRow(fontList, 13, "Zen Kaku Gothic New");
+        addStaticRow(fontList, 14, "Zen Maru Gothic");
 
         FontStorageUtil.getNames().forEach(name -> addDynamicRow(fontList, name));
     }
@@ -103,16 +107,14 @@ public final class FontSelectionActivity extends AbstractActivity {
         return true;
     }
 
-    private void addStaticRow(final ViewProxy layout, final int fontId, final int fontResourceId, final CharSequence name) {
+    private void addStaticRow(final ViewProxy layout, final int fontId, final CharSequence name) {
         final FontSelectionRowView row = new FontSelectionRowView(this);
         row.setFontId(Integer.toString(fontId));
         row.setFontName(name);
-        if (fontResourceId != -1) {
-            final @Nullable Typeface typeface = ResourcesCompat.getFont(this, fontResourceId);
-            row.setTypeface(typeface == null ? Typeface.DEFAULT : typeface);
-        }
+        final TypefaceConfiguration configuration = FontStorageUtil.getTypefaceConfiguration(Integer.toString(fontId));
+        if (configuration != null) row.setTypeface(configuration.getTypeface());
         final TableLayout.LayoutParams rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-        rowLayoutParams.setMargins(0, dp2px(com.smouldering_durtles.wk.ui.ModernUi.isModern(this) ? 8 : 4), 0, 0);
+        rowLayoutParams.setMargins(0, dp2px(4), 0, 0);
         rowLayoutParams.width = MATCH_PARENT;
         rowLayoutParams.height = WRAP_CONTENT;
         layout.addView(row, rowLayoutParams);
@@ -129,7 +131,7 @@ public final class FontSelectionActivity extends AbstractActivity {
         row.setFontName(name);
         row.setTypeface(typefaceConfiguration.getTypeface());
         final TableLayout.LayoutParams rowLayoutParams = new TableLayout.LayoutParams(0, 0);
-        rowLayoutParams.setMargins(0, dp2px(com.smouldering_durtles.wk.ui.ModernUi.isModern(this) ? 8 : 4), 0, 0);
+        rowLayoutParams.setMargins(0, dp2px(4), 0, 0);
         rowLayoutParams.width = MATCH_PARENT;
         rowLayoutParams.height = WRAP_CONTENT;
         layout.addView(row, rowLayoutParams);

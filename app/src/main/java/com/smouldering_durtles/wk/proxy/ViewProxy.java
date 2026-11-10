@@ -43,8 +43,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.madrapps.pikolo.ColorPicker;
-import com.madrapps.pikolo.listeners.OnColorSelectionListener;
 import com.smouldering_durtles.wk.Actment;
 import com.smouldering_durtles.wk.model.Question;
 import com.smouldering_durtles.wk.db.model.Subject;
@@ -409,20 +407,6 @@ public final class ViewProxy {
         final @Nullable View delegate = getDelegate();
         if (delegate instanceof SwipingScrollView) {
             ((SwipingScrollView) delegate).setSwipeListener(listener);
-        }
-    }
-
-    public void setColor(final int color) {
-        final @Nullable View delegate = getDelegate();
-        if (delegate instanceof ColorPicker) {
-            ((ColorPicker) delegate).setColor(color);
-        }
-    }
-
-    public void setColorSelectionListener(final OnColorSelectionListener listener) {
-        final @Nullable View delegate = getDelegate();
-        if (delegate instanceof ColorPicker) {
-            ((ColorPicker) delegate).setColorSelectionListener(listener);
         }
     }
 

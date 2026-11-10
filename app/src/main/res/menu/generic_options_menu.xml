@@ -16,6 +16,7 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_custom_reviews" android:title="Custom reviews" app:showAsAction="never"/>
     <!-- Settings, should always be in the overflow -->
     <item android:id="@+id/action_settings"
         android:title="Settings"
@@ -24,20 +25,17 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         android:title="Search"
         android:icon="@drawable/ic_baseline_search_24px_white"
-        app:showAsAction="ifRoom|collapseActionView"/>
+        app:showAsAction="always|collapseActionView"/>
     <item android:id="@+id/action_dashboard"
         android:title="Dashboard"
         android:icon="@drawable/ic_baseline_home_24px_white"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
     <item android:id="@+id/action_mute"
         android:title="Mute"
         android:icon="@drawable/ic_baseline_volume_up_24px"
-        app:showAsAction="ifRoom"/>
-    <item android:id="@+id/action_download_audio"
-        android:title="Download audio"
         app:showAsAction="never"/>
     <item android:id="@+id/action_browse"
-        android:title="Browse/search..."
+        android:title="Library"
         app:showAsAction="never"/>
     <item android:id="@+id/action_search_result"
         android:title="Search result..."
@@ -98,22 +96,16 @@
         android:title="My notes..."
         app:showAsAction="never"/>
     <item android:id="@+id/action_self_study"
-        android:title="Self-study quiz"
+        android:title="Custom quiz"
         app:showAsAction="never"/>
-    <item android:id="@+id/action_sync_now"
-        android:title="Sync now"
+    <item android:id="@+id/action_sync_settings"
+        android:title="Sync &amp; audio"
         app:showAsAction="never"/>
     <item android:id="@+id/action_sync_subject"
         android:title="Sync this subject"
         app:showAsAction="never" />
-    <item android:id="@+id/action_flush_tasks"
-        android:title="Flush BG tasks"
-        app:showAsAction="never"/>
     <item android:id="@+id/action_about"
         android:title="About..."
-        app:showAsAction="never"/>
-    <item android:id="@+id/action_support"
-        android:title="Support/feedback..."
         app:showAsAction="never"/>
     <item android:id="@+id/action_test"
         android:title="Test"

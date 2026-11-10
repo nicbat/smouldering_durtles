@@ -31,7 +31,13 @@ public final class DashboardStyle {
         bars.setAppearanceLightNavigationBars(MaterialColors.isColorLight(surface));
         View timeline = activity.findViewById(R.id.timeLineBarChart);
         timeline.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        titledPanel(timeline, R.string.dashboard_forecast_title);
+        ViewGroup timelineParent = (ViewGroup) timeline.getParent();
+        int timelinePosition = timelineParent.indexOfChild(timeline);
+        ViewGroup.LayoutParams timelineParams = timeline.getLayoutParams();
+        timelineParent.removeView(timeline);
+        View forecast = ((com.smouldering_durtles.wk.views.TimeLineBarChart) timeline).withControls();
+        timelineParent.addView(forecast, timelinePosition, timelineParams);
+        titledPanel(forecast, R.string.dashboard_forecast_title);
         titledPanel(activity.findViewById(R.id.srsBreakDownView), R.string.dashboard_srs_title);
         for (int id : new int[] {R.id.levelProgressView, R.id.post60ProgressView, R.id.joyoProgressView,
                 R.id.jlptProgressView, R.id.lessonReviewBreakdownView}) {

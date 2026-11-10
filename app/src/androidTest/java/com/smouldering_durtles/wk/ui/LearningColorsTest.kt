@@ -53,20 +53,13 @@ class LearningColorsTest {
             }
         }
     }
-    @Test fun originalAndClassicKeepExactCustomColors() {
+    @Test fun originalKeepsExactCustomColors() {
         val original = 0xFF4B6D8F.toInt()
         mode("original")
         val modern = context()
         assertEquals(original, LearningColors.fill(modern, original))
         assertEquals(original, LearningColors.accent(modern, original))
         assertEquals(original, LearningColors.ink(modern, original))
-        val classic = ContextThemeWrapper(base, R.style.WKLightTheme)
-        for (selection in listOf("soft", "neutral", "original")) {
-            mode(selection)
-            assertFalse(LearningColors.isMuted(classic))
-            assertEquals(original, LearningColors.fill(classic, original))
-            assertEquals(original, LearningColors.accent(classic, original))
-        }
     }
     @Test fun subjectGlyphUsesPairedInkWithoutChangingItsPalette() {
         instrumentation.runOnMainSync {

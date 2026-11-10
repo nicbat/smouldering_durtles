@@ -172,7 +172,7 @@ public final class UnansweredSessionFragment extends AbstractSessionFragment {
             }
             else {
                 final int height = GlobalSettings.Display.getQuizQuestionViewHeight();
-                params.height = height > 0 ? dp2px(height): ViewGroup.LayoutParams.WRAP_CONTENT;
+                params.height = com.smouldering_durtles.wk.study.StudyStyle.questionHeight(view, height);
                 params.weight = 0;
             }
             questionView.setLayoutParams(params);
@@ -191,9 +191,7 @@ public final class UnansweredSessionFragment extends AbstractSessionFragment {
         // Show the Don't Know button if needed
         dontKnowButton.setVisibility(GlobalSettings.AdvancedOther.getDontKnowButtonBehavior().canShow());
 
-        if (isLandscape() && !com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext())) {
-            questionEditFrame.setBackgroundColor(question.getType().getHintColor());
-        }
+
 
         questionEdit.setTextSize(GlobalSettings.Font.getFontSizeQuestionEdit());
         questionEdit.setHint(question.getHint(isLandscape()));
@@ -247,7 +245,7 @@ public final class UnansweredSessionFragment extends AbstractSessionFragment {
         if (GlobalSettings.Display.getCenterCaret()) {
             questionEdit.setGravity(Gravity.CENTER_HORIZONTAL);
         }
-        questionEdit.setMinEms(10);
+        questionEdit.setMinEms(0);
         questionEdit.setSingleLine();
         questionEdit.setContentDescription(question.getTitle());
         questionEdit.setText(FloatingUiState.getCurrentAnswer());
@@ -258,12 +256,7 @@ public final class UnansweredSessionFragment extends AbstractSessionFragment {
             questionEdit.setJapaneseLocale();
         }
 
-        if (isLandscape() && !com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext())) {
-            questionEditFrame.setBackgroundColor(question.getType().getHintColor());
-            questionEdit.setBackgroundColor(question.getType().getHintColor());
-            questionEdit.setTextColor(question.getType().getHintContrastColor());
-            questionEdit.setHintTextColor(question.getType().getEditTextHintColor());
-        }
+
 
         dontKnowButton.setOnClickListener(v -> safe(() -> {
             if (!interactionEnabled) {

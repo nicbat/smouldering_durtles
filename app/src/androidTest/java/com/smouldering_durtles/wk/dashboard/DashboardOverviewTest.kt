@@ -37,34 +37,34 @@ class DashboardOverviewTest {
         var expectedInk = Color.Unspecified
         var surface = Color.Unspecified
         compose.setContent {
-            DashboardTheme(dynamic, dark) {
+            DashboardTheme(dark) {
                 expectedInk = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                 surface = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow
                 // The real parent is an Android View: its background does not provide Compose content color.
                 Box(Modifier.background(surface)) {
-                    DashboardOverview(state, true, {}, {}, {}, {}, showTitle = false)
+                    DashboardOverview(state, true, {}, {}, {}, showTitle = false)
                 }
             }
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val ready = DashboardState(ready = true, reviews = 42, lessons = 12, upcoming = "Next review fixture")
+        val ready = DashboardState(ready = true, reviews = 42, lessons = 12)
         val cases = listOf(
             DashboardState() to context.getString(com.smouldering_durtles.wk.R.string.dashboard_loading),
             DashboardState(ready = true) to context.getString(com.smouldering_durtles.wk.R.string.dashboard_caught_up),
             ready.copy(activeSession = true) to context.getString(com.smouldering_durtles.wk.R.string.dashboard_session_waiting),
             ready.copy(vacation = true) to context.getString(com.smouldering_durtles.wk.R.string.dashboard_vacation),
-            ready to "Next review fixture")
+            ready to "42 reviews")
         for (useDark in listOf(true, false)) for (useDynamic in listOf(false, true)) {
             for ((model, message) in cases) {
                 compose.runOnIdle { dark = useDark; dynamic = useDynamic; state = model }
                 compose.waitForIdle()
-                val labels = listOf(message) + if (model.ready) listOf("Reviews ready", "Lessons ready") else emptyList()
+                val labels = listOf(message)
                 for (label in labels) {
                     val layouts = mutableListOf<TextLayoutResult>()
                     compose.onNodeWithText(label).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                     val actualInk = layouts.single().layoutInput.style.color
-                    assertEquals("$label (dark=$useDark, dynamic=$useDynamic)", expectedInk, actualInk)
-                    assertTrue("$label must contrast with the card", androidx.core.graphics.ColorUtils.calculateContrast(
+                    if (model != ready) assertEquals("$label (dark=$useDark, dynamic=$useDynamic)", expectedInk, actualInk)
+                    if (model != ready) assertTrue("$label must contrast with the card", androidx.core.graphics.ColorUtils.calculateContrast(
                         actualInk.toArgb(), surface.toArgb()) >= 4.5)
                 }
             }
@@ -75,96 +75,87 @@ class DashboardOverviewTest {
     @Test fun readyActionsDispatchExactlyOnce() {
         var reviews = 0
         var lessons = 0
-        var browses = 0
         compose.setContent {
-            DashboardTheme(false) {
+            DashboardTheme() {
                 DashboardOverview(DashboardState(ready = true, reviews = 42, lessons = 12, level = 8), true,
-                    { reviews++ }, { lessons++ }, {}, { browses++ })
+                    { reviews++ }, { lessons++ }, {})
             }
         }
-        compose.onNodeWithText("Start reviews").performClick()
-        compose.onNodeWithText("Start lessons").performClick()
-        compose.onNodeWithText("Browse subjects").performClick()
-        compose.runOnIdle { assertEquals(1, reviews); assertEquals(1, lessons); assertEquals(1, browses) }
+        compose.onNodeWithText(" reviews", substring = true).performClick()
+        compose.onNodeWithText(" lessons", substring = true).performClick()
+        compose.onNodeWithText("Browse subjects").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(1, reviews); assertEquals(1, lessons) }
         saveScreenshot("dashboard-light.png")
     }
 
-    @Test fun levelUpCountsAndIndependentPriorityControlsAreVisible() {
-        var lessons by androidx.compose.runtime.mutableStateOf(false)
-        var reviews by androidx.compose.runtime.mutableStateOf(false)
+    @Test fun levelUpCountsRemainVisibleWithoutDuplicatePriorityControls() {
         compose.setContent {
-            DashboardTheme(false) {
+            DashboardTheme() {
                 DashboardOverview(DashboardState(ready = true, reviews = 42, lessons = 12, level = 8,
-                    levelUpLessons = 2, levelUpReviews = 6, prioritizeLessons = lessons, prioritizeReviews = reviews), true,
-                    {}, {}, {}, {}, { l, r -> lessons = l; reviews = r })
+                    levelUpLessons = 2, levelUpReviews = 6), true, {}, {}, {})
             }
         }
         compose.onNodeWithText("2 on level-up path").assertIsDisplayed()
         compose.onNodeWithText("6 on level-up path").assertIsDisplayed()
+        compose.onNodeWithText("Level-up priority").assertDoesNotExist()
         saveScreenshot("dashboard2-level-up-overview.png")
-        compose.onNodeWithText("Level-up priority").performClick()
-        compose.onNodeWithText("Prioritize level-up lessons").performClick()
-        compose.runOnIdle { assertTrue(lessons); assertFalse(reviews) }
-        compose.onNodeWithText("Prioritize level-up reviews").performClick()
-        compose.runOnIdle { assertTrue(lessons); assertTrue(reviews) }
-        saveScreenshot("dashboard2-level-up-options.png", dialog = true)
     }
 
     @Test fun activeSessionOnlyOffersResume() {
         var resumes = 0
         compose.setContent {
-            DashboardTheme(false, dark = true) {
+            DashboardTheme(dark = true) {
                 DashboardOverview(DashboardState(ready = true, reviews = 42, lessons = 12, activeSession = true), true,
-                    {}, {}, { resumes++ }, {})
+                    {}, {}, { resumes++ })
             }
         }
-        compose.onNodeWithText("Start reviews").assertDoesNotExist()
-        compose.onNodeWithText("Start lessons").assertDoesNotExist()
+        compose.onNodeWithText(" reviews", substring = true).assertDoesNotExist()
+        compose.onNodeWithText(" lessons", substring = true).assertDoesNotExist()
         compose.onNodeWithText("Resume session").performClick()
         compose.runOnIdle { assertEquals(1, resumes) }
         saveScreenshot("dashboard-dark.png")
     }
 
     @Test fun busyStateDisablesSessionActions() {
-        compose.setContent { DashboardTheme(false) {
-            DashboardOverview(DashboardState(ready = true, reviews = 3, lessons = 1), false, {}, {}, {}, {})
+        compose.setContent { DashboardTheme() {
+            DashboardOverview(DashboardState(ready = true, reviews = 3, lessons = 1), false, {}, {}, {})
         } }
-        compose.onNodeWithText("Start reviews").assertIsNotEnabled()
-        compose.onNodeWithText("Start lessons").assertIsNotEnabled()
-        compose.onNodeWithText("Browse subjects").assertIsNotEnabled()
+        compose.onNodeWithText(" reviews", substring = true).assertIsNotEnabled()
+        compose.onNodeWithText(" lessons", substring = true).assertIsNotEnabled()
+        compose.onNodeWithText("Browse subjects").assertDoesNotExist()
     }
 
     @Test fun loadingNeverClaimsQueueIsEmpty() {
-        compose.setContent { DashboardTheme(true) {
-            DashboardOverview(DashboardState(), true, {}, {}, {}, {})
+        compose.setContent { DashboardTheme() {
+            DashboardOverview(DashboardState(), true, {}, {}, {})
         } }
         compose.onNodeWithText("Getting your study queue ready…").assertIsDisplayed()
         compose.onNodeWithText("You’re caught up for now.").assertDoesNotExist()
-        compose.onNodeWithText("Start reviews").assertDoesNotExist()
+        compose.onNodeWithText(" reviews", substring = true).assertDoesNotExist()
     }
 
     @Test fun vacationSuppressesNewSessionActions() {
-        compose.setContent { DashboardTheme(false) {
-            DashboardOverview(DashboardState(ready = true, reviews = 3, lessons = 1, vacation = true), true, {}, {}, {}, {})
+        compose.setContent { DashboardTheme() {
+            DashboardOverview(DashboardState(ready = true, reviews = 3, lessons = 1, vacation = true), true, {}, {}, {})
         } }
         compose.onNodeWithText("Vacation mode is active. Your study queue is paused.").assertIsDisplayed()
-        compose.onNodeWithText("Start reviews").assertDoesNotExist()
-        compose.onNodeWithText("Start lessons").assertDoesNotExist()
+        compose.onNodeWithText(" reviews", substring = true).assertDoesNotExist()
+        compose.onNodeWithText(" lessons", substring = true).assertDoesNotExist()
     }
 
     @Test fun emptyQueueAndLargeTextRemainUsable() {
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, 2f)) {
-                DashboardTheme(false) {
+                DashboardTheme() {
                     Column(Modifier.verticalScroll(rememberScrollState())) {
-                        DashboardOverview(DashboardState(ready = true), true, {}, {}, {}, {})
+                        DashboardOverview(DashboardState(ready = true), true, {}, {}, {})
                     }
                 }
             }
         }
         compose.onNodeWithText("You’re caught up for now.").assertExists()
-        compose.onNodeWithText("Browse subjects").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(" lessons", substring = true).performScrollTo().assertIsDisplayed()
         saveScreenshot("dashboard-large-text.png")
     }
 

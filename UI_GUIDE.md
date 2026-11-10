@@ -1,5 +1,38 @@
 # Smoky Durtles UI guide
 
+## Study UI update — 2026-11-09
+
+Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order is static on entry with explicit controls; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
+
+
+## Current direction — 2026-11-06
+
+The interface uses one fixed Material 3 palette, following system light/dark mode.
+Wallpaper-derived colors and Classic/modern switches have been removed, including
+from reviews, embedded Compose content and overflow menus. Older Classic/dynamic
+preferences are ignored. References below to retaining Classic or optional dynamic
+colors describe earlier iterations and are superseded by this direction. Stored
+subject/SRS palettes remain data-compatible; the learning-color preference is separate
+from the app's fixed interface theme.
+
+Sync & audio is the common entry point for connection state, pending tasks, manual
+sync, network policy, background sync and offline audio management. About holds app
+credits and links; there is no separate support page. Lesson/review priorities use one
+canonical setting each, with old dashboard switches migrated. The forecast is one horizontally scrollable hourly bar chart with a cumulative line
+and bottom time/date labels. Bars show future arrivals; cumulative counts include
+currently due reviews and assume no reviews are completed. Keep future scheduling
+out of the next-session card. SRS has five stages, with no Apprentice/Guru split.
+
+All settings pages open directly from the main settings list; do not nest settings pages.
+Lessons, Reviews, Self-study, Shared study settings and Anki mode are sibling pages.
+Normal and formerly advanced controls remain unified. Question order uses one dropdown per session type.
+The migration preserves the effective settings of users whose advanced gate was off.
+Fonts & text uses readable height presets and live samples. A tiny saved fixed height
+must never collapse the review glyph: enforce space for at least a 48sp glyph (or the
+user’s smaller explicit font cap), plus padding. Font sizes cap the glyph, not the
+whole padded view. Keep font-list samples compact and preserve minimum touch targets.
+
+
 This is the design and review reference for changes across the app. Read it with
 [TASKS.md](TASKS.md) and [HANDOFF.md](HANDOFF.md). Updated 2026-11-03 after phone feedback
 that the first Material pass looked jarring. Widgets remain a later project.

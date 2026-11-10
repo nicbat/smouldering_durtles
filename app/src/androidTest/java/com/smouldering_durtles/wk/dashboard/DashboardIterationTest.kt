@@ -43,7 +43,7 @@ class DashboardIterationTest {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(instrumentation.targetContext)
     private val keys = listOf("first_time_setup", "show_timeline", "show_srs_breakdown", "srs_split_stages", "show_recent_unlocks",
         "show_burned_items", "enable_advanced", "lesson_level_up_first", "review_level_up_first", "modern_settings",
-        "settings_dynamic_color", "show_pitch_info", "learning_colors", "lesson_order_priority")
+        "settings_dynamic_color", "show_pitch_info", "learning_colors", "lesson_order_priority", "review_order_priority")
     private lateinit var previous: Map<String, Any?>
     private val oldVacation = LiveVacationMode.getInstance().get()
     private val oldSetup = LiveFirstTimeSetup.getInstance().get()
@@ -100,8 +100,25 @@ class DashboardIterationTest {
         assertEquals(listOf(1L, 2L, 3L, 4L), listOf(kanji, ordinary, radical, passed)
             .sortedWith(SessionPriority.LEVEL_UP_FIRST.getComparator(base, setOf(3L, 4L), 60, 60)).map { it.id })
         prefs.edit().putBoolean("enable_advanced", true).putString("lesson_order_priority", "LEVEL_UP_FIRST").commit()
-        GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.LESSON, false)
+        prefs.edit().putString("lesson_order_priority", "NONE").commit()
         assertEquals(SessionPriority.NONE, GlobalSettings.AdvancedLesson.getOrderPriority())
+    }
+
+    @Test fun oldSwitchesMigrateOnceAndCanonicalSelectionsRemainAuthoritative() {
+        prefs.edit().putBoolean("enable_advanced", false)
+            .putString("lesson_order_priority", "RADICALS_FIRST").putBoolean("lesson_level_up_first", true)
+            .putString("review_order_priority", "CURRENT_LEVEL_FIRST").putBoolean("review_level_up_first", false).commit()
+        GlobalSettings.migrateSessionPriorities()
+        assertFalse(prefs.contains("lesson_level_up_first"))
+        assertFalse(prefs.contains("review_level_up_first"))
+        assertEquals(SessionPriority.LEVEL_UP_FIRST, GlobalSettings.AdvancedLesson.getOrderPriority())
+        assertEquals(SessionPriority.CURRENT_LEVEL_FIRST, GlobalSettings.AdvancedReview.getOrderPriority())
+        assertFalse(prefs.getBoolean("enable_advanced", false))
+        prefs.edit().putString("lesson_order_priority", "RADICALS_FIRST").commit()
+        GlobalSettings.migrateSessionPriorities()
+        assertEquals(SessionPriority.RADICALS_FIRST, GlobalSettings.AdvancedLesson.getOrderPriority())
+        prefs.edit().putString("review_order_priority", "invalid").commit()
+        assertEquals(SessionPriority.NONE, GlobalSettings.AdvancedReview.getOrderPriority())
     }
 
     @Test fun databaseCountsUseAvailabilityVisibilitySubscriptionAndPassedMilestones() {
@@ -206,18 +223,10 @@ class DashboardIterationTest {
             val chart = TimeLineBarChart(context)
             TimeLineBarChart::class.java.getDeclaredMethod("update", TimeLine::class.java).apply { isAccessible = true }.invoke(chart, timeline)
             measure(chart, 360)
-            assertTrue(chart.contentDescription.contains("500 available now"))
-            assertEquals(8, TimeLineBarChart::class.java.getDeclaredField("maxUpcomingCount").apply { isAccessible = true }.getInt(chart))
+            assertTrue(chart.contentDescription.contains("500 due now"))
+            assertEquals(8, TimeLineBarChart::class.java.getDeclaredField("maxBarCount").apply { isAccessible = true }.getInt(chart))
             capture(chart, "dashboard2-forecast-backlog")
-            for ((scale, width) in listOf(1f to 360, 2f to 280)) {
-                val hours = HourlyReviewChart(themed(activity, scale), arrayOf("1 AM", "2 AM", "3 AM"), intArrayOf(0, 3, 120), 500)
-                measure(hours, width)
-                val rows = (0 until hours.childCount).map { hours.getChildAt(it) }.filterIsInstance<android.widget.LinearLayout>()
-                assertEquals(3, rows.size)
-                assertEquals(listOf("0", "3", "120"), rows.map { (it.getChildAt(2) as TextView).text.toString() })
-                assertTrue(rows.all { it.getChildAt(1).width > 0 })
-                capture(hours, "dashboard2-hourly-$scale")
-            }
+
         } }
     }
 
@@ -259,15 +268,13 @@ class DashboardIterationTest {
             assertEquals(5, key.childCount)
             assertTrue((0 until key.childCount).all { key.getChildAt(it).top == key.getChildAt(0).top })
             capture(srs, "dashboard2-srs-grouped")
-            srs.findViewById<View>(R.id.srsSplitToggle).performClick()
-            measure(srs, 360)
-            val split = srs.findViewById<ViewGroup>(R.id.srsSplitLegend)
-            assertEquals(9, split.childCount)
+            assertNull(srs.findViewById<View>(R.id.srsSplitToggle))
+            prefs.edit().putBoolean("srs_split_stages", true).commit()
+            SrsBreakDownView::class.java.getDeclaredMethod("update", SrsBreakDown::class.java).apply { isAccessible = true }.invoke(srs, model)
             val values = SrsDistributionBarView::class.java.getDeclaredField("values").apply { isAccessible = true }.get(srs.findViewById(R.id.srsDistributionBar)) as IntArray
-            assertArrayEquals(IntArray(9) { it + 1 }, values)
-            split.getChildAt(3).performClick()
+            assertArrayEquals(intArrayOf(10, 11, 7, 8, 9), values)
+            key.getChildAt(0).performClick()
             assertTrue(search!!.srsStages.contains("prepass:3"))
-            capture(srs, "dashboard2-srs-split")
         } }
     }
 

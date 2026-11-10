@@ -32,6 +32,7 @@ public final class SummaryPresentation {
         TextView count;
         LinearProgressIndicator bar;
         LinearLayout breakdown;
+        final TextView[] types = new TextView[4];
         final View[] rows = new View[4];
         final TextView[] correct = new TextView[4];
         final TextView[] errors = new TextView[4];
@@ -39,7 +40,6 @@ public final class SummaryPresentation {
 
     /** Reuses the bound count views, so existing IDs and the Show items visibility contract survive. */
     public static void prepare(View root) {
-        if (!ModernUi.isModern(root.getContext())) return;
         final TableLayout panel = root.findViewById(R.id.correctSummary);
         if (panel == null || panel.getTag(R.id.summaryPresentationState) != null) return;
         final Context context = panel.getContext();
@@ -92,7 +92,10 @@ public final class SummaryPresentation {
             final LinearLayout subjectRow = row(context);
             subjectRow.setOrientation(large ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
             subjectRow.setPadding(0, dp(panel, 6), 0, dp(panel, 6));
-            subjectRow.addView(label(context, SUBJECTS[i], 16, false), large
+            state.types[i] = label(context, SUBJECTS[i], 16, false);
+            state.types[i].setTextColor(com.smouldering_durtles.wk.ui.LearningColors.accent(context,
+                    com.smouldering_durtles.wk.enums.ActiveTheme.getSubjectTypeBackgroundColors()[i]));
+            subjectRow.addView(state.types[i], large
                     ? new LinearLayout.LayoutParams(-1, -2) : weighted(2));
             styleText(state.correct[i], 16, false);
             styleText(state.errors[i], 16, false);
@@ -133,7 +136,6 @@ public final class SummaryPresentation {
 
     /** Counts follow the legacy rule: any wrong answer marks the entire subject as having errors. */
     public static void bind(View root, int[] correct, int[] totals) {
-        if (!ModernUi.isModern(root.getContext())) return;
         prepare(root);
         final View panel = root.findViewById(R.id.correctSummary);
         if (panel == null) return;
@@ -144,6 +146,7 @@ public final class SummaryPresentation {
             total += totals[i];
             correctTotal += correct[i];
             final int errors = totals[i] - correct[i];
+            state.types[i].setText(SUBJECTS[i] + " · " + totals[i]);
             state.correct[i].setText(String.valueOf(correct[i]));
             state.errors[i].setText(String.valueOf(errors));
             state.rows[i].setVisibility(totals[i] == 0 ? View.GONE : View.VISIBLE);
@@ -157,6 +160,27 @@ public final class SummaryPresentation {
         state.bar.setProgressCompat(percentage, false);
         state.bar.setVisibility(total == 0 ? View.GONE : View.VISIBLE);
         state.breakdown.setVisibility(total == 0 ? View.GONE : View.VISIBLE);
+    }
+
+    public static void sessionDetails(View root, java.util.List<com.smouldering_durtles.wk.db.model.SessionItem> items, boolean onkun) {
+        android.widget.TableLayout panel = root.findViewById(R.id.correctSummary);
+        int meanings = 0, readings = 0, meaningErrors = 0, readingErrors = 0;
+        for (com.smouldering_durtles.wk.db.model.SessionItem item : items) {
+            if (item.isAbandoned() || !item.isFinished() || item.getSubject() == null) continue;
+            com.smouldering_durtles.wk.db.model.Subject subject = item.getSubject();
+            if (subject.needsQuestion1()) meanings++;
+            if (subject.needsQuestion2(onkun)) readings++;
+            if (subject.needsQuestion3(onkun)) readings++;
+            if (subject.needsQuestion4(onkun)) readings++;
+            meaningErrors += item.getQuestion1Incorrect();
+            readingErrors += item.getQuestion2Incorrect() + item.getQuestion3Incorrect() + item.getQuestion4Incorrect();
+        }
+        TextView questions = label(root.getContext(), "Meaning: " + meanings + " completed · " + meaningErrors
+                + " errors\nReading: " + readings + " completed · " + readingErrors + " errors", 14, true);
+        panel.addView(questions);
+        long started = androidx.preference.PreferenceManager.getDefaultSharedPreferences(root.getContext()).getLong("study_session_started_at", 0);
+        if (started > 0) panel.addView(label(root.getContext(), "Elapsed: "
+                + android.text.format.DateUtils.formatElapsedTime(Math.max(0, System.currentTimeMillis() - started) / 1000), 14, true));
     }
 
     private static LinearLayout labeledCount(Context context, int label, TextView count) {

@@ -155,9 +155,7 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
 
         if (toolbar != null) {
             toolbar.setTitle(subject.getInfoTitle("", ""));
-            toolbar.setBackgroundColor(com.smouldering_durtles.wk.ui.ModernUi.isModern(toolbar.getContext())
-                    ? com.google.android.material.color.MaterialColors.getColor(toolbar, com.google.android.material.R.attr.colorSurface)
-                    : subject.getBackgroundColor());
+            toolbar.setBackgroundColor(com.google.android.material.color.MaterialColors.getColor(toolbar, com.google.android.material.R.attr.colorSurface));
         }
 
         final boolean showPitchInfo = GlobalSettings.SubjectInfo.getShowPitchInfo() && subject.hasPitchInfo() && showReadingAnswers;
@@ -214,10 +212,18 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
 
         // Reading text
         if (showPitchInfo) {
-            reading.setVisibility(false);
+            reading.setText(subject.getRegularReadingRichText(""));
+            java.util.List<Reading> annotatedReadings = new java.util.ArrayList<>(subject.getAcceptedReadings());
+            if (annotatedReadings.isEmpty() && subject.getType().isKanaVocabulary() && subject.getCharacters() != null) {
+                Reading kanaReading = new Reading(); kanaReading.setReading(subject.getCharacters()); annotatedReadings.add(kanaReading);
+            }
+            boolean completePitch = !annotatedReadings.isEmpty();
+            for (Reading accepted : annotatedReadings)
+                completePitch &= accepted.getReading() != null && !subject.getPitchInfoFor(accepted.getReading()).isEmpty();
+            reading.setVisibility(!completePitch);
 
             int prevId = R.id.reading;
-            for (final Reading r: subject.getReadings()) {
+            for (final Reading r: annotatedReadings) {
                 final @Nullable String kana = r.getReading();
                 if (isEmpty(kana)) {
                     continue;
@@ -252,38 +258,20 @@ public final class SubjectInfoHeadlineView extends ConstraintLayout {
             reading.setJapaneseLocale();
         }
 
-        // Play audio button(s)
-// Play audio button(s)
-        if ((subject.getType().isVocabulary() || subject.getType().isKanaVocabulary())
-                && !subject.getType().isRadical() && !subject.getType().isKanji()) {
-            if (subject.getType().isKanaVocabulary() || !subject.getReadings().isEmpty()) {
-                final Button playButton = new Button(getContext());
-                playButton.setText(subject.getCharacters());
-                playButton.setTextSize(FONT_SIZE_SMALL);
-                playButton.setCompoundDrawablesWithIntrinsicBounds(
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_baseline_volume_up_24px), null, null, null);
-                playButton.setOnClickListener(v -> safe(() -> AudioUtil.playAudio(subject, null)));
-                final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, 0);
-                layoutParams.width = WRAP_CONTENT;
-                layoutParams.height = WRAP_CONTENT;
+        // A compact speaker for each accepted reading; preserve AudioUtil's voice/cache/mute policy.
+        if (showReadingAnswers && (subject.getType().isVocabulary() || subject.getType().isKanaVocabulary())) {
+            java.util.List<String> audioReadings = new java.util.ArrayList<>();
+            for (Reading r : subject.getAcceptedReadings()) if (r.getReading() != null) audioReadings.add(r.getReading());
+            if (audioReadings.isEmpty() && subject.getType().isKanaVocabulary()) audioReadings.add(subject.getCharacters());
+            for (String audioReading : audioReadings) {
+                Button playButton = new Button(getContext());
+                playButton.setText(audioReadings.size() > 1 ? audioReading : "");
+                playButton.setContentDescription("Listen to " + audioReading);
+                playButton.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(getContext(), R.drawable.ic_baseline_volume_up_24px), null, null, null);
+                playButton.setOnClickListener(v -> safe(() -> AudioUtil.playAudio(subject, audioReading)));
                 com.smouldering_durtles.wk.ui.ModernUi.style(playButton);
                 com.smouldering_durtles.wk.study.AudioButtonState.bind(playButton);
-                buttonsColumn.addView(playButton, layoutParams);
-            } else {
-                for (final Reading r : subject.getReadings()) {
-                    final Button playButton = new Button(getContext());
-                    playButton.setText(r.getValue(GlobalSettings.Other.getShowOnInKatakana()));
-                    playButton.setTextSize(FONT_SIZE_SMALL);
-                    playButton.setCompoundDrawablesWithIntrinsicBounds(
-                            ContextCompat.getDrawable(getContext(), R.drawable.ic_baseline_volume_up_24px), null, null, null);
-                    playButton.setOnClickListener(v -> safe(() -> AudioUtil.playAudio(subject, r.getReading())));
-                    final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, 0);
-                    layoutParams.width = WRAP_CONTENT;
-                    layoutParams.height = WRAP_CONTENT;
-                    com.smouldering_durtles.wk.ui.ModernUi.style(playButton);
-                    com.smouldering_durtles.wk.study.AudioButtonState.bind(playButton);
-                buttonsColumn.addView(playButton, layoutParams);
-                }
+                buttonsColumn.addView(playButton, new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
             }
         }
 

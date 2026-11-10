@@ -17,7 +17,6 @@
 package com.smouldering_durtles.wk.activities;
 
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +28,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -38,7 +36,6 @@ import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.db.model.SessionItem;
 import com.smouldering_durtles.wk.db.model.Subject;
 import com.smouldering_durtles.wk.enums.CloseEnoughAction;
-import com.smouldering_durtles.wk.enums.FragmentTransitionAnimation;
 import com.smouldering_durtles.wk.enums.SessionType;
 import com.smouldering_durtles.wk.fragments.AbstractFragment;
 import com.smouldering_durtles.wk.fragments.AbstractSessionFragment;
@@ -50,7 +47,6 @@ import com.smouldering_durtles.wk.model.Session;
 import com.smouldering_durtles.wk.proxy.ViewProxy;
 import com.smouldering_durtles.wk.util.AudioUtil;
 import com.smouldering_durtles.wk.util.Logger;
-import com.smouldering_durtles.wk.util.TextUtil;
 
 import javax.annotation.Nullable;
 
@@ -71,6 +67,12 @@ public final class SessionActivity extends AbstractActivity {
 
     private final Session session = Session.getInstance();
     private boolean finished = false;
+    private long[] practiceAfterFinish;
+    public void practiceAfterFinish(long[] ids) { practiceAfterFinish = ids.clone(); }
+    @Override public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putLongArray("practiceAfterFinish", practiceAfterFinish);
+    }
 
     private final ViewProxy levelUpToastText = new ViewProxy();
     private final ViewProxy closeToastText = new ViewProxy();
@@ -91,6 +93,7 @@ public final class SessionActivity extends AbstractActivity {
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) practiceAfterFinish = savedInstanceState.getLongArray("practiceAfterFinish");
         LiveSessionProgress.getInstance().observe(this, t -> safe(() -> {
             new ViewProxy(this, R.id.progress).setText(session.getProgressText());
             if (session.getCurrentQuestion() == null && session.isActive()) {
@@ -177,7 +180,11 @@ public final class SessionActivity extends AbstractActivity {
         if (session.isInactive()) {
             if (!finished) {
                 finished = true;
-                goToMainActivity();
+                if (practiceAfterFinish == null) goToMainActivity();
+                else {
+                    android.content.Intent intent = new android.content.Intent(this, SelfStudyStartActivity.class);
+                    intent.putExtra("practiceIds", practiceAfterFinish); startActivity(intent); finish();
+                }
             }
             return;
         }
@@ -201,18 +208,11 @@ public final class SessionActivity extends AbstractActivity {
         }
 
         final AbstractSessionFragment newFragment = session.getNewFragment(currentSessionFragment, ankiMode);
-        final FragmentTransitionAnimation animation = (currentSessionFragment == null || currentFragment == newFragment)
-                ? FragmentTransitionAnimation.NONE
-                : currentSessionFragment.getAnimation(newFragment);
 
         if (newFragment != currentFragment) {
             collapseSearchBox();
             final FragmentManager manager = getSupportFragmentManager();
             final FragmentTransaction transaction = manager.beginTransaction();
-            // Modern study pages replace immediately so the prompt and editor stay visually steady.
-            if (!com.smouldering_durtles.wk.ui.ModernUi.isModern(this) && GlobalSettings.Display.getSlideAnimations()) {
-                animation.apply(transaction);
-            }
             transaction.replace(R.id.fragment, newFragment);
             transaction.commitNow();
         }
@@ -329,64 +329,11 @@ public final class SessionActivity extends AbstractActivity {
         }
         FloatingUiState.showSrsStageChangedToast = false;
 
-        final boolean modern = view.getDelegate() instanceof android.widget.TextView
-                && com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getDelegate().getContext());
         view.clearAnimation();
-        if (modern) {
-            view.setVisibility(View.GONE);
-            if (srsToast != null) srsToast.cancel();
-            srsToast = com.smouldering_durtles.wk.study.SrsStageNotifier.show(this,
-                    FloatingUiState.toastOldSrsStage, FloatingUiState.toastNewSrsStage);
-            return;
-        } else {
-            final String htmlMessage = String.format("<img src=\"*\"/>  %s", FloatingUiState.toastNewSrsStage.getName());
-            final CharSequence message = TextUtil.renderHtml(htmlMessage, source -> {
-                final int imageId = FloatingUiState.toastNewSrsStage.compareTo(FloatingUiState.toastOldSrsStage) > 0
-                        ? R.drawable.ic_arrow_up : R.drawable.ic_arrow_down;
-                final @Nullable Drawable img = ContextCompat.getDrawable(this, imageId);
-                if (img != null) {
-                    img.setBounds(0, 0, dp2px(20), dp2px(20));
-                }
-                return img;
-            });
-            view.setText(message);
-        }
-
-        final Animation fadeIn = new AlphaAnimation(0, 1);
-        fadeIn.setInterpolator(new DecelerateInterpolator());
-        fadeIn.setDuration(500);
-
-        final Animation fadeOut = new AlphaAnimation(1, 0);
-        fadeOut.setInterpolator(new AccelerateInterpolator());
-        fadeOut.setStartOffset(750);
-        fadeOut.setDuration(1500);
-
-        final AnimationSet animationSet = new AnimationSet(false);
-        animationSet.addAnimation(fadeIn);
-        animationSet.addAnimation(fadeOut);
-        animationSet.setRepeatCount(0);
-
-        animationSet.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(final Animation animation) {
-                //
-            }
-
-            @Override
-            public void onAnimationEnd(final Animation animation) {
-                view.setVisibility(View.GONE);
-                view.clearAnimation();
-            }
-
-            @Override
-            public void onAnimationRepeat(final Animation animation) {
-                view.setVisibility(View.GONE);
-                view.clearAnimation();
-            }
-        });
-
-        view.setAnimation(animationSet);
-        view.setVisibility(View.VISIBLE);
+        view.setVisibility(View.GONE);
+        if (srsToast != null) srsToast.cancel();
+        srsToast = com.smouldering_durtles.wk.study.SrsStageNotifier.show(this,
+                FloatingUiState.toastOldSrsStage, FloatingUiState.toastNewSrsStage);
     }
 
     private static void showAlternativesToast(final ViewProxy view) {

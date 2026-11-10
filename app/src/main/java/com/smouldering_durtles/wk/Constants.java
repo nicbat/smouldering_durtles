@@ -174,15 +174,13 @@ public final class Constants {
             + " Are you new to WaniKani? Check out their <a href=\"https://knowledge.wanikani.com/\">knowledge base</a>"
             + " for more information.<br/><br/> "
             + Identification.APP_NAME + " is a personal fork of <a href=\"https://github.com/jerryhcooke/smouldering_durtles\">Smouldering Durtles</a>,"
-            + " maintained by Jerry Cooke and contributors, based on Flaming Durtles by Ernst Jan Plugge.<br/><br/>"
+            + " maintained by Jerry Cooke and contributors. Thank you to Smouldering Durtles for the foundation of this app, and to Ernst Jan Plugge for Flaming Durtles.<br/><br/>"
             + "It has been independently developed, and is not supported by, affiliated with, or endorsed by Tofugu.<br/><br/>"
-            + Identification.APP_NAME + " has been independently developed, and is not supported by, affiliated with, or endorsed by Tofugu. <br/><br/>"
-            + "Tis app uses these Open Source components:<ul>"
+            + "This app uses these Open Source components:<ul>"
             + " <li>&nbsp;<a href=\"https://github.com/FasterXML/jackson\">The Jackson Project</a>"
             + " <li>&nbsp;<a href=\"https://airbnb.io/lottie/\">Lottie</a>"
             + " <li>&nbsp;<a href=\"https://jsoup.org/\">JSoup</a>"
             + " <li>&nbsp;<a href=\"https://square.github.io/okhttp/\">OkHttp</a>"
-            + " <li>&nbsp;<a href=\"https://github.com/Madrapps/Pikolo\">Pikolo color picker</a>"
             + " <li>&nbsp;<a href=\"https://github.com/KanjiVG/kanjivg\">KanjiVG</a>"
             + "</ul><br/>"
             + " It was also heavily influenced by:<ul>"
@@ -190,6 +188,10 @@ public final class Constants {
             + " <li>&nbsp;<a href=\"https://community.wanikani.com/c/wanikani/api-and-third-party-apps\">The WaniKani Developer Community</a>"
             + "</ul><br/>"
             + "The following freely available fonts are included in unmodified form:<ul>"
+            + " <li>&nbsp;<a href=\"https://github.com/google/fonts/tree/main/ofl/zenkakugothicnew\">Zen Kaku Gothic New</a>, Copyright 2022 The Zen Kaku Gothic Project Authors; "
+            + "<a href=\"https://github.com/google/fonts/blob/main/ofl/zenkakugothicnew/OFL.txt\">SIL Open Font License 1.1</a>.<br/>"
+            + " <li>&nbsp;<a href=\"https://github.com/google/fonts/tree/main/ofl/zenmarugothic\">Zen Maru Gothic</a>, Copyright 2021 The Zen Maru Gothic Authors; "
+            + "<a href=\"https://github.com/google/fonts/blob/main/ofl/zenmarugothic/OFL.txt\">SIL Open Font License 1.1</a>.<br/>"
             + " <li>&nbsp;Sawarabi Mincho and Gothic, (C) mshio at the <a href=\"https://sawarabi-fonts.osdn.jp/en/\">sawarabi-fonts project on OSDN</a>,"
             + " covered by the <a href=\"https://creativecommons.org/licenses/by/3.0/\">CC Attribution V3.0</a> license.<br/>"
             + " <li>&nbsp;M+ P Type-1, (C) the <a href=\"https://mplus-fonts.osdn.jp/about-en.html\">M+ fonts project on OSDN</a>.<br/>"
@@ -198,16 +200,6 @@ public final class Constants {
             + " <li>&nbsp;<a href=\"http://rooms.webcrow.jp/font/index.html\">Otsutome</a>.<br/>"
             + " <li>&nbsp;<a href=\"http://pm85122.onamae.jp/851Gkktt.html\">851 Gochikakutto</a>."
             + "</ul>";
-
-    /**
-     * Document to show on the support/feedback screen.
-     */
-    public static final String SUPPORT_DOCUMENT = "<h3>" + Identification.APP_NAME + " " + BuildConfig.VERSION_NAME + "</h3>"
-            + "This is a personal development build. Track fork-specific issues in the local project;"
-            + " no public support channel or store listing has been configured.<br/><br/>"
-            + "Upstream source and credits: <a href=\"https://github.com/jerryhcooke/smouldering_durtles\">Smouldering Durtles</a>."
-            + " Please reproduce issues in the upstream app before reporting them there.<br/><br/>"
-            + "For help with WaniKani itself, see the <a href=\"https://knowledge.wanikani.com/\">WaniKani knowledge base</a>.";
 
     /**
      * The 'here be dragons' warning before allowing the user to change advanced settings.

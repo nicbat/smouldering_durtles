@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -50,7 +49,7 @@ class StudyPresentationTest {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(instrumentation.targetContext)
     private val session = Session.getInstance()
     private val fields = listOf("loaded", "type", "state", "items", "questions", "currentItem", "currentQuestion", "answered", "correct", "forceNewFragment")
-    private val keys = listOf("modern_settings", "settings_dynamic_color", "notification_permission_asked", "full_session_log", "enable_advanced")
+    private val keys = listOf("modern_settings", "settings_dynamic_color", "notification_permission_asked", "full_session_log", "enable_advanced", "quiz_question_view_height", "max_font_size_quiz_text", "max_font_size_quiz", "stretch_quiz_question_view")
     private lateinit var oldFields: Map<String, Any?>
     private lateinit var oldPrefs: Map<String, Any?>
     private var oldAnswer = ""
@@ -92,8 +91,91 @@ class StudyPresentationTest {
             FloatingUiState.showDumpStage = oldDump
         }
         val edit = prefs.edit()
-        oldPrefs.forEach { (key, value) -> if (value == null) edit.remove(key) else edit.putBoolean(key, value as Boolean) }
+        oldPrefs.forEach { (key, value) -> when (value) {
+            null -> edit.remove(key)
+            is Int -> edit.putInt(key, value)
+            is Boolean -> edit.putBoolean(key, value)
+            is String -> edit.putString(key, value)
+        } }
         edit.commit()
+    }
+
+    @Test fun undoActionsHaveTonalIconsClearDescriptionsAndResetWhenRebound() {
+        fixture().use { scenario -> scenario.onActivity { activity ->
+            val button = com.google.android.material.button.MaterialButton(activity)
+            var clicks = 0
+            button.setOnClickListener { clicks++ }
+            for ((behavior, description) in listOf(
+                SpecialButtonBehavior.UNDO_AND_RETRY_NOW to "Undo answer and retry this item",
+                SpecialButtonBehavior.UNDO_AND_PUT_BACK to "Undo answer and review this item later"
+            )) {
+                StudyStyle.specialAction(button, behavior)
+                assertEquals("", button.text.toString())
+                assertNotNull(button.icon)
+                assertEquals(description, button.contentDescription.toString())
+                assertEquals(ModernUi.ButtonRole.SECONDARY, button.getTag(R.id.modernActionRole))
+                assertEquals(com.google.android.material.color.MaterialColors.getColor(button,
+                    com.google.android.material.R.attr.colorSecondaryContainer), button.backgroundTintList!!.defaultColor)
+                button.performClick()
+            }
+            StudyStyle.specialAction(button, SpecialButtonBehavior.SKIP)
+            assertEquals("Skip", button.text.toString())
+            assertEquals("Skip", button.contentDescription.toString())
+            assertNull(button.icon)
+            assertEquals(ModernUi.ButtonRole.TEXT, button.getTag(R.id.modernActionRole))
+            assertEquals(android.graphics.Color.TRANSPARENT, button.backgroundTintList!!.defaultColor)
+            button.performClick()
+            assertEquals(3, clicks)
+
+            // Existing session layouts can inflate AppCompat buttons; their compound icon must reset too.
+            val existingButton = androidx.appcompat.widget.AppCompatButton(activity)
+            StudyStyle.specialAction(existingButton, SpecialButtonBehavior.UNDO_AND_RETRY_NOW)
+            assertNotNull(existingButton.compoundDrawablesRelative[0])
+            StudyStyle.specialAction(existingButton, SpecialButtonBehavior.SKIP)
+            assertNull(existingButton.compoundDrawablesRelative[0])
+            assertSame(question, session.currentQuestion)
+            assertEquals(0, item.numAnswers)
+        } }
+    }
+
+    @Test fun incorrectAnswerRequiresTwoDeliberateRevealsWithoutSpoilers() {
+        fixture().use { scenario -> scenario.onActivity { activity ->
+            write("answered", true); write("correct", false)
+            FloatingUiState.setCurrentAnswer("my exact wrong answer")
+            val fragment = AnsweredSessionFragment.newInstance(subject.id, question.type)
+            mount(activity, fragment)
+            val root = fragment.requireView()
+            val info = root.findViewById<SubjectInfoView>(R.id.subjectInfo)
+            assertEquals(View.GONE, info.visibility)
+            fun views(v: View): List<View> = listOf(v) + if (v is android.view.ViewGroup)
+                (0 until v.childCount).flatMap { views(v.getChildAt(it)) } else emptyList()
+            val reveal = views(root).filterIsInstance<android.widget.Button>().first { it.text == "Show meaning" }
+            reveal.performClick()
+            assertEquals(View.VISIBLE, info.visibility)
+            assertEquals("my exact wrong answer", root.findViewById<TextView>(R.id.questionEdit).text.toString())
+            assertEquals(View.GONE, info.findViewById<View>(R.id.meaningMnemonic).visibility)
+            assertEquals(View.GONE, info.findViewById<View>(R.id.readingMnemonic).visibility)
+            assertEquals(View.GONE, info.findViewById<View>(R.id.reading).visibility)
+            assertEquals(View.GONE, info.findViewById<View>(R.id.writingControls).visibility)
+            assertEquals("Show all details", reveal.text.toString())
+            reveal.performClick()
+            assertEquals(View.VISIBLE, info.findViewById<View>(R.id.meaningMnemonic).visibility)
+            assertEquals(View.VISIBLE, info.findViewById<View>(R.id.readingMnemonic).visibility)
+            assertEquals("my exact wrong answer", root.findViewById<TextView>(R.id.questionEdit).text.toString())
+            capture(activity, root, "overhaul-full-reveal")
+        } }
+    }
+
+    @Test fun currentAnswerPolicyNeverRevealsTheOtherCompletedSide() {
+        item.setQuestion2Done(true); item.setQuestion3Done(true); item.setQuestion4Done(true)
+        assertTrue(SubjectInfoDump.CURRENT_ANSWER.getShowMeaningAnswers(question))
+        assertFalse(SubjectInfoDump.CURRENT_ANSWER.getShowReadingAnswers(question))
+        assertFalse(SubjectInfoDump.CURRENT_ANSWER.getShowMeaningRelated(question))
+        assertFalse(SubjectInfoDump.CURRENT_ANSWER.getShowReadingRelated(question))
+        question.rememberSubmission("the exact text", true)
+        write("answered", true)
+        assertTrue(session.canUndoIncorrect())
+        assertEquals("the exact text", question.submittedAnswer)
     }
 
     @Test fun populatedStudyModesKeepSemanticColorsAndBindings() {
@@ -134,6 +216,7 @@ class StudyPresentationTest {
                 assertTrue(lesson is LessonSessionFragment)
                 assertEquals("Start quiz", lesson.requireView().findViewById<TextView>(R.id.nextButton).text.toString())
                 capture(activity, lesson.requireView(), "study-lesson")
+                item.setQuestion1Done(true); item.setQuestion2Done(true); item.setQuestion3Done(true); item.setQuestion4Done(true)
                 write("state", SessionState.FINISHING)
                 val summary = session.getNewFragment(null, false)
                 mount(activity, summary)
@@ -151,6 +234,40 @@ class StudyPresentationTest {
                 assertEquals(0, item.numAnswers)
                 assertEquals(SessionItemState.ACTIVE, item.state)
             }
+        }
+    }
+
+    @Test fun tinyLegacyQuestionHeightCannotShrinkTheRealReviewGlyph() {
+        prefs.edit().putInt("max_font_size_quiz_text", 100).putInt("max_font_size_quiz", 28)
+            .putBoolean("stretch_quiz_question_view", false).commit()
+        for ((name, fixedHeight, characters) in listOf(
+            Triple("normal", 0, "漢"), Triple("legacy-7dp", 7, "漢"),
+            Triple("long-vocabulary", 7, "国際連合安全保障理事会"))) {
+            prefs.edit().putInt("quiz_question_view_height", fixedHeight).commit()
+            fixture().use { scenario -> scenario.onActivity { activity ->
+                val fragment = session.getNewFragment(null, false)
+                mount(activity, fragment)
+                assertSame(question, fragment.question)
+                val root = fragment.requireView()
+                val glyph = root.findViewById<com.smouldering_durtles.wk.views.SubjectInfoButtonView>(R.id.questionText)
+                glyph.setSubject(Subject(SubjectEntity().apply {
+                    id = 90971; type = if (characters.length == 1) SubjectType.WANIKANI_KANJI else SubjectType.WANIKANI_VOCAB
+                    this.characters = characters; slug = characters; level = 1
+                }))
+                val density = activity.resources.displayMetrics.density
+                val scaledDensity = activity.resources.displayMetrics.scaledDensity
+                captureSize(activity, root, "review-glyph-$name", (360 * density).toInt(), (640 * density).toInt())
+                val actualSize = com.smouldering_durtles.wk.views.SubjectInfoButtonView::class.java
+                    .getDeclaredField("textHeight").apply { isAccessible = true }.getInt(glyph) / scaledDensity
+                if (characters.length == 1) {
+                    assertTrue("$name glyph must remain readable: $actualSize sp", actualSize >= if (fixedHeight == 0) 90 else 47)
+                } else assertTrue("Long vocabulary still fits legibly: $actualSize sp", actualSize >= 18)
+                val prompt = root.findViewById<View>(R.id.questionView)
+                assertTrue(glyph.height <= prompt.height)
+                assertTrue(glyph.width <= prompt.width)
+                assertEquals("The app must not rewrite a user's saved height", fixedHeight, prefs.getInt("quiz_question_view_height", -1))
+                assertEquals(100, prefs.getInt("max_font_size_quiz_text", -1))
+            } }
         }
     }
 
@@ -263,19 +380,20 @@ class StudyPresentationTest {
         }
     }
 
-    @Test fun classicQuestionKeepsItsOriginalSemanticSurface() {
+    @Test fun obsoleteAppearanceFlagKeepsTheMaterialSemanticSurface() {
         prefs.edit().putBoolean("modern_settings", false).commit()
         fixture().use { scenario -> scenario.onActivity { activity ->
             val fragment = session.getNewFragment(null, false)
             mount(activity, fragment)
-            assertFalse(ModernUi.isModern(fragment.requireContext()))
+            assertTrue(ModernUi.isModern(fragment.requireContext()))
             val background = fragment.requireView().findViewById<View>(R.id.questionView).background
-            assertTrue(background is ColorDrawable)
-            assertEquals(subject.backgroundColor, (background as ColorDrawable).color)
+            assertTrue(background is MaterialShapeDrawable)
+            assertEquals(com.smouldering_durtles.wk.ui.LearningColors.fill(fragment.requireContext(), subject.backgroundColor),
+                (background as MaterialShapeDrawable).fillColor!!.defaultColor)
         } }
     }
 
-    @Test fun realSessionActivityPreservesQuestionAcrossClassicRoundTrip() {
+    @Test fun realSessionActivityPreservesQuestionAcrossObsoleteAppearanceFlagChanges() {
         val monitor = instrumentation.addMonitor(NoApiKeyHelpActivity::class.java.name,
             Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null), true)
         try {
@@ -362,9 +480,9 @@ class StudyPresentationTest {
                 prefs.edit().putBoolean("modern_settings", false).commit()
                 scenario.recreate()
                 scenario.onActivity { activity ->
-                    assertFalse(ModernUi.isModern(activity))
+                    assertTrue(ModernUi.isModern(activity))
                     assertEquals("draft answer", activity.findViewById<EditText>(R.id.questionEdit).text.toString())
-                    assertTrue(activity.findViewById<View>(R.id.questionView).background is ColorDrawable)
+                    assertTrue(activity.findViewById<View>(R.id.questionView).background is MaterialShapeDrawable)
                     assertSame(question, session.currentQuestion)
                 }
                 prefs.edit().putBoolean("modern_settings", true).commit()
@@ -389,7 +507,7 @@ class StudyPresentationTest {
             ActivityScenario.launch<BrowseActivity>(intent).use { scenario -> scenario.onActivity { activity ->
                 val manager = activity.supportFragmentManager
                 manager.executePendingTransactions()
-                assertTrue(manager.findFragmentById(R.id.fragment) is SearchResultFragment)
+                assertTrue(manager.findFragmentById(R.id.fragment) is LibraryFragment)
                 val ids = longArrayOf(90071, 90072, 90073)
                 activity.loadSubjectInfoFragment(ids[0], ids, FragmentTransitionAnimation.NONE)
                 manager.executePendingTransactions()
@@ -405,7 +523,7 @@ class StudyPresentationTest {
                 manager.executePendingTransactions()
                 assertEquals(1, manager.backStackEntryCount)
                 assertTrue(manager.popBackStackImmediate())
-                assertTrue(manager.findFragmentById(R.id.fragment) is SearchResultFragment)
+                assertTrue(manager.findFragmentById(R.id.fragment) is LibraryFragment)
                 assertTrue(manager.fragments.none { it is com.smouldering_durtles.wk.fragments.SubjectInfoFragment })
                 assertEquals(0, manager.backStackEntryCount)
             } }

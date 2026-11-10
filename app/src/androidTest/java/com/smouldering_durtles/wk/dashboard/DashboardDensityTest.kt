@@ -198,7 +198,10 @@ class DashboardDensityTest {
                         .putBoolean("show_post60_reverse", reversed).commit()
                     val source = if (subsections) deep else shallow
                     val expectedValues = IntArray(source.size) { if (subsections) data.getPost60DeepCount(it) else data.getPost60ShallowCount(it) }
-                    val expectedColors = source.map { LearningColors.accent(context, it) }.toIntArray()
+                    val expectedColors = source.mapIndexed { index, color ->
+                        val bucket = if (subsections) when { index < 2 -> -1; index < 6 -> 0; index < 8 -> 1; else -> index - 6 } else index - 2
+                        if (mode == "original" || bucket < 0) LearningColors.accent(context, color) else LearningColors.stage(context, bucket)
+                    }.toIntArray()
                     if (reversed) { expectedValues.reverse(); expectedColors.reverse() }
                     val bar = Post60ProgressBarView(context)
                     bar.setBreakdown(data)
@@ -221,10 +224,11 @@ class DashboardDensityTest {
             }
             assertArrayEquals(deep, ActiveTheme.getStageDeepBucketColors())
             assertArrayEquals(shallow, ActiveTheme.getShallowStageBucketColors7())
-            val classic = Post60ProgressBarView(activity)
-            classic.setBreakdown(data)
-            measure(classic, 328)
-            assertArrayEquals(deep.reversedArray(), intField(classic, "colors"))
+            val unwrapped = Post60ProgressBarView(activity)
+            unwrapped.setBreakdown(data)
+            measure(unwrapped, 328)
+            assertArrayEquals(deep.map { LearningColors.accent(activity, it) }.reversed().toIntArray(),
+                intField(unwrapped, "colors"))
         } }
     }
 
@@ -256,7 +260,7 @@ class DashboardDensityTest {
                 onView(withText(android.R.string.ok)).inRoot(isDialog()).perform(click())
             }
             scenario.onActivity { activity ->
-                assertNull(Post60ProgressView(activity).findViewById<View>(R.id.post60StageCounts))
+                assertNotNull(Post60ProgressView(activity).findViewById<View>(R.id.post60StageCounts))
             }
         }
     }
@@ -284,11 +288,13 @@ class DashboardDensityTest {
                     if (id != R.id.headerRad && id != R.id.headerKan && id != R.id.headerVoc) assertEquals(View.VISIBLE, cell.visibility)
                 }
             }
-            val classic = LessonReviewBreakdownView(activity)
+            val unwrapped = LessonReviewBreakdownView(activity)
             for (row in ids) row.forEachIndexed { i, id ->
-                val cell = classic.findViewById<TextView>(id)
-                assertEquals(fills[i], (cell.background as ColorDrawable).color)
-                assertEquals(inks[i], cell.currentTextColor)
+                val cell = unwrapped.findViewById<TextView>(id)
+                assertEquals(LearningColors.fill(activity, fills[i]), (cell.background as ColorDrawable).color)
+                val actualFill = ColorUtils.compositeColors((cell.background as ColorDrawable).color,
+                    MaterialColors.getColor(cell, com.google.android.material.R.attr.colorSurfaceContainerLow))
+                assertTrue(ColorUtils.calculateContrast(cell.currentTextColor, actualFill) >= 4.5)
             }
             assertArrayEquals(fills, ActiveTheme.getSubjectTypeBackgroundColors())
             assertArrayEquals(inks, ActiveTheme.getSubjectTypeTextColors())
@@ -300,12 +306,12 @@ class DashboardDensityTest {
         get(view) as IntArray
     }
 
-    @Test fun classicKeepsFullHeightProgressAndOriginalDistribution() {
+    @Test fun unwrappedActivityUsesCompactMaterialProgressAndDistribution() {
         ActivityScenario.launch(AboutActivity::class.java).use { scenario -> scenario.onActivity { activity ->
             val bar = LevelProgressBarView(activity)
             measure(bar, 280)
-            assertEquals(dp(activity, 24), bar.height)
-            assertNull(SrsBreakDownView(activity).findViewById<View>(R.id.srsDistributionBar))
+            assertEquals(dp(activity, 6), bar.height)
+            assertNotNull(SrsBreakDownView(activity).findViewById<View>(R.id.srsDistributionBar))
         } }
     }
 

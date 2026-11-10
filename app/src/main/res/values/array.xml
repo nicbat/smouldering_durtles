@@ -124,18 +124,6 @@
         <item>ITEM_TYPE</item>
     </string-array>
 
-    <string-array name="timeLineChartGridStyles">
-        <item>Off</item>
-        <item>Scaled for bars</item>
-        <item>Scaled for cumulative review count</item>
-    </string-array>
-
-    <string-array name="timeLineChartGridStyleValues">
-        <item>OFF</item>
-        <item>FOR_BARS</item>
-        <item>FOR_WATERFALL</item>
-    </string-array>
-
     <string-array name="specialButtonBehaviors">
         <item>Disable</item>
         <item>Ignore (undo and mark correct instead)</item>
@@ -167,9 +155,9 @@
     </string-array>
 
     <string-array name="sessionPriorities">
-        <item>None</item>
-        <item>Radicals first</item>
-        <item>Level-up items first</item>
+        <item>No priority (use session order)</item>
+        <item>All radicals first</item>
+        <item>Level-up path first (unpassed kanji and prerequisites)</item>
         <item>Current-level radicals and kanji first</item>
         <item>Current-level items first</item>
     </string-array>

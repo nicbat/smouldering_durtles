@@ -6,33 +6,33 @@
         android:id="@+id/fontName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginStart="4dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
         android:text=""
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/fontSwitch"
         app:layout_constraintTop_toTopOf="parent"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface"/>
+        android:textAppearance="@style/TextAppearance.Material3.LabelLarge" android:textColor="?attr/colorOnSurface"/>
 
     <TextView
         android:id="@+id/fontSample"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="日本語の書体"
+        android:layout_marginTop="0dp"
+        android:text="漢字 ・ かな ・ 日本語"
         app:layout_constraintEnd_toStartOf="@id/fontSwitch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fontName"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" android:textColor="?attr/colorOnSurface"/>
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textColor="?attr/colorOnSurface"/>
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/fontSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginStart="4dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

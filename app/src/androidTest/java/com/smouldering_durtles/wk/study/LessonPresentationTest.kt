@@ -266,7 +266,7 @@ class LessonPresentationTest {
         } }
     }
 
-    @Test fun smallerGlyphPreferenceAndClassicPresentationRemainAvailable() {
+    @Test fun smallerGlyphPreferenceAndMaterialPresentationIgnoreObsoleteAppearanceFlag() {
         prefs.edit().putInt("max_font_size_lesson", 32).commit()
         fixture().use { scenario -> scenario.onActivity { activity ->
             select(1)
@@ -288,11 +288,13 @@ class LessonPresentationTest {
             val fragment = mount(activity)
             val root = fragment.requireView() as LinearLayout
             measure(root, 360, 640)
-            assertSame(root.getChildAt(0), root.findViewById<View>(R.id.nextButton).parent)
-            assertEquals("2/3", root.findViewById<TextView>(R.id.progress).text.toString())
-            assertNull(root.findViewById<View>(R.id.lessonDetailsToggle))
+            assertTrue(root.findViewById<View>(R.id.nextButton).hasOnClickListeners())
+            assertEquals("Lesson 2 of 3", root.findViewById<TextView>(R.id.progress).text.toString())
+            assertNotNull(root.findViewById<View>(R.id.lessonDetailsToggle))
+            assertEquals(View.GONE, root.findViewById<View>(R.id.detailsTable).visibility)
+            root.findViewById<View>(R.id.lessonDetailsToggle).performClick()
             assertEquals(View.VISIBLE, root.findViewById<View>(R.id.detailsTable).visibility)
-            save(root, "lesson-classic")
+            save(root, "lesson-obsolete-appearance-flag")
         } }
     }
 

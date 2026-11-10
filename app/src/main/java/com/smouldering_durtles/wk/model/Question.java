@@ -41,6 +41,14 @@ import static java.util.Objects.requireNonNull;
 public final class Question {
     private final SessionItem item;
     private final QuestionType type;
+    private String submittedAnswer = "";
+    private boolean lastSubmissionIncorrect;
+    public void rememberSubmission(String answer, boolean incorrect) {
+        submittedAnswer = answer;
+        lastSubmissionIncorrect = incorrect;
+    }
+    public String getSubmittedAnswer() { return submittedAnswer; }
+    public boolean wasLastSubmissionIncorrect() { return lastSubmissionIncorrect; }
     
     /**
      * If this is a verb or adjective and the user requested questions to be shown in

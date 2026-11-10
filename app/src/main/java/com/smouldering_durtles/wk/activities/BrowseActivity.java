@@ -158,7 +158,7 @@ public final class BrowseActivity extends AbstractActivity {
     }
 
     private void loadOverviewFragment() {
-        final Fragment fragment = new BrowseOverviewFragment();
+        final Fragment fragment = new com.smouldering_durtles.wk.fragments.LibraryFragment();
         final FragmentManager manager = getSupportFragmentManager();
         final FragmentTransaction transaction = manager.beginTransaction();
         if (getCurrentFragment() != null) {
@@ -178,7 +178,9 @@ public final class BrowseActivity extends AbstractActivity {
      * @param searchParameters the type-specific parameters for this search
      */
     public void loadSearchResultFragment(final @Nullable String presetName, final int searchType, final String searchParameters) {
-        final Fragment fragment = SearchResultFragment.newInstance(searchType, searchParameters, presetName);
+        final Fragment fragment = searchType == 1
+                ? com.smouldering_durtles.wk.fragments.LibraryFragment.newInstance(searchParameters)
+                : SearchResultFragment.newInstance(searchType, searchParameters, presetName);
         final FragmentManager manager = getSupportFragmentManager();
         final FragmentTransaction transaction = manager.beginTransaction();
         if (getCurrentFragment() != null) {
@@ -202,8 +204,7 @@ public final class BrowseActivity extends AbstractActivity {
 
     /** Move between adjacent items without adding another detail-page Back step. */
     public void pageSubjectInfoFragment(final long id, final long[] ids, final FragmentTransitionAnimation animation) {
-        if (com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()
-                && getCurrentFragment() instanceof SubjectInfoFragment) {
+        if (getCurrentFragment() instanceof SubjectInfoFragment) {
             ((SubjectInfoFragment) getCurrentFragment()).pageToSubject(id, ids, animation);
         } else loadSubjectInfoFragment(id, ids, animation, true);
     }

@@ -35,7 +35,7 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/applabel"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:theme="@style/SmokyUiTheme"
         android:supportsRtl="false"
         android:name=".WkApplication"
         tools:ignore="AllowBackup">
@@ -67,18 +67,6 @@
         <activity
             android:name=".activities.AboutActivity"
             android:label="@string/about_label"
-            android:parentActivityName=".activities.MainActivity">
-            <meta-data android:name="android.app.default_searchable" android:value="com.smouldering_durtles.wk.activities.BrowseActivity"/>
-        </activity>
-        <activity
-            android:name=".activities.ThemeCustomizationActivity"
-            android:label="Theme customization"
-            android:parentActivityName=".activities.MainActivity">
-            <meta-data android:name="android.app.default_searchable" android:value="com.smouldering_durtles.wk.activities.BrowseActivity"/>
-        </activity>
-        <activity
-            android:name=".activities.SupportActivity"
-            android:label="Support / feedback"
             android:parentActivityName=".activities.MainActivity">
             <meta-data android:name="android.app.default_searchable" android:value="com.smouldering_durtles.wk.activities.BrowseActivity"/>
         </activity>

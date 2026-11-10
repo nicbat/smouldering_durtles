@@ -60,7 +60,7 @@ public final class SubjectContentProvider extends ContentProvider {
             }
             final String query = selectionArgs[0];
             final List<Subject> subjects = SearchUtil.searchSubjectSuggestions(query);
-            return new SubjectCursor(subjects);
+            return new SubjectCursor(subjects, query);
         });
     }
 
@@ -90,6 +90,7 @@ public final class SubjectContentProvider extends ContentProvider {
      */
     private static final class SubjectCursor extends AbstractCursor {
         private final List<Subject> subjects;
+        private final String query;
 
         /**
          * The constructor.
@@ -97,12 +98,16 @@ public final class SubjectContentProvider extends ContentProvider {
          * @param subjects the subjects for this search result.
          */
         SubjectCursor(final List<Subject> subjects) {
-            this.subjects = new ArrayList<>(subjects);
+            this(subjects, "");
+        }
+        SubjectCursor(final List<Subject> subjects, String query) {
+            this.subjects = new ArrayList<>(subjects.subList(0, Math.min(5, subjects.size())));
+            this.query = query;
         }
 
         @Override
         public int getCount() {
-            return subjects.size();
+            return subjects.size() + (query.isEmpty() ? 0 : 1);
         }
 
         @Override
@@ -111,7 +116,9 @@ public final class SubjectContentProvider extends ContentProvider {
                     BaseColumns._ID,
                     SearchManager.SUGGEST_COLUMN_TEXT_1,
                     SearchManager.SUGGEST_COLUMN_TEXT_2,
-                    SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID};
+                    SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,
+                    SearchManager.SUGGEST_COLUMN_INTENT_ACTION,
+                    SearchManager.SUGGEST_COLUMN_QUERY};
         }
 
         @Override
@@ -119,6 +126,10 @@ public final class SubjectContentProvider extends ContentProvider {
             if (isBeforeFirst() || isAfterLast()) {
                 return null;
             }
+            boolean all = getPosition() == subjects.size();
+            if (column == 4) return all ? android.content.Intent.ACTION_SEARCH : android.content.Intent.ACTION_VIEW;
+            if (column == 5) return query;
+            if (all) return column == 0 ? "-1" : column == 1 ? "View all results & filters" : column == 2 ? query : null;
             final Subject subject = subjects.get(getPosition());
             switch (column) {
                 case 0:
@@ -130,7 +141,7 @@ public final class SubjectContentProvider extends ContentProvider {
                             orElse(subject.getCharacters(), orElse(subject.getSlug(), "")),
                             subject.getOneMeaning());
                 case 2:
-                    return subject.getMeaningRichText("").toString();
+                    return subject.getOneReading() + " · " + subject.getOneMeaning();
                 default:
                     return null;
             }
@@ -160,6 +171,7 @@ public final class SubjectContentProvider extends ContentProvider {
             if (isBeforeFirst() || isAfterLast()) {
                 return 0;
             }
+            if (getPosition() == subjects.size()) return -1;
             final Subject subject = subjects.get(getPosition());
             if (column == 0 || column == 3) {
                 return subject.getId();
@@ -185,6 +197,8 @@ public final class SubjectContentProvider extends ContentProvider {
                     return FIELD_TYPE_INTEGER;
                 case 1:
                 case 2:
+                case 4:
+                case 5:
                     return FIELD_TYPE_STRING;
                 default:
                     return FIELD_TYPE_NULL;

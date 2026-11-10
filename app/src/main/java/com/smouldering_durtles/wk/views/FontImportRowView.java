@@ -71,17 +71,16 @@ public final class FontImportRowView extends TableRow {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
-                    ? R.layout.font_import_row_modern : R.layout.font_import_row, this);
+            inflate(getContext(), R.layout.font_import_row_modern, this);
             com.smouldering_durtles.wk.ui.ModernUi.style(this);
-            if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
+
                 com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.fontSample),
                         com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
                 com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.deleteFont),
                         com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
                 setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
                         com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow), 16));
-            }
+
             setVisibility(GONE);
             fontName.setDelegate(this, R.id.fontName);
             fontSample.setDelegate(this, R.id.fontSample);
@@ -117,6 +116,11 @@ public final class FontImportRowView extends TableRow {
         safe(() -> {
             this.name = name;
             fontName.setText(name);
+            com.smouldering_durtles.wk.model.TypefaceConfiguration configuration =
+                    com.smouldering_durtles.wk.util.FontStorageUtil.getTypefaceConfiguration(name);
+            android.widget.TextView preview = findViewById(R.id.fontInlinePreview);
+            if (configuration != null) preview.setTypeface(configuration.getTypeface());
+            com.smouldering_durtles.wk.util.ViewUtil.setJapaneseLocale(preview);
             setVisibility(VISIBLE);
         });
     }

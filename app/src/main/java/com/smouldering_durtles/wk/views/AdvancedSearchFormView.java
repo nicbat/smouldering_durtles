@@ -43,6 +43,11 @@ import static com.smouldering_durtles.wk.util.TextUtil.getRomanNumeral;
  * Custom view that shows the subject info dump.
  */
 public final class AdvancedSearchFormView extends TableLayout {
+    private android.widget.AutoCompleteTextView partOfSpeech;
+    private android.widget.Spinner pitchPattern;
+    private final String[] pitchKeys = {"", "flat", "falling", "middle", "final", "unknown", "empty"};
+    private final java.util.List<android.widget.Button> stageButtons = new java.util.ArrayList<>();
+    private final java.util.List<android.widget.Button> typeButtons = new java.util.ArrayList<>();
     private String searchButtonLabel = "Search";
     private boolean sortOrderVisibility = true;
 
@@ -93,9 +98,8 @@ public final class AdvancedSearchFormView extends TableLayout {
      * Initialize the instance.
      */
     private void init() {
-        final boolean modern = SearchStyle.isModern(getContext()) || com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext());
-        inflate(getContext(), modern ? R.layout.advanced_search_modern : R.layout.advanced_search, this);
-        if (modern) setBackgroundColor(com.google.android.material.color.MaterialColors.getColor(
+        inflate(getContext(), R.layout.advanced_search_modern, this);
+        setBackgroundColor(com.google.android.material.color.MaterialColors.getColor(
                 this, com.google.android.material.R.attr.colorSurface));
         setShrinkAllColumns(true);
 
@@ -188,7 +192,7 @@ public final class AdvancedSearchFormView extends TableLayout {
         searchButton2.setText(searchButtonLabel);
 
         final SpinnerAdapter adapter =
-                new ArrayAdapter<>(getContext(), modern ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, SearchSortOrder.descriptionValues());
+                new ArrayAdapter<>(getContext(), R.layout.browse_spinner_item_modern, SearchSortOrder.descriptionValues());
         sortOrder.setAdapter(adapter);
         sortOrder.setSelection(0);
         sortOrder.setParentVisibility(sortOrderVisibility);
@@ -271,6 +275,112 @@ public final class AdvancedSearchFormView extends TableLayout {
         joyoGradeSwitches.get(5).setTag(R.id.advancedSearchSwitchTag, 5);
         joyoGradeSwitches.get(6).setTag(R.id.advancedSearchSwitchTag, 6);
         joyoGradeSwitches.get(7).setTag(R.id.advancedSearchSwitchTag, 7);
+        addCompactControls();
+        for (ViewProxy field : itemTypeSwitches) field.setChecked(true);
+        updateTypeButtons();
+    }
+
+    private android.view.View levelRange;
+    private final android.widget.Button[] levelButtons = new android.widget.Button[3];
+    private void selectLevelScope(int scope) {
+        for (int i = 0; i < levelButtons.length; i++) if (levelButtons[i] != null)
+            com.smouldering_durtles.wk.ui.ChoiceGrid.selected(levelButtons[i], i == scope);
+    }
+    private void addCompactControls() {
+        android.widget.LinearLayout top = new android.widget.LinearLayout(getContext());
+        top.setOrientation(android.widget.LinearLayout.VERTICAL);
+        addView(top, 1, new TableLayout.LayoutParams(-1, -2));
+        com.smouldering_durtles.wk.ui.ChoiceGrid types = new com.smouldering_durtles.wk.ui.ChoiceGrid(getContext());
+        String[] names = {"Radicals", "Kanji", "Vocabulary"};
+        for (int i = 0; i < 3; i++) {
+            final int index = i;
+            android.widget.Button button = types.addChoice(names[i], com.smouldering_durtles.wk.enums.ActiveTheme.getSubjectTypeBackgroundColors()[i], () -> {
+                boolean selected = !itemTypeSwitches.get(index).isChecked();
+                itemTypeSwitches.get(index).setChecked(selected);
+                if (index == 2) itemTypeSwitches.get(3).setChecked(selected);
+                updateTypeButtons();
+            });
+            typeButtons.add(button);
+        }
+        top.addView(types, new android.widget.LinearLayout.LayoutParams(-1, -2));
+        for (ViewProxy field : itemTypeSwitches) field.setParentVisibility(false);
+        com.smouldering_durtles.wk.ui.ChoiceGrid stageGrid = new com.smouldering_durtles.wk.ui.ChoiceGrid(getContext());
+        String[] stageNames = {"Apprentice", "Guru", "Master", "Enlightened", "Burned"};
+        for (int i = 0; i < 5; i++) {
+            final int bucket = i;
+            stageButtons.add(stageGrid.addChoice(stageNames[i], com.smouldering_durtles.wk.ui.LearningColors.stage(getContext(), i), () -> {
+                boolean all = true;
+                for (ViewProxy field : srsStageSwitches) if (stageBucket(field) == bucket) all &= field.isChecked();
+                for (ViewProxy field : srsStageSwitches) if (stageBucket(field) == bucket) field.setChecked(!all);
+                updateStageButtons();
+            }));
+        }
+        top.addView(stageGrid, new android.widget.LinearLayout.LayoutParams(-1, -2));
+        for (ViewProxy field : srsStageSwitches) if (stageBucket(field) >= 0) field.setParentVisibility(false);
+        com.smouldering_durtles.wk.ui.ChoiceGrid levels = new com.smouldering_durtles.wk.ui.ChoiceGrid(getContext());
+        android.view.View range = getChildAt(2);
+        removeView(range);
+        int color = com.google.android.material.color.MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary);
+        levelButtons[0] = levels.addChoice("All levels", color, () -> { minLevel.setText(""); maxLevel.setText(""); range.setVisibility(GONE); selectLevelScope(0); });
+        levelButtons[1] = levels.addChoice("Current level", color, () -> {
+            int current = com.smouldering_durtles.wk.WkApplication.getDatabase().propertiesDao().getUserLevel();
+            minLevel.setText(current); maxLevel.setText(current); range.setVisibility(GONE); selectLevelScope(1);
+        });
+        levelButtons[2] = levels.addChoice("Range", color, () -> { range.setVisibility(VISIBLE); selectLevelScope(2); });
+        selectLevelScope(0);
+        top.addView(levels, new android.widget.LinearLayout.LayoutParams(-1, -2));
+        top.addView(range, new android.widget.LinearLayout.LayoutParams(-1, -2));
+        levelRange = range;
+        range.setVisibility(GONE);
+        partOfSpeech = new android.widget.AutoCompleteTextView(getContext());
+        partOfSpeech.setHint("Part of speech · any"); partOfSpeech.setSingleLine(true); partOfSpeech.setThreshold(0);
+        partOfSpeech.setAdapter(new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line,
+                new String[]{"noun", "proper noun", "adverb", "expression", "pronoun", "suffix", "prefix", "counter", "intransitive verb", "transitive verb", "godan verb", "ichidan verb", "suru verb", "na-adjective", "i-adjective", "no-adjective"}));
+        top.addView(partOfSpeech, new android.widget.LinearLayout.LayoutParams(-1, -2));
+        pitchPattern = new android.widget.Spinner(getContext());
+        pitchPattern.setContentDescription("Pitch accent pattern");
+        pitchPattern.setAdapter(new android.widget.ArrayAdapter<>(getContext(), R.layout.browse_spinner_item_modern,
+                new String[]{"Any pitch accent", "平板 · Flat", "頭高 · Falling", "中高 · Rise–fall", "尾高 · Final drop", "Pitch data unavailable", "No pitch patterns (known)"}));
+        top.addView(pitchPattern, new android.widget.LinearLayout.LayoutParams(-1, -2));
+    }
+    private int stageBucket(ViewProxy field) {
+        Object tag = field.getTag(R.id.advancedSearchSwitchTag);
+        if (!(tag instanceof String)) return -1;
+        String value = (String) tag;
+        return value.startsWith("prepass:") ? 0 : value.startsWith("pass:") ? 1
+                : value.equals("master") ? 2 : value.equals("enlightened") ? 3 : value.equals("burned") ? 4 : -1;
+    }
+    private void updateStageButtons() {
+        for (int i = 0; i < stageButtons.size(); i++) {
+            boolean any = false, all = true;
+            for (ViewProxy field : srsStageSwitches) if (stageBucket(field) == i) { any |= field.isChecked(); all &= field.isChecked(); }
+            com.smouldering_durtles.wk.ui.ChoiceGrid.selected(stageButtons.get(i), any);
+            androidx.core.view.ViewCompat.setStateDescription(stageButtons.get(i), any ? (all ? "All stages selected" : "Some stages selected") : "Not selected");
+        }
+    }
+    public boolean validateLevels() {
+        android.widget.EditText from = (android.widget.EditText) minLevel.getDelegate();
+        android.widget.EditText to = (android.widget.EditText) maxLevel.getDelegate();
+        int low = safe(-1, () -> from.length() == 0 ? 1 : Integer.parseInt(from.getText().toString()));
+        int high = safe(-1, () -> to.length() == 0 ? 60 : Integer.parseInt(to.getText().toString()));
+        boolean valid = low >= 1 && high <= 60 && low <= high;
+        from.setError(valid ? null : "Use a range from 1 to 60, with From ≤ To");
+        return valid;
+    }
+    public void compact() {
+        java.util.List<android.view.View> secondary = new java.util.ArrayList<>();
+        for (int i = 2; i < getChildCount() - 1; i++) secondary.add(getChildAt(i));
+        android.widget.LinearLayout extra = new android.widget.LinearLayout(getContext()); extra.setOrientation(android.widget.LinearLayout.VERTICAL);
+        for (android.view.View child : secondary) { removeView(child); extra.addView(child); }
+        android.widget.Button toggle = new android.widget.Button(getContext()); toggle.setText("More filters");
+        com.smouldering_durtles.wk.ui.ModernUi.button(toggle, com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
+        extra.setVisibility(GONE);
+        toggle.setOnClickListener(v -> { boolean show = extra.getVisibility() != VISIBLE; extra.setVisibility(show ? VISIBLE : GONE); toggle.setText(show ? "Fewer filters" : "More filters"); });
+        addView(toggle, 2); addView(extra, 3);
+    }
+
+    private void updateTypeButtons() {
+        for (int i = 0; i < typeButtons.size(); i++) com.smouldering_durtles.wk.ui.ChoiceGrid.selected(typeButtons.get(i), itemTypeSwitches.get(i).isChecked());
     }
 
     /**
@@ -389,6 +499,9 @@ public final class AdvancedSearchFormView extends TableLayout {
             }
         }
 
+        parameters.noSubjectTypes = parameters.itemTypes.isEmpty();
+        parameters.partOfSpeech = partOfSpeech.getText().toString().trim().toLowerCase(java.util.Locale.ROOT);
+        parameters.pitchPattern = pitchKeys[pitchPattern.getSelectedItemPosition()];
         return parameters;
     }
 
@@ -398,6 +511,16 @@ public final class AdvancedSearchFormView extends TableLayout {
      * @param parameters the search parameters
      */
     public void injectParameters(final AdvancedSearchParameters parameters) {
+        partOfSpeech.setText(parameters.partOfSpeech);
+        pitchPattern.setSelection(Math.max(0, java.util.Arrays.asList(pitchKeys).indexOf(parameters.pitchPattern)));
+        levelRange.setVisibility(parameters.minLevel != null || parameters.maxLevel != null ? VISIBLE : GONE);
+        selectLevelScope(parameters.minLevel != null || parameters.maxLevel != null ? 2 : 0);
+        post(() -> {
+            if (parameters.itemTypes.isEmpty() && !parameters.noSubjectTypes)
+                for (ViewProxy field : itemTypeSwitches) field.setChecked(true);
+            updateTypeButtons();
+            updateStageButtons();
+        });
         if (parameters.minLevel == null) {
             minLevel.setText("");
         }

@@ -195,7 +195,7 @@ public final class SearchUtil {
      * @return the list of found subjects
      */
     public static List<Subject> searchSubjectSuggestions(final String query) {
-        if (query.trim().length() < 3) {
+        if (query.trim().isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -273,7 +273,8 @@ public final class SearchUtil {
      * @param parameters the query parameters
      * @return the list of found subjects
      */
-    private static List<Subject> searchSubjects(final AdvancedSearchParameters parameters) {
+    public static List<Subject> searchSubjects(final AdvancedSearchParameters parameters) {
+        if (parameters.noSubjectTypes) return new ArrayList<>();
         final StringBuilder sb = new StringBuilder();
 
         sb.append("SELECT * FROM subject WHERE hiddenAt = 0 AND object IS NOT NULL");
@@ -384,12 +385,42 @@ public final class SearchUtil {
             sb.append(join(", ", "(", ")", joyoGradeFragments));
         }
 
+        final List<String> args = new ArrayList<>();
+        for (String term : splitTermsForSql(parameters.query)) {
+            sb.append(" AND smallSearchTarget LIKE ?");
+            args.add("%" + term + "%");
+        }
         sb.append(" ORDER BY level, lessonPosition, id");
 
         final String sql = sb.toString();
         LOGGER.info("Advanced search query: %s", sql);
-        final SupportSQLiteQuery query = new SimpleSQLiteQuery(sql);
-        return WkApplication.getDatabase().subjectCollectionsDao().getSubjectsWithRawQuery(query);
+        final SupportSQLiteQuery query = new SimpleSQLiteQuery(sql, args.toArray(new String[0]));
+        List<Subject> results = WkApplication.getDatabase().subjectCollectionsDao().getSubjectsWithRawQuery(query);
+        results.removeIf(subject -> !matchesMetadata(subject, parameters));
+        return results;
+    }
+
+    /** Exact API POS values; pitch classification is evaluated independently for each reading. */
+    private static boolean matchesMetadata(Subject subject, AdvancedSearchParameters p) {
+        if (!p.partOfSpeech.isEmpty() && !subject.getPartsOfSpeech().contains(p.partOfSpeech)) return false;
+        if (p.pitchPattern.isEmpty()) return true;
+        if (p.pitchPattern.equals("empty")) return "[]".equals(subject.getRawPitchInfo());
+        if (!subject.hasPitchInfo()) return p.pitchPattern.equals("unknown") && !"[]".equals(subject.getRawPitchInfo());
+        if (p.pitchPattern.equals("unknown")) return false;
+        for (Reading reading : subject.getReadings()) {
+            String kana = reading.getReading();
+            if (kana == null) continue;
+            int morae = 0;
+            for (int i = 0; i < kana.length(); i++) {
+                if (i == 0 || "ぁぃぅぇぉゃゅょゎゕゖァィゥェォャュョヮヵヶ".indexOf(kana.charAt(i)) < 0) morae++;
+            }
+            for (com.smouldering_durtles.wk.model.PitchInfo info : subject.getPitchInfoFor(kana)) {
+                int n = info.getPitchNumber();
+                String pattern = n == 0 ? "flat" : n == 1 ? "falling" : n == morae ? "final" : "middle";
+                if (pattern.equals(p.pitchPattern)) return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -466,27 +466,19 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         }
 
         addSynonymButton.setClickableAndNotFocusable(true);
-        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
-            findViewById(R.id.addSynonymButton).setFocusable(true);
-        }
-        addSynonymButton.setVisibility(showMeaningAnswers);
+        findViewById(R.id.addSynonymButton).setFocusable(true);
+        addSynonymButton.setVisibility(showMeaningAnswers && getSubjectInfoDump() != SubjectInfoDump.CURRENT_ANSWER);
         addSynonymButton.setOnClickListener(v -> safe(() -> {
-            final boolean modern = com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext());
             final EditText synonym;
             final View editor;
-            if (modern) {
-                final com.google.android.material.textfield.TextInputLayout input = new com.google.android.material.textfield.TextInputLayout(getContext());
-                input.setBoxBackgroundMode(com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE);
-                input.setHint(getContext().getString(R.string.study_synonym_hint));
-                input.setPadding(dp2px(24), dp2px(8), dp2px(24), 0);
-                synonym = new com.google.android.material.textfield.TextInputEditText(input.getContext());
-                synonym.setSingleLine(true);
-                input.addView(synonym);
-                editor = input;
-            } else {
-                synonym = new EditText(getContext());
-                editor = synonym;
-            }
+            final com.google.android.material.textfield.TextInputLayout input = new com.google.android.material.textfield.TextInputLayout(getContext());
+            input.setBoxBackgroundMode(com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE);
+            input.setHint(getContext().getString(R.string.study_synonym_hint));
+            input.setPadding(dp2px(24), dp2px(8), dp2px(24), 0);
+            synonym = new com.google.android.material.textfield.TextInputEditText(input.getContext());
+            synonym.setSingleLine(true);
+            input.addView(synonym);
+            editor = input;
             synonym.setTag(false);
 
             final AlertDialog alertDialog = com.smouldering_durtles.wk.ui.ModernUi.dialog(getContext())
@@ -540,20 +532,21 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         final boolean showReadingMnemonic = !GlobalSettings.SubjectInfo.getHideReadingMnemonic(subject.hasReadingNote());
 
         headline.setSubject(subject);
+        final boolean answerOnly = getSubjectInfoDump() == SubjectInfoDump.CURRENT_ANSWER;
 
         // Kanji on'yomi, kun'yomi, nanori
         onYomi.setText(subject.getOnYomiRichText());
         onYomi.setJapaneseLocale();
-        onYomi.setVisibility(showReadingAnswers && subject.hasOnYomi());
+        onYomi.setVisibility(!answerOnly && showReadingAnswers && subject.hasOnYomi());
         kunYomi.setText(subject.getKunYomiRichText());
         kunYomi.setJapaneseLocale();
-        kunYomi.setVisibility(showReadingAnswers && subject.hasKunYomi());
+        kunYomi.setVisibility(!answerOnly && showReadingAnswers && subject.hasKunYomi());
         nanori.setText(subject.getNanoriRichText());
         nanori.setJapaneseLocale();
-        nanori.setVisibility(showReadingAnswers && subject.hasNanori());
+        nanori.setVisibility(!answerOnly && showReadingAnswers && subject.hasNanori());
 
         // Star rating
-        starRating.setVisibility(GlobalSettings.Other.getEnableStarRatings());
+        starRating.setVisibility(!answerOnly && GlobalSettings.Other.getEnableStarRatings());
         starRating.setSubject(subject);
 
         // Meaning mnemonic
@@ -577,7 +570,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         synonyms.setText(subject.getMeaningSynonymsRichText());
         synonyms.setJapaneseLocale();
         synonyms.setLinkMovementMethod();
-        synonyms.setVisibility(showMeaningAnswers);
+        synonyms.setVisibility(showMeaningAnswers && !answerOnly);
         prepareAddSynonymButton(showMeaningAnswers);
 
         // Reading mnemonic
@@ -604,9 +597,27 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         final boolean showStrokeOrder = showMeaningRelated && GlobalSettings.SubjectInfo.getShowStrokeOrder() && subject.hasStrokeData();
         strokeOrderDivider.setVisibility(showStrokeOrder);
         strokeOrderDiagram.setSize(dp2px(GlobalSettings.SubjectInfo.getStrokeOrderSize()));
-        strokeOrderDiagram.setAnimated(GlobalSettings.SubjectInfo.getStrokeOrderAnimated());
+        strokeOrderDiagram.setAnimated(false);
         strokeOrderDiagram.setStrokeData(subject.getParsedStrokeData());
         strokeOrderDiagram.setVisibility(showStrokeOrder);
+        android.widget.LinearLayout writing = findViewById(R.id.writingControls);
+        if (writing == null) {
+            writing = new android.widget.LinearLayout(getContext()); writing.setId(R.id.writingControls);
+            writing.setOrientation(android.widget.LinearLayout.VERTICAL);
+            android.widget.TextView status = new android.widget.TextView(getContext());
+            StrokeDiagramView diagram = findViewById(R.id.strokeOrderDiagram);
+            status.setText("Writing"); writing.addView(status);
+            diagram.setOnPositionChanged(() -> status.setText("Writing · " + diagram.getPositionLabel()));
+            com.smouldering_durtles.wk.ui.ChoiceGrid controls = new com.smouldering_durtles.wk.ui.ChoiceGrid(getContext());
+            int color = com.google.android.material.color.MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary);
+            controls.addChoice("Play", color, () -> diagram.setAnimated(true));
+            controls.addChoice("Step", color, diagram::step);
+            controls.addChoice("Reset", color, diagram::reset);
+            controls.addChoice("All strokes", color, diagram::showSequence);
+            writing.addView(controls);
+            addView(writing, indexOfChild(diagram) + 1);
+        }
+        writing.setVisibility(showStrokeOrder ? VISIBLE : GONE);
 
         // Context sentences
         final boolean hasContextSentences = showMeaningRelated && subject.hasContextSentences();
@@ -669,8 +680,8 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         }
         tableJlptLevel.setParentVisibility(subject.getJlptLevel() > 0);
 
-        detailsDivider.setVisibility(showMeaningAnswers || showReadingAnswers);
-        detailsTable.setVisibility(showMeaningAnswers || showReadingAnswers);
+        detailsDivider.setVisibility(!answerOnly && (showMeaningAnswers || showReadingAnswers));
+        detailsTable.setVisibility(!answerOnly && (showMeaningAnswers || showReadingAnswers));
 
         // Components table
         final boolean hasComponents = showMeaningRelated && subject.hasComponents();
@@ -711,7 +722,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
             amalgamationsTable.setSubjectIds(actment, subject.getAmalgamationSubjectIds(), true, showReadingRelated);
         }
 
-        if (subject.isResurrectable()) {
+        if (!answerOnly && subject.isResurrectable()) {
             resurrectButton.setVisibility(true);
             resurrectButton.setOnClickListener(v -> goToResurrectActivity(subject.getId()));
         }
@@ -719,7 +730,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
             resurrectButton.setVisibility(false);
         }
 
-        if (subject.isBurnable()) {
+        if (!answerOnly && subject.isBurnable()) {
             burnButton.setVisibility(true);
             burnButton.setOnClickListener(v -> goToBurnActivity(subject.getId()));
         }

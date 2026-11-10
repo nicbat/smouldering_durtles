@@ -9,6 +9,9 @@
         android:layout_marginTop="8dp" android:textAppearance="@style/TextAppearance.Material3.LabelLarge" android:textColor="?attr/colorPrimary"/>
     <com.google.android.material.slider.Slider android:id="@+id/materialPreferenceSlider" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:focusable="true"/>
+    <com.smouldering_durtles.wk.views.FontSizePreviewView android:id="@+id/fontSizePreview"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" android:visibility="gone"/>
     <!-- AndroidX owns preference persistence/state. Keep its backing control out of the UI. -->
     <SeekBar android:id="@id/seekbar" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"
         android:importantForAccessibility="no"/>

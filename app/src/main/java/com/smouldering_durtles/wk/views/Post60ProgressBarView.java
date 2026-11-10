@@ -99,26 +99,20 @@ public final class Post60ProgressBarView extends View {
         height = dp2px(24);
 
         total = 0;
-        for (final int value: values) {
+        for (final int value : values) {
             total += value;
         }
 
         textColors = new int[colors.length];
         textShadow = new boolean[colors.length];
-        for (int i=0; i<colors.length; i++) {
-            if (DashboardStyle.isModern(getContext())) {
-                int actualFill = ColorUtils.compositeColors(colors[i], MaterialColors.getColor(this,
-                        com.google.android.material.R.attr.colorSurfaceContainerLow));
-                textColors[i] = ColorUtils.calculateContrast(Color.BLACK, actualFill)
-                        >= ColorUtils.calculateContrast(Color.WHITE, actualFill) ? Color.BLACK : Color.WHITE;
-                textShadow[i] = false;
-                continue;
-            }
-            final boolean light = ThemeUtil.isLightColor(colors[i]);
-            textColors[i] = light
-                    ? ThemeUtil.getColor(getContext(), androidx.appcompat.R.attr.colorPrimaryDark)
-                    : ThemeUtil.getColor(getContext(), R.attr.colorPrimaryLight);
-            textShadow[i] = !light;
+        for (int i = 0; i < colors.length; i++) {
+            int actualFill = ColorUtils.compositeColors(colors[i],
+                    MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
+            textColors[i] = ColorUtils.calculateContrast(Color.BLACK, actualFill)
+                            >= ColorUtils.calculateContrast(Color.WHITE, actualFill)
+                    ? Color.BLACK
+                    : Color.WHITE;
+            textShadow[i] = false;
         }
     }
 
@@ -135,7 +129,7 @@ public final class Post60ProgressBarView extends View {
             final int width = getWidth() - getPaddingLeft() - getPaddingRight();
             int done = 0;
 
-            for (int i=0; i<values.length; i++) {
+            for (int i = 0; i < values.length; i++) {
                 final int value = values[i];
                 if (value == 0) {
                     continue;
@@ -144,14 +138,14 @@ public final class Post60ProgressBarView extends View {
                 final int start = getPaddingLeft() + (done * width) / total;
                 final int end = getPaddingLeft() + ((done + value) * width) / total;
 
-                if (DashboardStyle.isModern(getContext())) paint.clearShadowLayer();
+                paint.clearShadowLayer();
                 paint.setColor(colors[i]);
                 paint.setStyle(Paint.Style.FILL_AND_STROKE);
                 paint.setStrokeWidth(0);
                 canvas.drawRect(start, getPaddingTop(), end, getPaddingTop() + height, paint);
-                if (done > 0 && DashboardStyle.isModern(getContext())
-                        && "neutral".equals(GlobalSettings.Display.getLearningColors())) {
-                    paint.setColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
+                if (done > 0 && "neutral".equals(GlobalSettings.Display.getLearningColors())) {
+                    paint.setColor(
+                            MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
                     canvas.drawRect(start, getPaddingTop(), Math.min(end, start + Math.max(1, dp2px(1))),
                             getPaddingTop() + height, paint);
                 }
@@ -160,22 +154,22 @@ public final class Post60ProgressBarView extends View {
                     paint.setColor(textColors[i]);
                     if (textShadow[i]) {
                         paint.setShadowLayer(3, 1, 1, Color.BLACK);
-                    }
-                    else {
+                    } else {
                         paint.clearShadowLayer();
                     }
                     paint.setTextSize(dp2px(10));
                     paint.setTextAlign(Paint.Align.CENTER);
                     final String longText = String.format(Locale.ROOT, "%.1f%%", (values[i] * 100.0f) / total);
                     paint.getTextBounds(longText, 0, longText.length(), rect);
-                    if (rect.width() + dp2px(2) <= (end-start)) {
-                        canvas.drawText(longText, (start+end) / 2.0f, getPaddingTop() + height / 2.0f - (paint.ascent() + paint.descent()) / 2, paint);
-                    }
-                    else {
+                    if (rect.width() + dp2px(2) <= (end - start)) {
+                        canvas.drawText(longText, (start + end) / 2.0f,
+                                getPaddingTop() + height / 2.0f - (paint.ascent() + paint.descent()) / 2, paint);
+                    } else {
                         final String shortText = String.format(Locale.ROOT, "%d%%", (values[i] * 100) / total);
                         paint.getTextBounds(shortText, 0, shortText.length(), rect);
-                        if (rect.width() + dp2px(2) <= (end-start)) {
-                            canvas.drawText(shortText, (start+end) / 2.0f, getPaddingTop() + height / 2.0f - (paint.ascent() + paint.descent()) / 2, paint);
+                        if (rect.width() + dp2px(2) <= (end - start)) {
+                            canvas.drawText(shortText, (start + end) / 2.0f,
+                                    getPaddingTop() + height / 2.0f - (paint.ascent() + paint.descent()) / 2, paint);
                         }
                     }
                 }
@@ -195,14 +189,10 @@ public final class Post60ProgressBarView extends View {
             final int w;
             if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY) {
                 w = MeasureSpec.getSize(widthMeasureSpec);
-            }
-            else if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
-                w = Math.min(
-                        MeasureSpec.getSize(widthMeasureSpec),
-                        getSuggestedMinimumWidth() + getPaddingLeft() + getPaddingRight()
-                );
-            }
-            else {
+            } else if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+                w = Math.min(MeasureSpec.getSize(widthMeasureSpec),
+                        getSuggestedMinimumWidth() + getPaddingLeft() + getPaddingRight());
+            } else {
                 w = getSuggestedMinimumWidth() + getPaddingLeft() + getPaddingRight();
             }
 
@@ -221,24 +211,16 @@ public final class Post60ProgressBarView extends View {
             final boolean reversed = GlobalSettings.Dashboard.getShowPost60Reverse();
 
             if (subsections) {
-                values = new int[] {
-                        breakDown.getPost60DeepCount(0),
-                        breakDown.getPost60DeepCount(1),
-                        breakDown.getPost60DeepCount(2),
-                        breakDown.getPost60DeepCount(3),
-                        breakDown.getPost60DeepCount(4),
-                        breakDown.getPost60DeepCount(5),
-                        breakDown.getPost60DeepCount(6),
-                        breakDown.getPost60DeepCount(7),
-                        breakDown.getPost60DeepCount(8),
-                        breakDown.getPost60DeepCount(9),
-                        breakDown.getPost60DeepCount(10)
-                };
+                values = new int[] {breakDown.getPost60DeepCount(0), breakDown.getPost60DeepCount(1),
+                        breakDown.getPost60DeepCount(2), breakDown.getPost60DeepCount(3),
+                        breakDown.getPost60DeepCount(4), breakDown.getPost60DeepCount(5),
+                        breakDown.getPost60DeepCount(6), breakDown.getPost60DeepCount(7),
+                        breakDown.getPost60DeepCount(8), breakDown.getPost60DeepCount(9),
+                        breakDown.getPost60DeepCount(10)};
 
                 colors = ActiveTheme.getStageDeepBucketColors().clone();
                 stageLabels = getResources().getStringArray(R.array.dashboard_post60_deep_stages);
-            }
-            else {
+            } else {
                 values = new int[] {
                         breakDown.getPost60ShallowCount(0),
                         breakDown.getPost60ShallowCount(1),
@@ -253,12 +235,14 @@ public final class Post60ProgressBarView extends View {
                 stageLabels = getResources().getStringArray(R.array.dashboard_post60_stages);
             }
 
-            if (DashboardStyle.isModern(getContext())) {
-                for (int i = 0; i < colors.length; i++) colors[i] = LearningColors.accent(getContext(), colors[i]);
+            for (int i = 0; i < colors.length; i++) {
+                int bucket = subsections ? (i < 2 ? -1 : i < 6 ? 0 : i < 8 ? 1 : i - 6) : i - 2;
+                colors[i] = bucket < 0 || "original".equals(GlobalSettings.Display.getLearningColors())
+                        ? LearningColors.accent(getContext(), colors[i]) : LearningColors.stage(getContext(), bucket);
             }
 
             if (reversed) {
-                for (int i=0, j=values.length-1; i<j; i++, j--) {
+                for (int i = 0, j = values.length - 1; i < j; i++, j--) {
                     final int tmp = values[i];
                     values[i] = values[j];
                     values[j] = tmp;
@@ -266,14 +250,14 @@ public final class Post60ProgressBarView extends View {
                     stageLabels[i] = stageLabels[j];
                     stageLabels[j] = label;
                 }
-                for (int i=0, j=colors.length-1; i<j; i++, j--) {
+                for (int i = 0, j = colors.length - 1; i < j; i++, j--) {
                     final int tmp = colors[i];
                     colors[i] = colors[j];
                     colors[j] = tmp;
                 }
             }
 
-            if (DashboardStyle.isModern(getContext())) setContentDescription(stageSummary());
+            setContentDescription(stageSummary());
             dirty = true;
             invalidate();
             requestLayout();
@@ -282,7 +266,6 @@ public final class Post60ProgressBarView extends View {
 
     /** Exact bucket labels remain available even when all chart segments use a neutral accent. */
     public void showStageCounts() {
-        if (!DashboardStyle.isModern(getContext())) return;
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle(R.string.dashboard_post60_title)
                 .setMessage(stageSummary())
@@ -294,7 +277,8 @@ public final class Post60ProgressBarView extends View {
         StringBuilder summary = new StringBuilder();
         NumberFormat numbers = NumberFormat.getIntegerInstance();
         for (int i = 0; i < values.length; i++) {
-            if (i > 0) summary.append('\n');
+            if (i > 0)
+                summary.append('\n');
             summary.append(stageLabels[i]).append(": ").append(numbers.format(values[i]));
         }
         return summary.toString();

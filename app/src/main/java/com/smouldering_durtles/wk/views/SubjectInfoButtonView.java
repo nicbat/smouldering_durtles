@@ -214,6 +214,8 @@ public final class SubjectInfoButtonView extends View {
      */
     public void setSizeForQuiz(final boolean sizeForQuiz) {
         this.sizeForQuiz = sizeForQuiz;
+        requestLayout();
+        invalidate();
     }
 
     /**
@@ -311,11 +313,15 @@ public final class SubjectInfoButtonView extends View {
             return;
         }
 
+        // The quiz preference is a font-size cap, not a total height that includes
+        // the question panel's padding. Keep those independent, including at large text.
+        final int glyphLimit = Math.max(0, maxHeight);
         if (image == null) {
-            binSearch(absoluteMinTextHeight, displayHeight, finalMaxWidth, finalMaxHeight, topMargin, bottomMargin);
+            binSearch(0, glyphLimit, finalMaxWidth, measureMaxHeight, topMargin, bottomMargin);
         }
         else {
-            final int wideSize = Math.max(Math.min(finalMaxWidth, finalMaxHeight) - topMargin - bottomMargin, absoluteMinTextHeight);
+            final int wideSize = Math.max(0, Math.min(glyphLimit,
+                    Math.min(finalMaxWidth, measureMaxHeight - topMargin - bottomMargin)));
             textWidth = wideSize;
             textHeight = wideSize;
             viewWidth = textWidth;

@@ -118,7 +118,7 @@ public final class FontStorageUtil {
     }
 
     /**
-     * Load the typeface configuration specified by name, either a filename or a number 1-8.
+     * Load the typeface configuration specified by name, either a filename or a stable built-in font ID.
      *
      * @param name font ID
      * @return the Typeface loaded or null if failed
@@ -179,6 +179,29 @@ public final class FontStorageUtil {
                         if (typeface != null) {
                             CACHE.put(name, new TypefaceConfiguration(typeface));
                         }
+                        break;
+                    }
+                    case "9": {
+                        CACHE.put(name, new TypefaceConfiguration(Typeface.SERIF));
+                        break;
+                    }
+                    case "10": {
+                        CACHE.put(name, new TypefaceConfiguration(Typeface.DEFAULT_BOLD));
+                        break;
+                    }
+                    case "11":
+                    case "12": {
+                        // Bold variants reuse existing bundled faces; Android supplies the weight.
+                        TypefaceConfiguration base = getTypefaceConfiguration("11".equals(name) ? "5" : "2");
+                        if (base != null) CACHE.put(name, new TypefaceConfiguration(
+                                Typeface.create(base.getTypeface(), Typeface.BOLD)));
+                        break;
+                    }
+                    case "13":
+                    case "14": {
+                        Typeface typeface = ResourcesCompat.getFont(context, "13".equals(name)
+                                ? R.font.zen_kaku_gothic_new_regular : R.font.zen_maru_gothic_regular);
+                        if (typeface != null) CACHE.put(name, new TypefaceConfiguration(typeface));
                         break;
                     }
                     default: {

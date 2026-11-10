@@ -25,7 +25,6 @@ import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.activities.FontSelectionActivity;
 import com.smouldering_durtles.wk.activities.PreferencesActivity;
-import com.smouldering_durtles.wk.activities.ThemeCustomizationActivity;
 import com.smouldering_durtles.wk.components.MaterialSliderPreference;
 import com.smouldering_durtles.wk.components.NumberRangePreference;
 import com.smouldering_durtles.wk.enums.ActiveTheme;
@@ -67,7 +66,7 @@ public class SettingsCompletionTest {
 
     @Test public void sliderKeyboardPersistsAndRespectsChangeVetoAndDisabledState() {
         Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), PreferencesActivity.class);
-        intent.putExtra("rootKey", "display_settings");
+        intent.putExtra("rootKey", "anki_settings");
         try (ActivityScenario<PreferencesActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
                 PreferencesFragment fragment = (PreferencesFragment) activity.getSupportFragmentManager().findFragmentById(R.id.fragment);
@@ -155,7 +154,7 @@ public class SettingsCompletionTest {
         }
     }
 
-    @Test public void twoFieldEditorsUseOutlinedInputsAndClassicKeepsOriginalLayout() {
+    @Test public void twoFieldEditorsIgnoreObsoleteClassicPreference() {
         Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), PreferencesActivity.class);
         try (ActivityScenario<PreferencesActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
@@ -171,14 +170,14 @@ public class SettingsCompletionTest {
         try (ActivityScenario<PreferencesActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
                 NumberRangePreference preference = new NumberRangePreference(activity);
-                assertEquals(R.layout.pref_number_range, preference.getDialogLayoutResource());
+                assertEquals(R.layout.pref_number_range_modern, preference.getDialogLayoutResource());
                 MaterialSliderPreference slider = new MaterialSliderPreference(activity, null);
-                assertNotEquals(R.layout.settings_slider, slider.getLayoutResource());
+                assertEquals(R.layout.settings_slider, slider.getLayoutResource());
             });
         }
     }
 
-    @Test public void fontSelectionsRemainIndependentAcrossRecreationAndClassicSwitch() {
+    @Test public void fontSelectionsRemainIndependentAcrossRecreation() {
         try (ActivityScenario<FontSelectionActivity> scenario = ActivityScenario.launch(FontSelectionActivity.class)) {
             scenario.onActivity(activity -> {
                 ViewGroup rows = activity.findViewById(R.id.fontList);
@@ -201,32 +200,14 @@ public class SettingsCompletionTest {
             scenario.recreate();
             scenario.onActivity(activity -> {
                 ViewGroup rows = activity.findViewById(R.id.fontList);
-                assertFalse(rows.getChildAt(1).findViewById(R.id.fontSwitch) instanceof MaterialSwitch);
+                assertTrue(rows.getChildAt(1).findViewById(R.id.fontSwitch) instanceof MaterialSwitch);
                 assertFalse(((CompoundButton) rows.getChildAt(1).findViewById(R.id.fontSwitch)).isChecked());
                 assertTrue(((CompoundButton) rows.getChildAt(2).findViewById(R.id.fontSwitch)).isChecked());
             });
         }
     }
 
-    @Test public void colorEditorKeepsSelectionAndCustomSemanticPaletteAcrossRecreation() {
-        java.util.List<Integer> colors = new java.util.ArrayList<>(GlobalSettings.Display.getThemeCustomizations(ActiveTheme.getCurrentTheme()));
-        try (ActivityScenario<ThemeCustomizationActivity> scenario = ActivityScenario.launch(ThemeCustomizationActivity.class)) {
-            scenario.onActivity(activity -> {
-                assertTrue(ModernUi.isModern(activity));
-                View guru = activity.findViewById(R.id.guruSample);
-                assertNotNull(guru.getContentDescription());
-                guru.performClick();
-                assertTrue(((TextView) activity.findViewById(R.id.selectionDescription)).getText().toString().contains("Guru"));
-            });
-            scenario.recreate();
-            scenario.onActivity(activity -> {
-                assertEquals(View.VISIBLE, activity.findViewById(R.id.guruSampleHighlight).getVisibility());
-                assertTrue(((TextView) activity.findViewById(R.id.selectionDescription)).getText().toString().contains("Guru"));
-                assertEquals(colors, GlobalSettings.Display.getThemeCustomizations(ActiveTheme.getCurrentTheme()));
-                capture(activity, "modern-color-customizer", activity.getWindow().getDecorView());
-            });
-        }
-    }
+
 
     private void capture(android.content.Context context, String name, View view) {
         if (view.getWidth() <= 0 || view.getHeight() <= 0) return;

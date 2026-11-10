@@ -53,6 +53,7 @@ public final class SubjectGridView extends RigidGridLayout implements SubjectCha
     private @Nullable WeakLcoRef<Actment> actmentRef = null;
     private List<Long> currentSubjectIds = Collections.emptyList();
     private int spans = 1;
+    private final List<Subject> boundSubjects = new ArrayList<>();
     private boolean showMeaningText = true;
     private boolean showReadingText = true;
 
@@ -170,14 +171,30 @@ public final class SubjectGridView extends RigidGridLayout implements SubjectCha
             showReadingText = showReading;
             actmentRef = new WeakLcoRef<>(actment);
             currentSubjectIds = new ArrayList<>();
+            boundSubjects.clear();
             removeAllViews();
             for (final Subject subject: subjects) {
                 currentSubjectIds.add(subject.getId());
+                boundSubjects.add(subject);
                 final View cell = createSubjectCellView(subject);
                 addView(cell);
             }
             SubjectChangeWatcher.getInstance().addListener(this);
         });
+    }
+
+    @Override protected void prepareMeasurement(int width) {
+        int available = MeasureSpec.getSize(width) - getPaddingLeft() - getPaddingRight();
+        int columns = Math.max(1, available / Math.max(1, Math.round(100 * getResources().getDisplayMetrics().density
+                * getResources().getConfiguration().fontScale)));
+        if (spans != columns) {
+            spans = columns; setNumColumns(columns);
+            for (int i = 0; i < Math.min(getChildCount(), boundSubjects.size()); i++) {
+                Subject subject = boundSubjects.get(i);
+                assignLayoutParams(getChildAt(i), subject.getType().isKanji() || subject.getType().isRadical() ? 1 : columns);
+            }
+        }
+
     }
 
     /**
@@ -188,6 +205,7 @@ public final class SubjectGridView extends RigidGridLayout implements SubjectCha
     public void removeSubject(final long id) {
         safe(() -> {
             currentSubjectIds.remove(id);
+            boundSubjects.removeIf(subject -> subject.getId() == id);
             for (int i=0; i<getChildCount(); i++) {
                 final @Nullable View cell = getChildAt(i);
                 if (cell != null) {

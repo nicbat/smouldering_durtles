@@ -4,8 +4,6 @@
     <!-- Bridge legacy neutral roles to Material surfaces without changing subject/SRS palettes. -->
     <style name="SmokyUiTheme" parent="SmokyMaterialTheme">
         <item name="smokyModernUi">true</item>
-        <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
-        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
         <item name="colorBackground">?attr/colorSurface</item>
         <item name="android:windowBackground">?attr/colorSurface</item>

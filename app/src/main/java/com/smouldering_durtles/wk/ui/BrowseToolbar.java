@@ -10,8 +10,7 @@ import com.smouldering_durtles.wk.R;
 /** Material toolbar/search input without changing the theme of legacy browse fragments. */
 public final class BrowseToolbar extends Toolbar {
     public BrowseToolbar(Context context, AttributeSet attrs) {
-        super(GlobalSettings.Display.getModernSettings() ? SearchStyle.context(context)
-                : new ContextThemeWrapper(context, R.style.WKToolbarTheme), attrs);
+        super(SearchStyle.context(context), attrs);
     }
 
     @Override

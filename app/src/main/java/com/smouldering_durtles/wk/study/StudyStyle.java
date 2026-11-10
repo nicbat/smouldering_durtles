@@ -29,8 +29,18 @@ public final class StudyStyle {
         return Math.round(value * view.getResources().getDisplayMetrics().density);
     }
 
+    /** Legacy fixed-height values may be as small as 1dp; preserve the setting,
+     * but leave room for a readable glyph plus the renderer's vertical padding. */
+    public static int questionHeight(View view, int requestedDp) {
+        if (requestedDp <= 0) return ViewGroup.LayoutParams.WRAP_CONTENT;
+        int glyphSp = Math.min(48, Math.max(0,
+                com.smouldering_durtles.wk.GlobalSettings.Font.getMaxFontSizeQuizText()));
+        int readableHeight = dp(view, 52) + Math.round(glyphSp
+                * view.getResources().getDisplayMetrics().scaledDensity);
+        return Math.max(dp(view, requestedDp), readableHeight);
+    }
+
     public static void page(View view) {
-        if (!ModernUi.isModern(view.getContext())) return;
         ModernUi.style(view);
         view.setBackgroundColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface));
         final View input = view.findViewById(R.id.questionEdit);
@@ -60,6 +70,41 @@ public final class StudyStyle {
         button.setMinWidth(0);
         button.setMinimumWidth(0);
         button.setSingleLine(false);
+    }
+
+    /** Bind the same undo affordance wherever configurable review actions appear. */
+    public static void specialAction(View view,
+            com.smouldering_durtles.wk.enums.SpecialButtonBehavior behavior) {
+        if (!(view instanceof Button)) return;
+        Button button = (Button) view;
+        button.setText(behavior.getLabel());
+        boolean undo = behavior == com.smouldering_durtles.wk.enums.SpecialButtonBehavior.UNDO_AND_RETRY_NOW
+                || behavior == com.smouldering_durtles.wk.enums.SpecialButtonBehavior.UNDO_AND_PUT_BACK;
+        if (undo) { button.setText(""); button.setMinWidth(dp(button, 48)); button.setMinimumWidth(dp(button, 48)); }
+        String description = behavior == com.smouldering_durtles.wk.enums.SpecialButtonBehavior.UNDO_AND_PUT_BACK
+                ? "Undo answer and review this item later" : "Undo answer and retry this item";
+        button.setContentDescription(undo ? description : behavior.getLabel());
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(button, undo ? description : null);
+        ModernUi.button(button, undo ? ModernUi.ButtonRole.SECONDARY : ModernUi.ButtonRole.TEXT);
+        if (button instanceof com.google.android.material.button.MaterialButton) {
+            com.google.android.material.button.MaterialButton material =
+                    (com.google.android.material.button.MaterialButton) button;
+            material.setIconResource(undo ? R.drawable.ic_undo_24 : 0);
+            material.setIconTint(button.getTextColors());
+            material.setIconSize(dp(button, 20));
+            material.setIconPadding(dp(button, 8));
+            material.setIconGravity(com.google.android.material.button.MaterialButton.ICON_GRAVITY_TEXT_START);
+        } else {
+            Drawable icon = undo ? androidx.appcompat.content.res.AppCompatResources.getDrawable(
+                    button.getContext(), R.drawable.ic_undo_24) : null;
+            if (icon != null) {
+                icon = androidx.core.graphics.drawable.DrawableCompat.wrap(icon).mutate();
+                androidx.core.graphics.drawable.DrawableCompat.setTintList(icon, button.getTextColors());
+                icon.setBounds(0, 0, dp(button, 20), dp(button, 20));
+            }
+            button.setCompoundDrawablesRelative(icon, null, null, null);
+            button.setCompoundDrawablePadding(dp(button, 8));
+        }
     }
 
     /** Keep question content free of action overlays; bindings still target the same Views and IDs. */
@@ -178,7 +223,7 @@ public final class StudyStyle {
 
     /** Round a semantic surface without replacing its established foreground/background palette. */
     public static void semanticSurface(View view, int color, int radius, boolean ripple) {
-        if (view == null || !ModernUi.isModern(view.getContext())) return;
+        if (view == null) return;
         final MaterialShapeDrawable shape = new MaterialShapeDrawable(ShapeAppearanceModel.builder()
                 .setAllCornerSizes(dp(view, radius)).build());
         shape.setFillColor(ColorStateList.valueOf(color));
@@ -189,7 +234,6 @@ public final class StudyStyle {
     }
 
     public static void question(View root, int subjectColor) {
-        if (!ModernUi.isModern(root.getContext())) return;
         final View question = root.findViewById(R.id.questionView);
         if (question != null) {
             question.setBackground(com.smouldering_durtles.wk.ui.LearningColors.surface(question, subjectColor, 16));
@@ -222,14 +266,13 @@ public final class StudyStyle {
     }
 
     public static void roundCurrentColor(View view, int radius, boolean ripple) {
-        if (view == null || !ModernUi.isModern(view.getContext())) return;
+        if (view == null) return;
         final Drawable background = view.getBackground();
         if (background instanceof ColorDrawable) semanticSurface(view, ((ColorDrawable) background).getColor(), radius, ripple);
     }
 
     /** Reflow metadata into stacked records so dates and translated labels can wrap at large text sizes. */
     public static void prepareDetails(SubjectInfoView view) {
-        if (!ModernUi.isModern(view.getContext())) return;
         view.setBackgroundColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface));
         final android.widget.TableLayout table = view.findViewById(R.id.detailsTable);
         if (table != null) {
@@ -279,7 +322,6 @@ public final class StudyStyle {
     }
 
     public static void answerFeedback(TextView answer, int background) {
-        if (!ModernUi.isModern(answer.getContext())) return;
         semanticSurface(answer, background, 12, false);
         margins(answer, 16, 8, 16, 8);
         answer.setTextColor(contrastInk(background));
@@ -306,7 +348,6 @@ public final class StudyStyle {
 
     /** Log entries keep subject colors while their status and event text follow actual fill contrast. */
     public static void logRow(View row, int color) {
-        if (!ModernUi.isModern(row.getContext())) return;
         semanticSurface(row, com.smouldering_durtles.wk.ui.LearningColors.fill(row.getContext(), color), 12, row.hasOnClickListeners());
         row.setElevation(0);
         row.setPadding(dp(row, 12), dp(row, 12), dp(row, 12), dp(row, 12));
@@ -323,7 +364,6 @@ public final class StudyStyle {
     }
 
     public static void logHeader(View row) {
-        if (!ModernUi.isModern(row.getContext())) return;
         final int color = MaterialColors.getColor(row, com.google.android.material.R.attr.colorSurfaceContainerLow);
         semanticSurface(row, color, 12, true);
         row.setPadding(dp(row, 8), dp(row, 12), dp(row, 12), dp(row, 12));
@@ -345,12 +385,12 @@ public final class StudyStyle {
     }
 
     public static void details(SubjectInfoView view) {
-        if (!ModernUi.isModern(view.getContext())) return;
         // Keep semantic rich-text spans, custom font size, subject grids, and pitch/stroke drawings intact.
         for (int i = 0; i < view.getChildCount(); i++) {
             final View child = view.getChildAt(i);
             if (child instanceof TextView) {
                 final TextView text = (TextView) child;
+                text.setGravity(Gravity.START);
                 text.setLineSpacing(dp(view, 3), 1f);
                 if (text.getTypeface() != null && text.getTypeface().isBold()) {
                     text.setTypeface(text.getTypeface(), Typeface.BOLD);
@@ -377,7 +417,6 @@ public final class StudyStyle {
     }
 
     public static void headline(SubjectInfoHeadlineView view) {
-        if (!ModernUi.isModern(view.getContext())) return;
         semanticSurface(view, MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurfaceContainerLow), 12, false);
         view.setPadding(dp(view, 16), dp(view, 16), dp(view, 16), dp(view, 16));
         flattenSubjectGlyphs(view);

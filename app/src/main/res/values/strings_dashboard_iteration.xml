@@ -9,10 +9,6 @@
     <string name="forecast_previous_day">Previous day</string>
     <string name="forecast_close">Close</string>
     <string name="forecast_next_day">Next day</string>
-    <string name="level_up_priority_title">Level-up priority</string>
-    <string name="level_up_priority_lessons">Prioritize level-up lessons</string>
-    <string name="level_up_priority_reviews">Prioritize level-up reviews</string>
-    <string name="level_up_path_explanation">Unpassed current-level kanji and the radicals that unlock them. Applies to new sessions and keeps other items in the queue.</string>
     <string name="level_up_available_count">%1$d on level-up path</string>
     <string name="notification_lessons">%1$d lessons available</string>
     <string name="notification_reviews">%1$d reviews available</string>

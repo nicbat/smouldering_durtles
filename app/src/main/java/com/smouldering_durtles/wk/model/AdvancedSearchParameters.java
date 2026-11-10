@@ -29,6 +29,10 @@ import javax.annotation.Nullable;
  * Presets for the advanced search form.
  */
 public final class AdvancedSearchParameters {
+    public boolean noSubjectTypes = false;
+    public String query = "";
+    public String partOfSpeech = "";
+    public String pitchPattern = "";
     public @Nullable Integer minLevel = null;
     public @Nullable Integer maxLevel = null;
     public @Nullable Integer minFrequency = null;

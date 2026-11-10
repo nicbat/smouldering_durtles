@@ -191,14 +191,11 @@ class SearchAppearanceTest {
         } }
     }
 
-    @Test fun darkGridUsesOneColumnAtLargeFontAndKeepsClassicSpans() {
+    @Test fun darkGridUsesOneColumnAtLargeFont() {
         fixture(dark = true, fontScale = 2f).use { scenario -> scenario.onActivity { activity ->
             layoutList(360)
             assertEquals(1, (list.layoutManager as GridLayoutManager).spanCount)
             save(activity, "search-grid-dark-large", list)
-            adapter.setModern(false)
-            assertEquals(1, adapter.getItemSpanSize(1, 4)) // original radical cell
-            assertEquals(4, adapter.getItemSpanSize(5, 4)) // original vocabulary row
         } }
     }
 
@@ -224,9 +221,6 @@ class SearchAppearanceTest {
             adapter.setResult(arrayListOf(a))
             assertEquals(1, adapter.itemCount)
             assertEquals(1, adapter.numSubjects)
-            adapter.setModern(false)
-            adapter.setResult(arrayListOf(a))
-            assertEquals(3, adapter.itemCount) // Classic retains the original tree presentation
         } }
     }
 
@@ -259,14 +253,14 @@ class SearchAppearanceTest {
         }
     }
 
-    @Test fun realBrowseBackStackSearchInputAndClassicRecreation() {
+    @Test fun realBrowseBackStackAndSearchInputSurviveObsoleteAppearanceFlagChanges() {
         val monitor = instrumentation.addMonitor(NoApiKeyHelpActivity::class.java.name,
             Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null), true)
         try {
             ActivityScenario.launch<BrowseActivity>(Intent(instrumentation.targetContext, BrowseActivity::class.java)).use { scenario ->
                 scenario.onActivity {
                     it.supportFragmentManager.executePendingTransactions()
-                    assertTrue(it.supportFragmentManager.findFragmentById(R.id.fragment) is BrowseOverviewFragment)
+                    assertTrue(it.supportFragmentManager.findFragmentById(R.id.fragment) is com.smouldering_durtles.wk.fragments.LibraryFragment)
                     it.loadSearchResultFragment(null, 1, "smoky-no-matching-fixture")
                     it.supportFragmentManager.executePendingTransactions()
                 }
@@ -275,14 +269,14 @@ class SearchAppearanceTest {
                 var finished = false
                 while (!finished && System.currentTimeMillis() < deadline) {
                     instrumentation.waitForIdleSync()
-                    scenario.onActivity { finished = !it.findViewById<TextView>(R.id.numHits).text.toString().contains("Searching") }
+                    scenario.onActivity { finished = !it.findViewById<TextView>(R.id.numHits).text.toString().contains("Loading") }
                     if (!finished) Thread.sleep(50)
                 }
                 assertTrue("Search callback should complete", finished)
                 scenario.onActivity { activity ->
-                    assertTrue(activity.findViewById<TextView>(R.id.numHits).text.startsWith("No results"))
-                    assertTrue(SearchStyle.isModern(activity.findViewById<View>(R.id.resultView).context))
-                    assertFalse(SearchStyle.isModern(activity)) // no theme leakage into shared detail/study Views
+                    assertTrue(activity.findViewById<TextView>(R.id.numHits).text.startsWith("0 items"))
+                    assertNotNull(activity.findViewById<View>(R.id.resultView))
+                    assertFalse(SearchStyle.isModern(activity)) // Search-specific attributes remain scoped; the activity uses shared Material styling.
                     val search = activity.menu!!.findItem(R.id.action_search)
                     assertTrue(search.expandActionView())
                 }
@@ -296,13 +290,13 @@ class SearchAppearanceTest {
                     save(activity, "search-empty", activity.window.decorView)
                 }
                 scenario.recreate()
-                scenario.onActivity { assertTrue(it.supportFragmentManager.findFragmentById(R.id.fragment) is SearchResultFragment) }
+                scenario.onActivity { assertTrue(it.supportFragmentManager.findFragmentById(R.id.fragment) is com.smouldering_durtles.wk.fragments.LibraryFragment) }
                 prefs.edit().putBoolean("modern_settings", false).commit()
                 scenario.recreate()
                 scenario.onActivity { activity ->
-                    assertFalse(SearchStyle.isModern(activity.findViewById<View>(R.id.resultView).context))
+                    assertNotNull(activity.findViewById<View>(R.id.resultView))
                     assertTrue(activity.supportFragmentManager.popBackStackImmediate())
-                    assertTrue(activity.supportFragmentManager.findFragmentById(R.id.fragment) is BrowseOverviewFragment)
+                    assertTrue(activity.supportFragmentManager.findFragmentById(R.id.fragment) is com.smouldering_durtles.wk.fragments.LibraryFragment)
                 }
                 prefs.edit().putBoolean("modern_settings", true).commit()
                 scenario.recreate()
@@ -324,7 +318,6 @@ class SearchAppearanceTest {
             list = root.findViewById(R.id.resultView)
             list.itemAnimator = null // Capture final geometry, not an in-flight collapse/resize animation.
             adapter = SearchResultAdapter(fragment)
-            adapter.setModern(true)
             SearchStyle.configureResultGrid(list, adapter)
             list.adapter = adapter
             adapter.setResult(subjects())

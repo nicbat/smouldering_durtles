@@ -15,37 +15,36 @@
   -->
 
 <resources>
-    <style name="WKLightTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/wkLightColorPrimary</item>
-        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/wkLightColorPrimaryDark</item>
-        <item name="colorPrimaryInverse">@color/wkLightColorPrimaryInverse</item>
-        <item name="colorPrimaryLight">@color/wkLightColorPrimaryLight</item>
-        <item name="colorPrimaryTonedDown">@color/wkLightColorPrimaryTonedDown</item>
-        <item name="colorAccent">@color/wkLightColorAccent</item>
-        <item name="colorBackground">@color/wkLightColorBackground</item>
-        <item name="colorDivider">@color/wkLightColorDivider</item>
-        <item name="toolbarColorBackground">@color/wkLightToolbarColorBackground</item>
-        <item name="browseLevelButtonColorBackground">@color/wkLightBrowseLevelButtonColorBackground</item>
-        <item name="tileColorBackground">@color/wkLightTileColorBackground</item>
-        <item name="colorWaterfallLine">@color/wkLightColorWaterfallLine</item>
-        <item name="colorLevelProgressTarget">@color/wkLightColorLevelProgressTarget</item>
-        <item name="customToastColorPrimary">@color/wkLightCustomToastColorPrimary</item>
-        <item name="alternativeToastColorPrimary">@color/wkLightAlternativeToastColorPrimary</item>
+    <style name="WKLightTheme" parent="SmokyUiTheme">
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimaryDark">?attr/colorSurface</item>
+        <item name="colorPrimaryInverse">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryLight">?attr/colorOnSurfaceVariant</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="browseLevelButtonColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="colorWaterfallLine">?attr/colorPrimary</item>
+        <item name="colorLevelProgressTarget">?attr/colorOnSurface</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
         <item name="correctColorBackground">@color/wkLightCorrectColorBackground</item>
         <item name="incorrectColorBackground">@color/wkLightIncorrectColorBackground</item>
         <item name="meaningHintColor">@color/wkLightMeaningHintColor</item>
         <item name="readingHintColor">@color/wkLightReadingHintColor</item>
-        <item name="editTextHintColor">@color/wkLightEditTextHintColor</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
         <item name="editTextHintColorInverse">@color/wkLightEditTextHintColorInverse</item>
         <item name="pitchInfoHeibanColor">@color/wkLightPitchInfoHeibanColor</item>
         <item name="pitchInfoOdakaColor">@color/wkLightPitchInfoOdakaColor</item>
         <item name="pitchInfoNakadakaColor">@color/wkLightPitchInfoNakadakaColor</item>
         <item name="pitchInfoAtamadakaColor">@color/wkLightPitchInfoAtamadakaColor</item>
-        <item name="buttonHighlightColor">@color/wkLightButtonHighlightColor</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
         <item name="strokeDiagramGhostColor">@color/wkLightStrokeDiagramGhostColor</item>
 
-        <item name="android:windowBackground">@color/wkLightWindowBackground</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
 
         <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
         <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
@@ -53,38 +52,37 @@
         <item name="WK_Button_Borderless">@style/WK.Button.Borderless</item>
     </style>
 
-    <style name="WKDarkWaniKaniTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/wkLightColorPrimaryLight</item>
-        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/wkDarkBrowseLevelButtonColorBackground</item>
-        <item name="colorPrimaryInverse">@color/wkLightColorPrimaryInverse</item>
-        <item name="colorPrimaryLight">@color/wkLightColorPrimaryLight</item>
-        <item name="colorPrimaryTonedDown">@color/wkDarkColorPrimaryTonedDown</item>
-        <item name="colorAccent">@color/wkDarkColorAccent</item>
-        <item name="colorBackground">@color/wkDarkColorBackground</item>
-        <item name="colorControlActivated">@color/wkDarkColorControlActivated</item>
-        <item name="colorDivider">@color/wkDarkColorDivider</item>
-        <item name="toolbarColorBackground">@color/wkDarkToolbarColorBackground</item>
-        <item name="browseLevelButtonColorBackground">@color/wkDarkBrowseLevelButtonColorBackground</item>
-        <item name="tileColorBackground">@color/wkDarkTileColorBackground</item>
-        <item name="colorWaterfallLine">@color/wkDarkColorWaterfallLine</item>
-        <item name="colorLevelProgressTarget">@color/wkDarkColorLevelProgressTarget</item>
-        <item name="customToastColorPrimary">@color/wkDarkCustomToastColorPrimary</item>
-        <item name="alternativeToastColorPrimary">@color/wkDarkAlternativeToastColorPrimary</item>
+    <style name="WKDarkWaniKaniTheme" parent="SmokyUiTheme">
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimaryDark">?attr/colorSurface</item>
+        <item name="colorPrimaryInverse">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryLight">?attr/colorOnSurfaceVariant</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="browseLevelButtonColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="colorWaterfallLine">?attr/colorPrimary</item>
+        <item name="colorLevelProgressTarget">?attr/colorOnSurface</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
         <item name="correctColorBackground">@color/wkDarkCorrectColorBackground</item>
         <item name="incorrectColorBackground">@color/wkDarkIncorrectColorBackground</item>
         <item name="meaningHintColor">@color/wkLightMeaningHintColor</item>
         <item name="readingHintColor">@color/wkDarkReadingHintColor</item>
-        <item name="editTextHintColor">@color/wkDarkEditTextHintColor</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
         <item name="editTextHintColorInverse">@color/wkDarkEditTextHintColorInverse</item>
         <item name="pitchInfoHeibanColor">@color/wkDarkPitchInfoHeibanColor</item>
         <item name="pitchInfoOdakaColor">@color/wkDarkPitchInfoOdakaColor</item>
         <item name="pitchInfoNakadakaColor">@color/wkDarkPitchInfoNakadakaColor</item>
         <item name="pitchInfoAtamadakaColor">@color/wkDarkPitchInfoAtamadakaColor</item>
-        <item name="buttonHighlightColor">@color/wkDarkButtonHighlightColor</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
         <item name="strokeDiagramGhostColor">@color/wkDarkStrokeDiagramGhostColor</item>
 
-        <item name="android:windowBackground">@color/wkDarkWindowBackground</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
 
         <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
         <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
@@ -92,38 +90,37 @@
         <item name="WK_Button_Borderless">@style/WK.Button.Borderless</item>
     </style>
 
-    <style name="WKDarkTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/wkDarkColorPrimary</item>
-        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/wkDarkColorPrimaryDark</item>
-        <item name="colorPrimaryInverse">@color/wkDarkColorPrimaryInverse</item>
-        <item name="colorPrimaryLight">@color/wkDarkColorPrimaryLight</item>
-        <item name="colorPrimaryTonedDown">@color/wkDarkColorPrimaryTonedDown</item>
-        <item name="colorAccent">@color/wkDarkColorAccent</item>
-        <item name="colorBackground">@color/wkDarkColorBackground</item>
-        <item name="colorControlActivated">@color/wkDarkColorControlActivated</item>
-        <item name="colorDivider">@color/wkDarkColorDivider</item>
-        <item name="toolbarColorBackground">@color/wkDarkToolbarColorBackground</item>
-        <item name="browseLevelButtonColorBackground">@color/wkDarkBrowseLevelButtonColorBackground</item>
-        <item name="tileColorBackground">@color/wkDarkTileColorBackground</item>
-        <item name="colorWaterfallLine">@color/wkDarkColorWaterfallLine</item>
-        <item name="colorLevelProgressTarget">@color/wkDarkColorLevelProgressTarget</item>
-        <item name="customToastColorPrimary">@color/wkDarkCustomToastColorPrimary</item>
-        <item name="alternativeToastColorPrimary">@color/wkDarkAlternativeToastColorPrimary</item>
+    <style name="WKDarkTheme" parent="SmokyUiTheme">
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimaryDark">?attr/colorSurface</item>
+        <item name="colorPrimaryInverse">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryLight">?attr/colorOnSurfaceVariant</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="browseLevelButtonColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="colorWaterfallLine">?attr/colorPrimary</item>
+        <item name="colorLevelProgressTarget">?attr/colorOnSurface</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
         <item name="correctColorBackground">@color/wkDarkCorrectColorBackground</item>
         <item name="incorrectColorBackground">@color/wkDarkIncorrectColorBackground</item>
         <item name="meaningHintColor">@color/wkDarkMeaningHintColor</item>
         <item name="readingHintColor">@color/wkDarkReadingHintColor</item>
-        <item name="editTextHintColor">@color/wkDarkEditTextHintColor</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
         <item name="editTextHintColorInverse">@color/wkDarkEditTextHintColorInverse</item>
         <item name="pitchInfoHeibanColor">@color/wkDarkPitchInfoHeibanColor</item>
         <item name="pitchInfoOdakaColor">@color/wkDarkPitchInfoOdakaColor</item>
         <item name="pitchInfoNakadakaColor">@color/wkDarkPitchInfoNakadakaColor</item>
         <item name="pitchInfoAtamadakaColor">@color/wkDarkPitchInfoAtamadakaColor</item>
-        <item name="buttonHighlightColor">@color/wkDarkButtonHighlightColor</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
         <item name="strokeDiagramGhostColor">@color/wkDarkStrokeDiagramGhostColor</item>
 
-        <item name="android:windowBackground">@color/wkDarkWindowBackground</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
 
         <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
         <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
@@ -131,38 +128,37 @@
         <item name="WK_Button_Borderless">@style/WK.Button.Borderless</item>
     </style>
 
-    <style name="WKBlackWaniKaniTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/wkLightColorPrimaryLight</item>
-        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/wkDarkBrowseLevelButtonColorBackground</item>
-        <item name="colorPrimaryInverse">@color/wkLightColorPrimaryInverse</item>
-        <item name="colorPrimaryLight">@color/wkLightColorPrimaryLight</item>
-        <item name="colorPrimaryTonedDown">@color/wkDarkColorPrimaryTonedDown</item>
-        <item name="colorAccent">@color/wkDarkColorAccent</item>
-        <item name="colorBackground">@color/wkBlackColorBackground</item>
-        <item name="colorControlActivated">@color/wkDarkColorControlActivated</item>
-        <item name="colorDivider">@color/wkDarkColorDivider</item>
-        <item name="toolbarColorBackground">@color/wkBlackColorBackground</item>
-        <item name="browseLevelButtonColorBackground">@color/wkDarkBrowseLevelButtonColorBackground</item>
-        <item name="tileColorBackground">@color/wkBlackColorBackground</item>
-        <item name="colorWaterfallLine">@color/wkDarkColorWaterfallLine</item>
-        <item name="colorLevelProgressTarget">@color/wkDarkColorLevelProgressTarget</item>
-        <item name="customToastColorPrimary">@color/wkDarkCustomToastColorPrimary</item>
-        <item name="alternativeToastColorPrimary">@color/wkDarkAlternativeToastColorPrimary</item>
+    <style name="WKBlackWaniKaniTheme" parent="SmokyUiTheme">
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimaryDark">?attr/colorSurface</item>
+        <item name="colorPrimaryInverse">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryLight">?attr/colorOnSurfaceVariant</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="browseLevelButtonColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="colorWaterfallLine">?attr/colorPrimary</item>
+        <item name="colorLevelProgressTarget">?attr/colorOnSurface</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
         <item name="correctColorBackground">@color/wkDarkCorrectColorBackground</item>
         <item name="incorrectColorBackground">@color/wkDarkIncorrectColorBackground</item>
         <item name="meaningHintColor">@color/wkLightMeaningHintColor</item>
         <item name="readingHintColor">@color/wkDarkReadingHintColor</item>
-        <item name="editTextHintColor">@color/wkDarkEditTextHintColor</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
         <item name="editTextHintColorInverse">@color/wkDarkEditTextHintColorInverse</item>
         <item name="pitchInfoHeibanColor">@color/wkDarkPitchInfoHeibanColor</item>
         <item name="pitchInfoOdakaColor">@color/wkDarkPitchInfoOdakaColor</item>
         <item name="pitchInfoNakadakaColor">@color/wkDarkPitchInfoNakadakaColor</item>
         <item name="pitchInfoAtamadakaColor">@color/wkDarkPitchInfoAtamadakaColor</item>
-        <item name="buttonHighlightColor">@color/wkDarkButtonHighlightColor</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
         <item name="strokeDiagramGhostColor">@color/wkDarkStrokeDiagramGhostColor</item>
 
-        <item name="android:windowBackground">@color/wkBlackColorBackground</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
 
         <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
         <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
@@ -170,38 +166,37 @@
         <item name="WK_Button_Borderless">@style/WK.Button.Borderless</item>
     </style>
 
-    <style name="WKBlackTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/wkDarkColorPrimary</item>
-        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/wkDarkColorPrimaryDark</item>
-        <item name="colorPrimaryInverse">@color/wkDarkColorPrimaryInverse</item>
-        <item name="colorPrimaryLight">@color/wkDarkColorPrimaryLight</item>
-        <item name="colorPrimaryTonedDown">@color/wkDarkColorPrimaryTonedDown</item>
-        <item name="colorAccent">@color/wkDarkColorAccent</item>
-        <item name="colorBackground">@color/wkBlackColorBackground</item>
-        <item name="colorControlActivated">@color/wkDarkColorControlActivated</item>
-        <item name="colorDivider">@color/wkDarkColorDivider</item>
-        <item name="toolbarColorBackground">@color/wkBlackColorBackground</item>
-        <item name="browseLevelButtonColorBackground">@color/wkDarkBrowseLevelButtonColorBackground</item>
-        <item name="tileColorBackground">@color/wkBlackColorBackground</item>
-        <item name="colorWaterfallLine">@color/wkDarkColorWaterfallLine</item>
-        <item name="colorLevelProgressTarget">@color/wkDarkColorLevelProgressTarget</item>
-        <item name="customToastColorPrimary">@color/wkDarkCustomToastColorPrimary</item>
-        <item name="alternativeToastColorPrimary">@color/wkDarkAlternativeToastColorPrimary</item>
+    <style name="WKBlackTheme" parent="SmokyUiTheme">
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimaryDark">?attr/colorSurface</item>
+        <item name="colorPrimaryInverse">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryLight">?attr/colorOnSurfaceVariant</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="browseLevelButtonColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="colorWaterfallLine">?attr/colorPrimary</item>
+        <item name="colorLevelProgressTarget">?attr/colorOnSurface</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
         <item name="correctColorBackground">@color/wkDarkCorrectColorBackground</item>
         <item name="incorrectColorBackground">@color/wkDarkIncorrectColorBackground</item>
         <item name="meaningHintColor">@color/wkDarkMeaningHintColor</item>
         <item name="readingHintColor">@color/wkDarkReadingHintColor</item>
-        <item name="editTextHintColor">@color/wkDarkEditTextHintColor</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
         <item name="editTextHintColorInverse">@color/wkDarkEditTextHintColorInverse</item>
         <item name="pitchInfoHeibanColor">@color/wkDarkPitchInfoHeibanColor</item>
         <item name="pitchInfoOdakaColor">@color/wkDarkPitchInfoOdakaColor</item>
         <item name="pitchInfoNakadakaColor">@color/wkDarkPitchInfoNakadakaColor</item>
         <item name="pitchInfoAtamadakaColor">@color/wkDarkPitchInfoAtamadakaColor</item>
-        <item name="buttonHighlightColor">@color/wkDarkButtonHighlightColor</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
         <item name="strokeDiagramGhostColor">@color/wkDarkStrokeDiagramGhostColor</item>
 
-        <item name="android:windowBackground">@color/wkBlackColorBackground</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
 
         <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
         <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
@@ -209,38 +204,37 @@
         <item name="WK_Button_Borderless">@style/WK.Button.Borderless</item>
     </style>
 
-    <style name="WKNordPolarNightAuroraTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/wkNordColorPrimary</item>
-        <item name="wkTextColorPrimary">?attr/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/wkNordColorPrimaryDark</item>
-        <item name="colorPrimaryInverse">@color/wkNordColorPrimaryInverse</item>
-        <item name="colorPrimaryLight">@color/wkNordColorPrimaryLight</item>
-        <item name="colorPrimaryTonedDown">@color/wkNordColorPrimaryTonedDown</item>
-        <item name="colorAccent">@color/wkNordColorAccent</item>
-        <item name="colorBackground">@color/wkNordColorBackground</item>
-        <item name="colorControlActivated">@color/wkNordColorControlActivated</item>
-        <item name="colorDivider">@color/wkNordColorDivider</item>
-        <item name="toolbarColorBackground">@color/wkNordToolbarColorBackground</item>
-        <item name="browseLevelButtonColorBackground">@color/wkNordBrowseLevelButtonColorBackground</item>
-        <item name="tileColorBackground">@color/wkNordTileColorBackground</item>
-        <item name="colorWaterfallLine">@color/wkNordColorWaterfallLine</item>
-        <item name="colorLevelProgressTarget">@color/wkNordColorLevelProgressTarget</item>
-        <item name="customToastColorPrimary">@color/wkNordCustomToastColorPrimary</item>
-        <item name="alternativeToastColorPrimary">@color/wkNordAlternativeToastColorPrimary</item>
+    <style name="WKNordPolarNightAuroraTheme" parent="SmokyUiTheme">
+        <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimaryDark">?attr/colorSurface</item>
+        <item name="colorPrimaryInverse">?attr/colorOnPrimary</item>
+        <item name="colorPrimaryLight">?attr/colorOnSurfaceVariant</item>
+        <item name="colorPrimaryTonedDown">?attr/colorOutlineVariant</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorBackground">?attr/colorSurface</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorDivider">?attr/colorOutlineVariant</item>
+        <item name="toolbarColorBackground">?attr/colorSurface</item>
+        <item name="browseLevelButtonColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="colorWaterfallLine">?attr/colorPrimary</item>
+        <item name="colorLevelProgressTarget">?attr/colorOnSurface</item>
+        <item name="customToastColorPrimary">?attr/colorOnSurface</item>
+        <item name="alternativeToastColorPrimary">?attr/colorOnSurface</item>
         <item name="correctColorBackground">@color/wkNordCorrectColorBackground</item>
         <item name="incorrectColorBackground">@color/wkNordIncorrectColorBackground</item>
         <item name="meaningHintColor">@color/wkNordMeaningHintColor</item>
         <item name="readingHintColor">@color/wkNordReadingHintColor</item>
-        <item name="editTextHintColor">@color/wkNordEditTextHintColor</item>
+        <item name="editTextHintColor">?attr/colorOnSurfaceVariant</item>
         <item name="editTextHintColorInverse">@color/wkNordEditTextHintColorInverse</item>
         <item name="pitchInfoHeibanColor">@color/wkNordPitchInfoHeibanColor</item>
         <item name="pitchInfoOdakaColor">@color/wkNordPitchInfoOdakaColor</item>
         <item name="pitchInfoNakadakaColor">@color/wkNordPitchInfoNakadakaColor</item>
         <item name="pitchInfoAtamadakaColor">@color/wkNordPitchInfoAtamadakaColor</item>
-        <item name="buttonHighlightColor">@color/wkNordButtonHighlightColor</item>
+        <item name="buttonHighlightColor">?attr/colorSecondaryContainer</item>
         <item name="strokeDiagramGhostColor">@color/wkNordStrokeDiagramGhostColor</item>
 
-        <item name="android:windowBackground">@color/wkNordColorBackground</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
 
         <item name="WK_TextView_BrowseLevelButton">@style/WK.TextView.BrowseLevelButton</item>
         <item name="WK_TextView_Normal">@style/WK.TextView.Normal</item>
@@ -310,17 +304,17 @@
         <item name="android:textSize">32sp</item>
     </style>
 
-    <style name="WK.Button.Normal" parent="Widget.AppCompat.Button">
+    <style name="WK.Button.Normal" parent="Widget.Material3.Button.TonalButton">
     </style>
 
-    <style name="WK.Button.Borderless" parent="Widget.AppCompat.Button.Borderless">
+    <style name="WK.Button.Borderless" parent="Widget.Material3.Button.TextButton">
     </style>
 
-    <style name="WK.Button.Borderless.Light" parent="Widget.AppCompat.Button.Borderless">
+    <style name="WK.Button.Borderless.Light" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/colorPrimaryLight</item>
     </style>
 
-    <style name="WK.Button.Borderless.CustomToast" parent="Widget.AppCompat.Button.Borderless">
+    <style name="WK.Button.Borderless.CustomToast" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/colorPrimaryDark</item>
     </style>
 

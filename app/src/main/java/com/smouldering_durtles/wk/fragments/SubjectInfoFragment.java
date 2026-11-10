@@ -50,7 +50,7 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
      * The constructor.
      */
     public SubjectInfoFragment() {
-        super(R.layout.fragment_subject_info);
+        super(R.layout.fragment_subject_info_modern);
     }
 
     /**
@@ -72,13 +72,10 @@ public final class SubjectInfoFragment extends AbstractFragment implements Swipi
     @Override
     public View onCreateView(android.view.LayoutInflater inflater, @Nullable android.view.ViewGroup container,
                              @Nullable Bundle state) {
-        if (com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()) {
-            final View view = inflater.cloneInContext(com.smouldering_durtles.wk.ui.ModernUi.context(requireContext()))
-                    .inflate(R.layout.fragment_subject_info_modern, container, false);
-            com.smouldering_durtles.wk.study.StudyStyle.page(view);
-            return view;
-        }
-        return super.onCreateView(inflater, container, state);
+        final View view = inflater.cloneInContext(com.smouldering_durtles.wk.ui.ModernUi.context(requireContext()))
+                .inflate(R.layout.fragment_subject_info_modern, container, false);
+        com.smouldering_durtles.wk.study.StudyStyle.page(view);
+        return view;
     }
 
     @Override

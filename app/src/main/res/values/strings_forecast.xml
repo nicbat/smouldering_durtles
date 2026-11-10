@@ -11,7 +11,7 @@
     <string name="forecast_today">Today</string>
     <string name="forecast_horizon_title">Forecast horizon</string>
     <string name="forecast_classic_horizon_title">Timeline chart size</string>
-    <string name="forecast_horizon_summary">At least %1$d days; the overview shows the first week</string>
+    <string name="forecast_horizon_summary">%1$d hours of upcoming reviews</string>
     <string name="forecast_daily_title">Reviews by day</string>
     <string name="forecast_day_totals">Day totals</string>
     <string name="forecast_partial_days">Today starts with the current hour, including overdue reviews. The final day ends at the forecast horizon. Counts include scheduled reviews only.</string>
@@ -22,4 +22,11 @@
     <string name="forecast_level_up">On the level-up path: %1$d</string>
     <string name="forecast_overdue">The first hour includes overdue reviews and reviews scheduled during this hour.</string>
     <string name="forecast_line_scale">Line: cumulative, 0–%1$d reviews</string>
+    <string name="forecast_waterfall_title">Cumulative review waterfall</string>
+    <string name="forecast_waterfall_summary">%1$d due now → %2$d by the end of this forecast. Assumes no reviews are completed.</string>
+    <string name="forecast_waterfall_range">Now → %1$s</string>
+    <string name="forecast_timeline_hint">Swipe for later hours; tap a bar for counts.</string>
+    <string name="forecast_timeline_slot">%1$s · %2$d new reviews · %3$d cumulative.</string>
+    <string name="forecast_timeline_accessible">%1$d-hour forecast, %2$d reviews including %3$d already due. Cumulative line assumes no reviews completed. Scroll for more hours.</string>
+    <string name="forecast_timeline_scales">Bars: 0–%1$d new reviews/hour · Line: 0–%2$d cumulative, including already due. Assumes no reviews completed.</string>
 </resources>

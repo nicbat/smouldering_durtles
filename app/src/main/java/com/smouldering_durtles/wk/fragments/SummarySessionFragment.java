@@ -178,7 +178,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         int totalKanaVocabulary = 0;
         int total = 0;
         for (final SessionItem item: session.getItems()) {
-            if (item.isAbandoned()) {
+            if (item.isAbandoned() || !item.isFinished()) {
                 continue;
             }
             final int incorrect = item.getQuestion1Incorrect() + item.getQuestion2Incorrect() + item.getQuestion3Incorrect() + item.getQuestion4Incorrect();
@@ -232,13 +232,13 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         incorrectKanaVocabulary.setText(totalKanaVocabulary-numCorrectKanaVocabulary);
 
         specialButton1.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().canShow());
-        specialButton1.setText(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().getLabel());
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton1.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton1Behavior());
 
         specialButton2.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().canShow());
-        specialButton2.setText(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().getLabel());
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton2.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton2Behavior());
 
         specialButton3.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().canShow());
-        specialButton3.setText(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().getLabel());
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton3.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton3Behavior());
 
         specialButton1.setOnClickListener(v -> safe(() -> {
             if (!interactionEnabled) {
@@ -284,7 +284,7 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         }
 
         final String[] names = {"☆ ☆ ☆ ☆ ☆", "★ ☆ ☆ ☆ ☆", "★ ★ ☆ ☆ ☆", "★ ★ ★ ☆ ☆", "★ ★ ★ ★ ☆", "★ ★ ★ ★ ★"};
-        final SpinnerAdapter adapter = new ArrayAdapter<>(view.getContext(), ModernUi.isModern(view.getContext()) ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, names);
+        final SpinnerAdapter adapter = new ArrayAdapter<>(view.getContext(), R.layout.browse_spinner_item_modern, names);
         incorrectStarSpinner.setAdapter(adapter);
         correctStarSpinner.setAdapter(adapter);
 
@@ -325,7 +325,35 @@ public final class SummarySessionFragment extends AbstractSessionFragment implem
         com.smouldering_durtles.wk.study.SummaryPresentation.bind(view,
                 new int[]{numCorrectRadicals, numCorrectKanji, numCorrectVocabulary, numCorrectKanaVocabulary},
                 new int[]{totalRadical, totalKanji, totalVocabulary, totalKanaVocabulary});
-        if (ModernUi.isModern(view.getContext()) && (itemsShown
+        com.smouldering_durtles.wk.study.SummaryPresentation.sessionDetails(view, session.getItems(), session.isOnkun());
+        java.util.List<Long> missed = new java.util.ArrayList<>();
+        for (SessionItem item : session.getItems()) if (item.isFinished() && !item.isAbandoned() && item.hasIncorrectAnswers()) missed.add(item.getId());
+        if (!missed.isEmpty()) {
+            android.widget.TableLayout summary = view.findViewById(R.id.correctSummary);
+            for (SessionItem item : session.getItems()) {
+                if (!item.isFinished() || item.isAbandoned() || !item.hasIncorrectAnswers() || item.getSubject() == null) continue;
+                java.util.List<String> kinds = new java.util.ArrayList<>();
+                for (int slot = 1; slot <= 4; slot++) {
+                    com.smouldering_durtles.wk.model.Question q = item.getQuestionBySlot(slot);
+                    if (q != null && item.getQuestionIncorrect(slot) > 0) kinds.add(q.getTitle());
+                }
+                android.widget.TextView missedRow = new android.widget.TextView(requireContext());
+                Subject missedSubject = item.getSubject();
+                missedRow.setText((missedSubject.getCharacters() == null ? missedSubject.getSlug() : missedSubject.getCharacters())
+                        + " · " + (kinds.isEmpty() ? "Missed answer" : android.text.TextUtils.join(", ", kinds)));
+                missedRow.setPadding(0, 8, 0, 8); summary.addView(missedRow);
+            }
+            android.widget.Button practice = new android.widget.Button(requireContext()); practice.setText("Practice missed items");
+            com.smouldering_durtles.wk.ui.ModernUi.button(practice, com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.SECONDARY);
+            ((android.widget.TableLayout) view.findViewById(R.id.correctSummary)).addView(practice);
+            practice.setOnClickListener(v -> {
+                if (!interactionEnabled) return;
+                long[] ids = new long[missed.size()]; for (int i = 0; i < ids.length; i++) ids[i] = missed.get(i);
+                ((com.smouldering_durtles.wk.activities.SessionActivity) requireActivity()).practiceAfterFinish(ids);
+                disableInteraction(); finishSession();
+            });
+        }
+        if ((itemsShown
                 || savedInstanceState != null && savedInstanceState.getBoolean(ITEMS_SHOWN))) {
             showItems();
         }

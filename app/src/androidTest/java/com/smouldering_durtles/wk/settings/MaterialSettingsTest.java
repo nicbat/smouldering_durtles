@@ -82,18 +82,15 @@ public class MaterialSettingsTest {
         editor.commit();
     }
 
-    @Test public void switchRowPersistsOnceAndUpdatesDependency() throws Exception {
+    @Test public void appearanceContainsOnlySupportedMaterialChoices() {
         try (ActivityScenario<PreferencesActivity> scenario = launch("display_settings")) {
-            onView(withText("Modern dashboard")).perform(click());
             scenario.onActivity(activity -> {
-                PreferencesFragment fragment = fragment(activity);
-                SwitchPreferenceCompat pref = fragment.findPreference("modern_dashboard");
-                assertFalse(pref.isChecked());
-                assertFalse(fragment.findPreference("dashboard_dynamic_color").isEnabled());
-                assertTrue(activity.findViewById(androidx.preference.R.id.switchWidget) instanceof MaterialSwitch);
+                assertNull(fragment(activity).findPreference("modern_settings"));
+                assertNull(fragment(activity).findPreference("modern_dashboard"));
+                assertNull(fragment(activity).findPreference("settings_dynamic_color"));
+                assertNull(fragment(activity).findPreference("dashboard_dynamic_color"));
+                assertNotNull(fragment(activity).findPreference("learning_colors"));
             });
-            assertFalse(prefs.getBoolean("modern_dashboard", true));
-            screenshot("settings-display");
         }
     }
 
@@ -120,20 +117,17 @@ public class MaterialSettingsTest {
         }
     }
 
-    @Test public void classicSwitchRecreatesAndKeepsCurrentScreen() {
+    @Test public void obsoleteAppearanceFlagsCannotRestoreClassicOrWallpaperColors() {
+        prefs.edit().putBoolean("modern_settings", false).putBoolean("settings_dynamic_color", true).commit();
         try (ActivityScenario<PreferencesActivity> scenario = launch("display_settings")) {
-            onView(withText(R.string.modern_settings_title)).perform(click());
-            idle();
             scenario.onActivity(activity -> {
-                assertNotNull(fragment(activity).findPreference("modern_settings"));
-                assertTrue(activity.findViewById(androidx.preference.R.id.switchWidget) instanceof SwitchCompat);
-                assertFalse(activity.findViewById(androidx.preference.R.id.switchWidget) instanceof MaterialSwitch);
+                assertTrue(com.smouldering_durtles.wk.ui.ModernUi.isModern(activity));
+                android.util.TypedValue primary = new android.util.TypedValue();
+                activity.getTheme().resolveAttribute(com.google.android.material.R.attr.colorPrimary, primary, true);
+                boolean dark = (activity.getResources().getConfiguration().uiMode
+                        & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                assertEquals(activity.getColor(dark ? R.color.smoky_primary_dark : R.color.smoky_primary_light), primary.data);
             });
-            assertFalse(prefs.getBoolean("modern_settings", true));
-            onView(withText(R.string.modern_settings_title)).perform(click());
-            idle();
-            scenario.onActivity(activity -> assertTrue(activity.findViewById(
-                    androidx.preference.R.id.switchWidget) instanceof MaterialSwitch));
         }
     }
 
@@ -166,7 +160,7 @@ public class MaterialSettingsTest {
     }
 
     @Test public void numericEditKeepsInputTypeDraftAndCancelSemantics() throws Exception {
-        try (ActivityScenario<PreferencesActivity> scenario = launch("review_settings")) {
+        try (ActivityScenario<PreferencesActivity> scenario = launch("lesson_session_settings")) {
             onView(withText("Max. # of lessons per session")).perform(click());
             scenario.onActivity(activity -> {
                 EditText input = dialog(activity).requireDialog().findViewById(android.R.id.edit);
@@ -198,15 +192,15 @@ public class MaterialSettingsTest {
         }
     }
 
-    @Test public void wallpaperColorsAndNestedNavigationSurviveRecreation() throws Exception {
+    @Test public void nestedNavigationSurvivesRecreation() throws Exception {
         prefs.edit().putBoolean("settings_dynamic_color", true).commit();
         try (ActivityScenario<PreferencesActivity> scenario = launch(null)) {
             screenshot("settings-root");
             onView(withText("Display settings")).perform(click());
             scenario.recreate();
-            onView(withText(R.string.modern_settings_title)).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
+            onView(withText(R.string.learning_colors_title)).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
             pressBack();
-            onView(withText("API and audio download settings")).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
+            onView(withText("Sync & audio")).check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()));
         }
     }
 
@@ -258,7 +252,7 @@ public class MaterialSettingsTest {
     }
 
     @Test public void customNumberRangeKeepsDraftAcrossRecreationAndCancels() {
-        try (ActivityScenario<PreferencesActivity> scenario = launch("advanced_lesson_settings")) {
+        try (ActivityScenario<PreferencesActivity> scenario = launch("lesson_session_settings")) {
             int[] before = new int[2];
             scenario.onActivity(activity -> {
                 NumberRangePreference preference = fragment(activity).findPreference("lesson_subjects_current");

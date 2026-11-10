@@ -59,7 +59,6 @@ public final class SettingChangedJob extends Job {
             case "show_timeline":
             case "timeline_chart_style":
             case "timeline_chart_size":
-            case "modern_dashboard":
                 LiveTimeLine.getInstance().update();
                 break;
             case "show_level_progression":

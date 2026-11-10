@@ -44,7 +44,7 @@ class UtilityAppearanceTest {
         val layouts = listOf(R.layout.activity_no_api_key_help, R.layout.activity_data_import_export,
             R.layout.activity_download_audio_modern, R.layout.activity_burn, R.layout.activity_resurrect,
             R.layout.activity_keyboard_help, R.layout.activity_digraph_help, R.layout.activity_font_import,
-            R.layout.activity_font_selection, R.layout.activity_theme_customization_modern)
+            R.layout.activity_font_selection)
         ActivityScenario.launch(AboutActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 val config = Configuration(activity.resources.configuration).apply { fontScale = 2f; uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES }
@@ -130,12 +130,12 @@ class UtilityAppearanceTest {
         }
     }
 
-    @Test fun actualUtilityActivityCanRoundTripClassic() {
+    @Test fun obsoleteClassicPreferenceDoesNotChangeMaterialAppearance() {
         ActivityScenario.launch(AboutActivity::class.java).use { scenario ->
             scenario.onActivity { assertTrue(ModernUi.isModern(it)); assertNotNull(it.findViewById<View>(R.id.document)) }
             prefs.edit().putBoolean("modern_settings", false).commit()
             scenario.recreate()
-            scenario.onActivity { assertFalse(ModernUi.isModern(it)); assertNotNull(it.findViewById<View>(R.id.document)) }
+            scenario.onActivity { assertTrue(ModernUi.isModern(it)); assertNotNull(it.findViewById<View>(R.id.document)) }
             prefs.edit().putBoolean("modern_settings", true).commit()
             scenario.recreate()
             scenario.onActivity { assertTrue(ModernUi.isModern(it)); assertNotNull(it.findViewById<View>(R.id.document)) }

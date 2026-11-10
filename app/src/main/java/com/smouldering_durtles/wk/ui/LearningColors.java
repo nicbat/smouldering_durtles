@@ -12,6 +12,16 @@ import com.smouldering_durtles.wk.GlobalSettings;
 public final class LearningColors {
     private LearningColors() { }
 
+    public static int stage(Context context, int bucket) {
+        int[] defaults = {0xffbd4e7d, 0xff8b5ac2, 0xff467bc1, 0xff248b80, 0xff70777d};
+        if ("original".equals(GlobalSettings.Display.getLearningColors()))
+            return com.smouldering_durtles.wk.enums.ActiveTheme.getShallowStageBucketColors5()[Math.max(0, Math.min(4, bucket))];
+        return accent(context, defaults[Math.max(0, Math.min(4, bucket))]);
+    }
+    public static int cue(Context context, boolean reading) {
+        return accent(context, reading ? 0xffaa730d : 0xff26845c);
+    }
+
     public static boolean isMuted(Context context) {
         return (ModernUi.isModern(context) || com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(context)) && !"original".equals(GlobalSettings.Display.getLearningColors());
     }

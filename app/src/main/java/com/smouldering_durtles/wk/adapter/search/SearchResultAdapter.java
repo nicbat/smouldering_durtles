@@ -61,16 +61,6 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
     private @Nullable AdvancedSearchParameters parameters = null;
     private final SubjectCardBinder binder = new SubjectCardBinder(GlobalSettings.Experimental.getSubjectCardLayoutSearch());
 
-    private boolean modern;
-
-    /** Capture the view context for this result list, stable until its next inflation. */
-    public void setModern(boolean modern) { this.modern = modern; }
-
-    private int headerLayout(ViewGroup parent, int classic) {
-        return com.smouldering_durtles.wk.ui.SearchStyle.isModern(parent.getContext())
-                ? R.layout.search_result_header_modern : classic;
-    }
-
     /**
      * The constructor.
      * @param fragment the fragment this adapter belongs to
@@ -193,23 +183,22 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
             }
             if (viewType == R.id.viewTypeResultItemTypeHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final int id = sortOrder.isSingleLevel() ? R.layout.search_result_top_header : R.layout.search_result_sub_header;
-                final View view = inflater.inflate(headerLayout(parent, id), parent, false);
+                final View view = inflater.inflate(R.layout.search_result_header_modern, parent, false);
                 return new ItemTypeHeaderItemViewHolder(this, view);
             }
             if (viewType == R.id.viewTypeResultLevelHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final View view = inflater.inflate(headerLayout(parent, R.layout.search_result_top_header), parent, false);
+                final View view = inflater.inflate(R.layout.search_result_header_modern, parent, false);
                 return new LevelHeaderItemViewHolder(this, view);
             }
             if (viewType == R.id.viewTypeResultAvailableAtHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final View view = inflater.inflate(headerLayout(parent, R.layout.search_result_top_header), parent, false);
+                final View view = inflater.inflate(R.layout.search_result_header_modern, parent, false);
                 return new AvailableAtHeaderItemViewHolder(this, view, searchTime);
             }
             if (viewType == R.id.viewTypeResultSrsStageHeader) {
                 final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                final View view = inflater.inflate(headerLayout(parent, R.layout.search_result_top_header), parent, false);
+                final View view = inflater.inflate(R.layout.search_result_header_modern, parent, false);
                 return new SrsStageHeaderItemViewHolder(this, view);
             }
             return new DummyViewHolder(this, new AppCompatTextView(parent.getContext()));
@@ -261,7 +250,7 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
             if (item == null) {
                 return 1;
             }
-            if (item instanceof SubjectItem && modern
+            if (item instanceof SubjectItem
                     && GlobalSettings.Experimental.getSubjectCardLayoutSearch() == com.smouldering_durtles.wk.enums.SubjectCardLayout.NORMAL) {
                 final String title = ((SubjectItem) item).getSubject().getCharacters();
                 // Long terms get room to remain legible rather than shrinking into a narrow tile.
@@ -317,7 +306,7 @@ public final class SearchResultAdapter extends RecyclerView.Adapter<ResultItemVi
             }
             start = end;
         }
-        if (modern) rootItem.simplifyHeaders();
+        rootItem.simplifyHeaders();
         numSubjects = size;
         notifyDataSetChanged();
     }

@@ -35,7 +35,7 @@ public final class SrsDistributionBarView extends View {
             float start = (float) ((double) done * getWidth() / total);
             done += Math.max(0, values[i]);
             float end = (float) ((double) done * getWidth() / total);
-            paint.setColor(LearningColors.accent(getContext(), colors[i]));
+            paint.setColor(customColors == null ? LearningColors.stage(getContext(), i) : LearningColors.accent(getContext(), colors[i]));
             canvas.drawRect(rtl ? getWidth() - end : start, 0,
                     rtl ? getWidth() - start : end, getHeight(), paint);
             if (start > 0 && end > start && "neutral".equals(GlobalSettings.Display.getLearningColors())) {

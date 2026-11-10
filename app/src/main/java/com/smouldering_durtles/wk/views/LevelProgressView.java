@@ -75,7 +75,7 @@ public final class LevelProgressView extends TableLayout {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), DashboardStyle.isModern(getContext()) ? R.layout.level_progress_modern : R.layout.level_progress, this);
+            inflate(getContext(), R.layout.level_progress_modern, this);
             setColumnStretchable(0, true);
             setColumnShrinkable(0, true);
             setBackgroundColor(ThemeUtil.getColor(getContext(), R.attr.tileColorBackground));
@@ -91,7 +91,7 @@ public final class LevelProgressView extends TableLayout {
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket8));
             legendBuckets.add(new ViewProxy(this, R.id.legendBucket9));
 
-            for (int i=0; i<legendBuckets.size(); i++) {
+            for (int i = 0; i < legendBuckets.size(); i++) {
                 legendBuckets.get(i).setBackgroundColor(LevelProgressBarView.palette(getContext())[i]);
             }
         });
@@ -128,11 +128,11 @@ public final class LevelProgressView extends TableLayout {
 
         int i = 1;
 
-        for (final LevelProgress.BarEntry entry: levelProgress.getEntries()) {
-            if (i >= getChildCount()-1) {
+        for (final LevelProgress.BarEntry entry : levelProgress.getEntries()) {
+            if (i >= getChildCount() - 1) {
                 final LevelProgressRowView row = new LevelProgressRowView(getContext());
                 final LayoutParams rowLayoutParams = new LayoutParams(0, 0);
-                rowLayoutParams.setMargins(0, DashboardStyle.isModern(getContext()) ? 0 : dp2px(4), 0, 0);
+                rowLayoutParams.setMargins(0, 0, 0, 0);
                 rowLayoutParams.width = MATCH_PARENT;
                 rowLayoutParams.height = WRAP_CONTENT;
                 addView(row, i, rowLayoutParams);
@@ -141,7 +141,7 @@ public final class LevelProgressView extends TableLayout {
             i++;
         }
 
-        while (i < getChildCount()-1) {
+        while (i < getChildCount() - 1) {
             removeViewAt(i);
         }
     }

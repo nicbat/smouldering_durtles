@@ -25,13 +25,12 @@ public final class LessonStyle {
     private LessonStyle() { }
     private static int dp(View view, int value) { return ModernUi.dp(view, value); }
     private static boolean isLesson(SubjectInfoView view) {
-        return ModernUi.isModern(view.getContext())
-                && (view.getContainerType() == SubjectInfoView.ContainerType.LESSON_PRESENTATION
-                || view.getContainerType() == SubjectInfoView.ContainerType.BROWSE);
+        return (view.getContainerType() == SubjectInfoView.ContainerType.LESSON_PRESENTATION
+                || view.getContainerType() == SubjectInfoView.ContainerType.BROWSE
+                || view.getContainerType() == SubjectInfoView.ContainerType.ANSWERED_QUESTION);
     }
 
     public static void navigation(View root, int position, int total) {
-        if (!ModernUi.isModern(root.getContext())) return;
         LinearLayout page = (LinearLayout) root;
         Button previous = root.findViewById(R.id.previousButton);
         Button next = root.findViewById(R.id.nextButton);
@@ -73,6 +72,9 @@ public final class LessonStyle {
         TextView meaning = view.findViewById(R.id.meaning);
         TextView reading = view.findViewById(R.id.reading);
         LinearLayout actions = view.findViewById(R.id.buttonsColumn);
+        if (parent.getContainerType() == SubjectInfoView.ContainerType.ANSWERED_QUESTION) {
+            glyph.setVisibility(View.GONE); title.setVisibility(View.GONE);
+        }
         List<View> pitchViews = new ArrayList<>();
         for (int i = 0; i < view.getChildCount(); i++) {
             View child = view.getChildAt(i);
@@ -117,9 +119,11 @@ public final class LessonStyle {
             action.setCompoundDrawablePadding(dp(view, 8));
             if (!reveal && audioCount == 1) {
                 action.setContentDescription(view.getResources().getString(R.string.lesson_listen_subject, subject.getCharacters()));
-                action.setText(R.string.lesson_listen);
+                action.setText("");
             }
-            action.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+            action.setMinWidth(0);
+            action.setMinimumWidth(dp(view, 48));
+            action.setLayoutParams(new LinearLayout.LayoutParams(reveal || audioCount > 1 ? -1 : dp(view, 48), -2));
             visible |= action.getVisibility() == View.VISIBLE;
         }
         actions.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -139,6 +143,17 @@ public final class LessonStyle {
             if (child instanceof com.smouldering_durtles.wk.views.DividerView) {
                 child.setBackgroundColor(MaterialColors.getColor(view, com.google.android.material.R.attr.colorOutlineVariant));
             }
+        }
+        View pos = view.findViewById(R.id.partsOfSpeech);
+        view.removeView(pos);
+        view.addView(pos, view.indexOfChild(view.findViewById(R.id.headline)) + 1);
+        view.findViewById(R.id.partsOfSpeechDivider).setVisibility(View.GONE);
+        for (int id : new int[]{R.id.componentsDivider, R.id.componentsHeader, R.id.componentsTable,
+                R.id.visuallySimilarsDivider, R.id.visuallySimilarsHeader, R.id.visuallySimilarsTable,
+                R.id.amalgamationsDivider, R.id.amalgamationsHeader, R.id.amalgamationsTable}) {
+            View related = view.findViewById(id);
+            view.removeView(related);
+            view.addView(related);
         }
         View table = view.findViewById(R.id.detailsTable);
         boolean available = table.getVisibility() == View.VISIBLE;

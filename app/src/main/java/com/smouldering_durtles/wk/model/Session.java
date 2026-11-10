@@ -187,6 +187,11 @@ public final class Session implements SubjectChangeListener {
      *
      * @return true if it is
      */
+    public boolean canUndoIncorrect() {
+        Question target = answered ? currentQuestion : history.peek();
+        return target != null && target.wasLastSubmissionIncorrect() && target.canUndo() && canUndo();
+    }
+
     public boolean canUndo() {
         if (currentQuestion != null && answered && currentQuestion.canUndo()) {
             return true;
@@ -574,6 +579,17 @@ s     *
     /**
      * Advance the lession session to the previous lesson item.
      */
+    public void revisitLessonItem(int index) {
+        if (state != IN_LESSON_PRESENTATION || index < 0 || index >= items.size() || questions.isEmpty()) return;
+        answered = false; FloatingUiState.setCurrentAnswer("");
+        setCurrentQuestion(questions.get(0), QuestionChoiceReason.MOVE_TO_PREVIOUS_LESSON_ITEM);
+        currentItem = items.get(index);
+        WkApplication.getDatabase().propertiesDao().setCurrentItemId(currentItem.getId());
+        WkApplication.getDatabase().propertiesDao().setCurrentQuestionType(questions.get(0).getType());
+        FloatingUiState.audioPlayed = false; FloatingUiState.showDumpStage = null;
+        LiveSessionProgress.getInstance().ping();
+    }
+
     public void moveToPreviousLessonItem() {
         answered = false;
         FloatingUiState.setCurrentAnswer("");
@@ -733,6 +749,7 @@ s     *
         final AnswerVerdict verdict = currentQuestion.checkAnswer(matchingKanji, currentAnswer.trim(),
                 GlobalSettings.Review.getCloseEnoughAction());
 
+        if (!verdict.isRetry()) currentQuestion.rememberSubmission(FloatingUiState.getCurrentAnswer(), !verdict.isOk());
         if (verdict.isOk()) {
             currentQuestion.markCorrect();
             LOGGER.info("Marked correct: %s finished=%s", currentQuestion, currentQuestion.isFinished());
@@ -871,6 +888,7 @@ s     *
         }
 
         FloatingUiState.setCurrentAnswer("");
+        currentQuestion.rememberSubmission("", true);
         currentQuestion.markIncorrect();
         answered = true;
         correct = false;
@@ -927,7 +945,7 @@ s     *
         answered = false;
         correct = false;
         FloatingUiState.showDumpStage = null;
-        FloatingUiState.setCurrentAnswer("");
+        FloatingUiState.setCurrentAnswer(currentQuestion.getSubmittedAnswer());
 
         if (state == FINISHING) {
             state = ACTIVE;
@@ -1462,6 +1480,11 @@ s     *
      */
     @SuppressLint("NewApi")
     public void startNewLessonSession(final List<Subject> subjects) {
+        startNewLessonSession(subjects, GlobalSettings.Review.gexMaxLessonSessionSize());
+    }
+
+    public void startNewLessonSession(final List<Subject> subjects, final int maxSize) {
+        if (!isInactive()) return;
         if (subjects.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -1476,7 +1499,7 @@ s     *
         db.propertiesDao().setSessionType(type);
         db.propertiesDao().setSessionOnkun(onkun);
 
-        final int maxSize = GlobalSettings.Review.gexMaxLessonSessionSize();
+
         comparator = GlobalSettings.AdvancedLesson.getOrder().getComparator();
         if (GlobalSettings.AdvancedLesson.getOrderReversed()) {
             comparator = comparator.reversed();
@@ -1495,6 +1518,8 @@ s     *
         state = IN_LESSON_PRESENTATION;
         adapter.clear();
         adapter.addEventStartSession(type);
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(WkApplication.getInstance()).edit()
+                .putLong("study_session_started_at", System.currentTimeMillis()).apply();
         currentItem = null;
         setCurrentQuestion(null, QuestionChoiceReason.STARTING_LESSON_SESSION);
         lastFinishedSubjectId = -1;
@@ -1510,6 +1535,11 @@ s     *
      */
     @SuppressLint("NewApi")
     public void startNewReviewSession(final List<Subject> subjects) {
+        startNewReviewSession(subjects, GlobalSettings.Review.gexMaxReviewSessionSize());
+    }
+
+    public void startNewReviewSession(final List<Subject> subjects, final int maxSize) {
+        if (!isInactive()) return;
         if (subjects.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -1524,7 +1554,7 @@ s     *
         db.propertiesDao().setSessionType(type);
         db.propertiesDao().setSessionOnkun(onkun);
 
-        final int maxSize = GlobalSettings.Review.gexMaxReviewSessionSize();
+
         comparator = GlobalSettings.AdvancedReview.getOrder().getComparator();
         if (GlobalSettings.AdvancedReview.getOrderReversed()) {
             comparator = comparator.reversed();
@@ -1547,6 +1577,8 @@ s     *
         state = ACTIVE;
         adapter.clear();
         adapter.addEventStartSession(type);
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(WkApplication.getInstance()).edit()
+                .putLong("study_session_started_at", System.currentTimeMillis()).apply();
         currentItem = null;
         setCurrentQuestion(null, QuestionChoiceReason.STARTING_REVIEW_SESSION);
         lastFinishedSubjectId = -1;
@@ -1599,6 +1631,8 @@ s     *
         state = ACTIVE;
         adapter.clear();
         adapter.addEventStartSession(type);
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(WkApplication.getInstance()).edit()
+                .putLong("study_session_started_at", System.currentTimeMillis()).apply();
         currentItem = null;
         setCurrentQuestion(null, QuestionChoiceReason.STARTING_SELF_STUDY_SESSION);
         lastFinishedSubjectId = -1;

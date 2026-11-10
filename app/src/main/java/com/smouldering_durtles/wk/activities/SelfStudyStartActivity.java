@@ -81,7 +81,7 @@ public final class SelfStudyStartActivity extends AbstractActivity {
         if (selection instanceof String) {
             position = LiveSearchPresets.getInstance().getNames().indexOf(selection);
         }
-        final SpinnerAdapter adapter = new ArrayAdapter<>(this, ModernUi.isModern(this) ? R.layout.browse_spinner_item_modern : R.layout.spinner_item, names);
+        final SpinnerAdapter adapter = new ArrayAdapter<>(this, R.layout.browse_spinner_item_modern, names);
         presetSpinner.setAdapter(adapter);
         if (position >= 0) {
             presetSpinner.setSelection(position);
@@ -116,6 +116,7 @@ public final class SelfStudyStartActivity extends AbstractActivity {
             if (!interactionEnabled) {
                 return;
             }
+            if (!((com.smouldering_durtles.wk.views.AdvancedSearchFormView) findViewById(R.id.searchForm)).validateLevels()) return;
             disableInteraction();
 
             final @Nullable AdvancedSearchParameters searchParameters = searchForm.extractParameters();
@@ -135,12 +136,20 @@ public final class SelfStudyStartActivity extends AbstractActivity {
             });
         }
 
+        long[] practiceIds = getIntent().getLongArrayExtra("practiceIds");
+        if (savedInstanceState != null) practiceIds = savedInstanceState.getLongArray("previewIds");
+        if (practiceIds != null) {
+            java.util.List<Long> ids = new java.util.ArrayList<>(); for (long id : practiceIds) ids.add(id);
+            runAsync(this, () -> WkApplication.getDatabase().subjectCollectionsDao().getByIds(ids), this::showPracticePreview);
+        }
         searchForm.setSearchButtonLabel("Start");
         searchForm.setSortOrderVisibility(false);
+        ((com.smouldering_durtles.wk.views.AdvancedSearchFormView) findViewById(R.id.searchForm)).compact();
 
         updatePresetAdapter();
 
         if (savedInstanceState != null) {
+            safe(() -> searchForm.injectParameters(Converters.getObjectMapper().readValue(savedInstanceState.getString("quizFilters", "{}"), AdvancedSearchParameters.class)));
             final @Nullable String selection = savedInstanceState.getString("presetSelection");
             if (selection != null) {
                 final int position = LiveSearchPresets.getInstance().getNames().indexOf(selection);
@@ -230,6 +239,8 @@ public final class SelfStudyStartActivity extends AbstractActivity {
     public void onSaveInstanceState(final Bundle outState) {
         safe(() -> {
             super.onSaveInstanceState(outState);
+            outState.putLongArray("previewIds", previewIds);
+            outState.putString("quizFilters", Converters.getObjectMapper().writeValueAsString(searchForm.extractParameters()));
             final @Nullable Object selection = presetSpinner.getSelection();
             if (selection instanceof String) {
                 outState.putString("presetSelection", (String) selection);
@@ -256,22 +267,47 @@ public final class SelfStudyStartActivity extends AbstractActivity {
         return false;
     }
 
+    private long[] previewIds;
+    private void showPracticePreview(List<Subject> subjects) {
+        enableInteraction();
+        if (subjects == null || subjects.isEmpty()) {
+            Toast.makeText(this, "No items match these filters", Toast.LENGTH_SHORT).show(); return;
+        }
+        previewIds = new long[subjects.size()]; for (int i = 0; i < subjects.size(); i++) previewIds[i] = subjects.get(i).getId();
+        android.widget.LinearLayout preview = new android.widget.LinearLayout(this); preview.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int gutter = ModernUi.dp(preview, 16); preview.setPadding(gutter, gutter, gutter, gutter);
+        android.widget.TextView summary = new android.widget.TextView(this);
+        int max = GlobalSettings.Review.getMaxSelfStudySessionSize();
+        summary.setText(subjects.size() + " matching items · up to " + Math.min(subjects.size(), max) + " in this quiz\nPractice only · no SRS changes"); preview.addView(summary);
+        for (Subject subject : subjects.subList(0, Math.min(12, subjects.size()))) {
+            android.widget.LinearLayout row = new android.widget.LinearLayout(this); row.setPadding(0, gutter / 2, 0, gutter / 2);
+            android.widget.TextView japanese = new android.widget.TextView(this); japanese.setText(subject.getCharacters() == null ? subject.getSlug() : subject.getCharacters());
+            japanese.setTextColor(com.smouldering_durtles.wk.ui.LearningColors.accent(this, subject.getBackgroundColor()));
+            android.widget.TextView english = new android.widget.TextView(this); english.setText(subject.getOneMeaning()); english.setGravity(android.view.Gravity.END);
+            row.addView(japanese, new android.widget.LinearLayout.LayoutParams(0, -2, 1)); row.addView(english, new android.widget.LinearLayout.LayoutParams(0, -2, 1)); preview.addView(row);
+        }
+        android.widget.ScrollView scroll = new android.widget.ScrollView(this); scroll.addView(preview);
+        androidx.appcompat.app.AlertDialog dialog = ModernUi.dialog(this).setTitle("Custom quiz").setView(scroll)
+                .setNegativeButton("Back", null).setPositiveButton("Start quiz", null).create();
+        dialog.setOnShowListener(d -> dialog.getButton(-1).setOnClickListener(v -> {
+            dialog.getButton(-1).setEnabled(false);
+            runAsync(this, () -> {
+                if (!session.isInactive() || WkApplication.getDatabase().propertiesDao().getSessionType() != com.smouldering_durtles.wk.enums.SessionType.NONE) return false;
+                session.startNewSelfStudySession(subjects); return true;
+            }, started -> {
+                if (Boolean.TRUE.equals(started)) { dialog.dismiss(); goToActivity(SessionActivity.class); }
+                else { dialog.getButton(-1).setEnabled(true); Toast.makeText(this, "The previous session is still finishing. Try again shortly.", Toast.LENGTH_SHORT).show(); }
+            });
+        })); dialog.setOnDismissListener(d -> previewIds = null); dialog.show();
+    }
+
     private void startSession(final int searchType, final String searchParameters, final boolean saveSelfStudyPreset) {
         runAsync(this, () -> {
             if (saveSelfStudyPreset && searchType == 2) {
                 WkApplication.getDatabase().searchPresetDao().setPreset("\u0000SELF_STUDY_DEFAULT", 2, searchParameters);
             }
             final List<Subject> subjects = SearchUtil.searchSubjects(searchType, searchParameters);
-            if (!subjects.isEmpty() && session.isInactive()) {
-                Session.getInstance().startNewSelfStudySession(subjects);
-            }
             return subjects;
-        }, result -> {
-            if (result == null || result.isEmpty() || session.isInactive()) {
-                Toast.makeText(this, "No subjects found for self-study!", Toast.LENGTH_SHORT).show();
-                goToMainActivity();
-            }
-            goToActivity(SessionActivity.class);
-        });
+        }, result -> showPracticePreview(result));
     }
 }

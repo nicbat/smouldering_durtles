@@ -71,7 +71,26 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
     private List<PathMeasure> strokeMeasures = Collections.emptyList();
     private List<Float> strokeLengths = Collections.emptyList();
     private int numStrokes = 0;
-    private boolean animated = true;
+    private boolean animated = false;
+    private boolean stepping;
+    private Runnable positionChanged;
+    public void setOnPositionChanged(Runnable listener) { positionChanged = listener; listener.run(); }
+    public String getPositionLabel() { return (!animated && !stepping ? strokeData.size() : finishedStrokes) + " / " + strokeData.size(); }
+    public void step() {
+        animated = false; animator.cancel(); lingering = false;
+        if (!stepping) finishedStrokes = 0;
+        stepping = true;
+        finishedStrokes = Math.min(strokeData.size(), finishedStrokes + 1);
+        if (positionChanged != null) positionChanged.run(); invalidate();
+    }
+    public void reset() {
+        animated = false; animator.cancel(); lingering = false; stepping = true; finishedStrokes = 0;
+        if (positionChanged != null) positionChanged.run(); invalidate();
+    }
+    public void showSequence() { stepping = false; setAnimated(false); }
+    @Override protected void onDetachedFromWindow() {
+        animated = false; lingering = false; animator.cancel(); super.onDetachedFromWindow();
+    }
     private int size = 0;
 
     private int finishedStrokes = 0;
@@ -313,6 +332,7 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
         finishedStrokes = 0;
         animatingStroke = 0;
         this.strokeData = new ArrayList<>(strokeData);
+        if (positionChanged != null) positionChanged.run();
         dirty = true;
         invalidate();
     }
@@ -326,9 +346,11 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
         if (animator.isStarted()) {
             animator.cancel();
         }
-        this.animated = animated;
+        this.animated = animated && (android.os.Build.VERSION.SDK_INT < 26 || android.animation.ValueAnimator.areAnimatorsEnabled());
+        stepping = false;
         lingering = false;
         finishedStrokes = 0;
+        if (positionChanged != null) positionChanged.run();
         invalidate();
     }
 
@@ -384,7 +406,9 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        setMeasuredDimension(size, size);
+        int bound = Math.min(size, MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED ? size : MeasureSpec.getSize(widthMeasureSpec));
+        if (bound != size) { size = bound; dirty = true; }
+        setMeasuredDimension(bound, resolveSize(bound, heightMeasureSpec));
     }
 
     @SuppressLint("NewApi")
@@ -403,7 +427,7 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
                 }, 1500);
             }
         }
-        else {
+        else if (!stepping) {
             finishedStrokes = numStrokes;
         }
 
@@ -415,18 +439,14 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
         paint.setColor(ThemeUtil.getColor(R.attr.strokeDiagramGhostColor));
         textPaint.setColor(paint.getColor());
         strokes.stream().skip(finishedStrokes).forEach(stroke -> canvas.drawPath(stroke.path, paint));
-        paint.setColor((com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
-                ? com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
-                : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
+        paint.setColor((com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)));
         textPaint.setColor(paint.getColor());
         strokes.stream().limit(finishedStrokes).forEach(stroke -> canvas.drawPath(stroke.path, paint));
 
         textPaint.setColor(ThemeUtil.getColor(R.attr.strokeDiagramGhostColor));
         strokes.stream().skip(finishedStrokes+1)
                 .forEach(stroke -> canvas.drawText(Integer.toString(stroke.strokeNumber), stroke.labelX, stroke.labelY, textPaint));
-        textPaint.setColor((com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
-                ? com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
-                : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
+        textPaint.setColor((com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)));
         strokes.stream().limit(finishedStrokes+1)
                 .forEach(stroke -> canvas.drawText(Integer.toString(stroke.strokeNumber), stroke.labelX, stroke.labelY, textPaint));
 
@@ -482,6 +502,7 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
     public void onAnimationEnd(final Animator animation) {
         if (animated) {
             finishedStrokes = animatingStroke + 1;
+            if (positionChanged != null) positionChanged.run();
             invalidate();
         }
     }

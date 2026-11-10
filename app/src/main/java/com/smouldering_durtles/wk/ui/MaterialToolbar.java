@@ -4,7 +4,6 @@ import android.content.res.ColorStateList;
 import android.view.Menu;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
-import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.MaterialColors;
 import com.smouldering_durtles.wk.R;
 
@@ -12,9 +11,8 @@ import com.smouldering_durtles.wk.R;
 public final class MaterialToolbar {
     private MaterialToolbar() {}
 
-    public static void styleOverflow(Toolbar toolbar, boolean dynamicColor) {
-        toolbar.setPopupTheme(dynamicColor && DynamicColors.isDynamicColorAvailable()
-                ? R.style.SmokyOverflowDynamicTheme : R.style.SmokyOverflowTheme);
+    public static void styleOverflow(Toolbar toolbar) {
+        toolbar.setPopupTheme(R.style.SmokyOverflowTheme);
     }
 
     public static void tintIcons(Toolbar toolbar, Menu menu) {

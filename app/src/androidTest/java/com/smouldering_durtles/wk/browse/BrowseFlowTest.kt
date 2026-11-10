@@ -52,7 +52,7 @@ class BrowseFlowTest {
         edit.commit()
     }
 
-    @Test fun allModernFilterValuesRoundTripAndClassicStaysAvailable() {
+    @Test fun allFilterValuesRoundTripWhenObsoleteAppearanceFlagIsDisabled() {
         ActivityScenario.launch(AboutActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 val form = AdvancedSearchFormView(SearchStyle.context(activity))
@@ -72,10 +72,11 @@ class BrowseFlowTest {
                 assertEquals(mapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(expected), mapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(form.extractParameters()))
                 form.setSortOrderVisibility(false)
                 assertEquals(View.GONE, (form.findViewById<View>(R.id.sortOrder).parent as View).visibility)
-                val classic = AdvancedSearchFormView(activity.applicationContext)
-                assertFalse(classic.findViewById<View>(R.id.minLevel) is TextInputEditText)
-                classic.injectParameters(expected)
-                assertEquals(mapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(expected), mapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(classic.extractParameters()))
+                prefs.edit().putBoolean("modern_settings", false).commit()
+                val restored = AdvancedSearchFormView(SearchStyle.context(activity))
+                assertTrue(restored.findViewById<View>(R.id.minLevel) is TextInputEditText)
+                restored.injectParameters(expected)
+                assertEquals(mapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(expected), mapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(restored.extractParameters()))
             }
         }
     }
@@ -86,6 +87,7 @@ class BrowseFlowTest {
                 val config = Configuration(activity.resources.configuration).apply { fontScale = 2f; uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES }
                 val context = SearchStyle.context(activity.createConfigurationContext(config))
                 val form = AdvancedSearchFormView(context)
+                form.injectParameters(AdvancedSearchParameters().apply { minLevel = 1; maxLevel = 60 })
                 val width = (328 * activity.resources.displayMetrics.density).toInt()
                 form.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
                 form.layout(0, 0, width, form.measuredHeight)
@@ -109,87 +111,30 @@ class BrowseFlowTest {
         }
     }
 
-    @Test fun levelButtonsNavigateAndHaveReadableModernOverview() {
-        val monitor = instrumentation.addMonitor(NoApiKeyHelpActivity::class.java.name,
-            Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null), true)
-        try {
-            ActivityScenario.launch<BrowseActivity>(Intent(instrumentation.targetContext, BrowseActivity::class.java)).use { scenario ->
-                instrumentation.waitForIdleSync()
-                scenario.onActivity { activity ->
-                    activity.supportFragmentManager.executePendingTransactions()
-                    val fragment = activity.supportFragmentManager.findFragmentById(R.id.fragment) as BrowseOverviewFragment
-                    // Supply only the maximum level count, never subjects or account data.
-                    val render = BrowseOverviewFragment::class.java.getDeclaredMethod("render", Int::class.javaPrimitiveType)
-                    render.isAccessible = true
-                    render.invoke(fragment, 60)
-                    // Render and inspect in one main-thread turn so a pending DB callback cannot replace this fixture.
-                    val root = activity.window.decorView
-                    root.measure(View.MeasureSpec.makeMeasureSpec(root.width, View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(root.height, View.MeasureSpec.EXACTLY))
-                    root.layout(0, 0, root.measuredWidth, root.measuredHeight)
-                    val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
-                    root.draw(Canvas(bitmap))
-                    File(activity.filesDir, "browse-overview-light.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-                    bitmap.recycle()
-                    val table = activity.findViewById<android.widget.TableLayout>(R.id.levelTable)
-                    val queryPosition = IntArray(2)
-                    val tablePosition = IntArray(2)
-                    activity.findViewById<View>(R.id.queryButton).getLocationInWindow(queryPosition)
-                    table.getLocationInWindow(tablePosition)
-                    assertTrue("Keyword search should be reachable before the 60-level table", queryPosition[1] < tablePosition[1])
-                    var levelSeven: View? = null
-                    for (row in 0 until table.childCount) {
-                        val children = table.getChildAt(row) as android.widget.TableRow
-                        for (column in 0 until children.childCount) {
-                            val button = children.getChildAt(column)
-                            assertTrue(button is MaterialButton)
-                            val minTarget = (48 * button.resources.displayMetrics.density).toInt()
-                            assertTrue("Level button width keeps a touch target", button.width >= minTarget)
-                            assertTrue("Level button height keeps a touch target", button.height >= minTarget)
-                            if (button.contentDescription == "Browse level 7") levelSeven = button
-                        }
-                    }
-                    assertNotNull(levelSeven)
-                    levelSeven!!.performClick()
-                    activity.supportFragmentManager.executePendingTransactions()
-                    val result = activity.supportFragmentManager.findFragmentById(R.id.fragment) as SearchResultFragment
-                    assertEquals(0, result.requireArguments().getInt("searchType"))
-                    assertEquals("7", result.requireArguments().getString("searchParameters"))
-                }
-            }
-        } finally { instrumentation.removeMonitor(monitor) }
-    }
-
-    @Test fun queryNavigationRestoresDraftAndAppearanceRoundTrip() {
+    @Test fun libraryQueryAndFiltersSurviveRecreation() {
         val monitor = instrumentation.addMonitor(NoApiKeyHelpActivity::class.java.name,
             Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null), true)
         try {
             ActivityScenario.launch<BrowseActivity>(Intent(instrumentation.targetContext, BrowseActivity::class.java)).use { scenario ->
                 scenario.onActivity { activity ->
                     activity.supportFragmentManager.executePendingTransactions()
+                    val library = activity.supportFragmentManager.findFragmentById(R.id.fragment)
+                    assertTrue(library is com.smouldering_durtles.wk.fragments.LibraryFragment)
                     activity.findViewById<EditText>(R.id.query).setText("smoky-local-query")
-                    activity.findViewById<EditText>(R.id.minLevel).setText("7")
-                    activity.findViewById<View>(R.id.queryButton).performClick()
-                    activity.supportFragmentManager.executePendingTransactions()
-                    assertTrue(activity.supportFragmentManager.findFragmentById(R.id.fragment) is SearchResultFragment)
-                    activity.supportFragmentManager.popBackStackImmediate()
+                    val field = library!!::class.java.getDeclaredField("parameters").apply { isAccessible = true }
+                    (field.get(library) as AdvancedSearchParameters).apply {
+                        minLevel = 7; maxLevel = 12; partOfSpeech = "noun"; pitchPattern = "flat"
+                    }
+                }
+                scenario.recreate()
+                scenario.onActivity { activity ->
+                    val library = activity.supportFragmentManager.findFragmentById(R.id.fragment)!!
+                    assertTrue(library is com.smouldering_durtles.wk.fragments.LibraryFragment)
                     assertEquals("smoky-local-query", activity.findViewById<EditText>(R.id.query).text.toString())
-                    assertEquals("7", activity.findViewById<EditText>(R.id.minLevel).text.toString())
-                }
-                scenario.recreate()
-                scenario.onActivity { assertEquals("7", it.findViewById<EditText>(R.id.minLevel).text.toString()) }
-                prefs.edit().putBoolean("modern_settings", false).commit()
-                scenario.recreate()
-                scenario.onActivity {
-                    assertTrue(it.supportFragmentManager.findFragmentById(R.id.fragment) is BrowseOverviewFragment)
-                    assertFalse(it.findViewById<View>(R.id.queryButton) is MaterialButton)
-                    assertEquals("7", it.findViewById<EditText>(R.id.minLevel).text.toString())
-                }
-                prefs.edit().putBoolean("modern_settings", true).commit()
-                scenario.recreate()
-                scenario.onActivity {
-                    assertTrue(it.findViewById<View>(R.id.queryButton) is MaterialButton)
-                    assertEquals("7", it.findViewById<EditText>(R.id.minLevel).text.toString())
+                    val field = library::class.java.getDeclaredField("parameters").apply { isAccessible = true }
+                    val restored = field.get(library) as AdvancedSearchParameters
+                    assertEquals(7, restored.minLevel); assertEquals(12, restored.maxLevel)
+                    assertEquals("noun", restored.partOfSpeech); assertEquals("flat", restored.pitchPattern)
                 }
             }
         } finally { instrumentation.removeMonitor(monitor) }

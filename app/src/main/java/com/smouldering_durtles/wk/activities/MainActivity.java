@@ -49,22 +49,17 @@ import com.smouldering_durtles.wk.proxy.ViewProxy;
 import com.smouldering_durtles.wk.services.BackgroundAlarmReceiver;
 import com.smouldering_durtles.wk.services.BackgroundSyncWorker;
 import com.smouldering_durtles.wk.services.JobRunnerService;
-import com.smouldering_durtles.wk.views.AvailableSessionsView;
 import com.smouldering_durtles.wk.views.FirstTimeSetupView;
 import com.smouldering_durtles.wk.views.JlptProgressView;
 import com.smouldering_durtles.wk.views.JoyoProgressView;
 import com.smouldering_durtles.wk.views.LessonReviewBreakdownView;
-import com.smouldering_durtles.wk.views.LevelDurationView;
 import com.smouldering_durtles.wk.views.LevelProgressView;
 import com.smouldering_durtles.wk.views.LiveBurnedItemsSubjectTableView;
 import com.smouldering_durtles.wk.views.LiveCriticalConditionSubjectTableView;
 import com.smouldering_durtles.wk.views.LiveRecentUnlocksSubjectTableView;
 import com.smouldering_durtles.wk.views.Post60ProgressView;
-import com.smouldering_durtles.wk.views.SessionButtonsView;
 import com.smouldering_durtles.wk.views.SrsBreakDownView;
-import com.smouldering_durtles.wk.views.SyncProgressView;
 import com.smouldering_durtles.wk.views.TimeLineBarChart;
-import com.smouldering_durtles.wk.views.UpcomingReviewsView;
 
 import javax.annotation.Nullable;
 import android.view.View;
@@ -82,8 +77,6 @@ import com.smouldering_durtles.wk.dashboard.DashboardController;
  */
 public final class MainActivity extends AbstractActivity {
     private @Nullable DashboardController dashboardController;
-    private boolean modernDashboard;
-    private boolean dynamicDashboard;
     private @Nullable android.graphics.drawable.Drawable normalOverflowIcon;
 
     private final ViewProxy apiErrorView = new ViewProxy();
@@ -99,25 +92,13 @@ public final class MainActivity extends AbstractActivity {
     }
 
     @Override
-    protected boolean useModernOverflow() { return GlobalSettings.Display.getModernDashboard(); }
-
-    @Override
-    protected boolean useDynamicOverflow() { return GlobalSettings.Display.getDashboardDynamicColor(); }
-
-    @Override
     protected void customizeActivityTheme(android.content.res.Resources.Theme theme) {
-        theme.applyStyle(R.style.SmokyClassicSettingsOverlay, true);
-        if (GlobalSettings.Display.getModernDashboard()) {
-            theme.applyStyle(R.style.SmokyDashboardTheme, true);
-            if (GlobalSettings.Display.getDashboardDynamicColor()) {
-                com.google.android.material.color.DynamicColors.applyToActivityIfAvailable(this);
-            }
-        }
+        theme.applyStyle(R.style.SmokyDashboardTheme, true);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(android.view.Menu menu) {
-        if (GlobalSettings.Display.getModernDashboard() && getToolbar() != null) {
+        if (getToolbar() != null) {
             com.smouldering_durtles.wk.ui.MaterialToolbar.tintIcons(getToolbar(), menu);
         }
         boolean prepared = super.onPrepareOptionsMenu(menu);
@@ -156,20 +137,12 @@ public final class MainActivity extends AbstractActivity {
                     isGranted -> GlobalSettings.Tutorials.setNotificationPermissionAsked(true));
         }
 
-        modernDashboard = GlobalSettings.Display.getModernDashboard();
-        if (modernDashboard) {
-            com.smouldering_durtles.wk.dashboard.DashboardStyle.apply(this);
-        }
-        dynamicDashboard = GlobalSettings.Display.getDashboardDynamicColor();
-        findViewById(R.id.classicDashboardHeader).setVisibility(modernDashboard ? View.GONE : View.VISIBLE);
+        com.smouldering_durtles.wk.dashboard.DashboardStyle.apply(this);
         final ComposeView dashboard = findViewById(R.id.modernDashboard);
-        dashboard.setVisibility(modernDashboard ? View.VISIBLE : View.GONE);
-        if (modernDashboard) {
-            dashboardController = DashboardController.attach(
-                    dashboard, this, this::startReviewSession, this::startLessonSession, this::resumeSession,
-                    () -> goToActivity(BrowseActivity.class), dynamicDashboard, false);
-            dashboardController.setInteractionEnabled(interactionEnabled);
-        }
+        dashboard.setVisibility(View.VISIBLE);
+        dashboardController = DashboardController.attach(
+                dashboard, this, this::startReviewSession, this::startLessonSession, this::resumeSession, false);
+        dashboardController.setInteractionEnabled(interactionEnabled);
 
         apiErrorView.setDelegate(this, R.id.apiErrorView);
         apiKeyRejectedView.setDelegate(this, R.id.apiKeyRejectedView);
@@ -180,18 +153,12 @@ public final class MainActivity extends AbstractActivity {
         final ViewProxy goToSettingsButton = new ViewProxy(this, R.id.goToSettingsButton);
         final ViewProxy viewKeyboardHelpButton = new ViewProxy(this, R.id.viewKeyboardHelpButton);
         final ViewProxy dismissKeyboardHelpButton = new ViewProxy(this, R.id.dismissKeyboardHelpButton);
-        final ViewProxy startLessonsButton = new ViewProxy(this, R.id.startLessonsButton);
-        final ViewProxy startReviewsButton = new ViewProxy(this, R.id.startReviewsButton);
-        final ViewProxy resumeButton = new ViewProxy(this, R.id.resumeButton);
 
         retryApiErrorButton1.setOnClickListener(v -> retryApiError());
         retryApiErrorButton2.setOnClickListener(v -> retryApiError());
         goToSettingsButton.setOnClickListener(v -> goToSettings());
         viewKeyboardHelpButton.setOnClickListener(v -> viewKeyboardHelp());
         dismissKeyboardHelpButton.setOnClickListener(v -> dismissKeyboardHelp());
-        startLessonsButton.setOnClickListener(v -> startLessonSession());
-        startReviewsButton.setOnClickListener(v -> startReviewSession());
-        resumeButton.setOnClickListener(v -> resumeSession());
 
         LiveApiState.getInstance().observe(this, t -> safe(() -> {
             apiErrorView.setVisibility(false);
@@ -199,10 +166,6 @@ public final class MainActivity extends AbstractActivity {
             updateConnectionIndicator(getMenu());
         }));
 
-        final @Nullable AvailableSessionsView availableSessionsView = findViewById(R.id.availableSessionsView);
-        if (availableSessionsView != null) {
-            availableSessionsView.setLifecycleOwner(this);
-        }
 
         final @Nullable LessonReviewBreakdownView lessonReviewBreakdownView = findViewById(R.id.lessonReviewBreakdownView);
         if (lessonReviewBreakdownView != null) {
@@ -214,10 +177,6 @@ public final class MainActivity extends AbstractActivity {
             firstTimeSetupView.setLifecycleOwner(this);
         }
 
-        final @Nullable LevelDurationView levelDurationView = findViewById(R.id.levelDurationView);
-        if (levelDurationView != null) {
-            levelDurationView.setLifecycleOwner(this);
-        }
 
         final @Nullable LevelProgressView levelProgressView = findViewById(R.id.levelProgressView);
         if (levelProgressView != null) {
@@ -254,25 +213,13 @@ public final class MainActivity extends AbstractActivity {
             burnedItemsView.setLifecycleOwner(this);
         }
 
-        final @Nullable SessionButtonsView sessionButtonsView = findViewById(R.id.sessionButtonsView);
-        if (sessionButtonsView != null) {
-            sessionButtonsView.setLifecycleOwner(this);
-        }
 
         final @Nullable SrsBreakDownView srsBreakDownView = findViewById(R.id.srsBreakDownView);
         if (srsBreakDownView != null) {
             srsBreakDownView.setLifecycleOwner(this);
         }
 
-        final @Nullable SyncProgressView syncProgressView = findViewById(R.id.syncProgressView);
-        if (syncProgressView != null) {
-            syncProgressView.setLifecycleOwner(this);
-        }
 
-        final @Nullable UpcomingReviewsView upcomingReviewsView = findViewById(R.id.upcomingReviewsView);
-        if (upcomingReviewsView != null) {
-            upcomingReviewsView.setLifecycleOwner(this);
-        }
 
         final @Nullable TimeLineBarChart timeLineBarChart = findViewById(R.id.timeLineBarChart);
         if (timeLineBarChart != null) {
@@ -282,11 +229,6 @@ public final class MainActivity extends AbstractActivity {
 
     @Override
     protected void onResumeLocal() {
-        if (modernDashboard != GlobalSettings.Display.getModernDashboard()
-                || dynamicDashboard != GlobalSettings.Display.getDashboardDynamicColor()) {
-            recreate();
-            return;
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && notificationPermissionLauncher != null
                 && !GlobalSettings.Tutorials.getNotificationPermissionAsked()
@@ -325,19 +267,11 @@ public final class MainActivity extends AbstractActivity {
     @Override
     protected void enableInteractionLocal() {
         if (dashboardController != null) dashboardController.setInteractionEnabled(true);
-        final @Nullable SessionButtonsView view = findViewById(R.id.sessionButtonsView);
-        if (view != null) {
-            view.enableInteraction();
-        }
     }
 
     @Override
     protected void disableInteractionLocal() {
         if (dashboardController != null) dashboardController.setInteractionEnabled(false);
-        final @Nullable SessionButtonsView view = findViewById(R.id.sessionButtonsView);
-        if (view != null) {
-            view.disableInteraction();
-        }
     }
 
     @Override
@@ -381,22 +315,7 @@ public final class MainActivity extends AbstractActivity {
      * Handler for the start lessons button.
      */
     private void startLessonSession() {
-        safe(() -> {
-            if (!interactionEnabled) {
-                return;
-            }
-            disableInteraction();
-            final TimeLine timeLine = LiveTimeLine.getInstance().get();
-            if (timeLine.hasAvailableLessons()) {
-                runAsync(this, () -> {
-                    Session.getInstance().startNewLessonSession(timeLine.getAvailableLessons());
-                    return null;
-                }, result -> goToActivity(SessionActivity.class));
-            }
-            else {
-                enableInteraction();
-            }
-        });
+        if (interactionEnabled) com.smouldering_durtles.wk.study.SessionSelectionDialog.show(this, true);
     }
 
     /**

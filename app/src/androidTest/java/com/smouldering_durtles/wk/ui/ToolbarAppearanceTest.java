@@ -78,7 +78,7 @@ public class ToolbarAppearanceTest {
         }
     }
 
-    @Test public void realDashboardSwitchesThemeAndChartLayoutsOnRecreation() {
+    @Test public void realDashboardIgnoresObsoleteClassicPreference() {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instrumentation.getTargetContext());
         Map<String, ?> before = prefs.getAll();
@@ -96,10 +96,9 @@ public class ToolbarAppearanceTest {
             prefs.edit().putBoolean("modern_dashboard", false).commit();
             scenario.recreate();
             scenario.onActivity(activity -> {
-                assertFalse(DashboardStyle.isModern(activity));
-                assertNull(activity.findViewById(R.id.stageSwatch0));
-                assertEquals(View.GONE, activity.findViewById(R.id.modernDashboard).getVisibility());
-                assertEquals(View.VISIBLE, activity.findViewById(R.id.classicDashboardHeader).getVisibility());
+                assertTrue(DashboardStyle.isModern(activity));
+                assertNotNull(activity.findViewById(R.id.stageSwatch0));
+                assertEquals(View.VISIBLE, activity.findViewById(R.id.modernDashboard).getVisibility());
             });
         } finally {
             instrumentation.removeMonitor(monitor);

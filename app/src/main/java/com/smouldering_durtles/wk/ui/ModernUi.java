@@ -20,7 +20,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
-import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.MaterialShapeDrawable;
@@ -40,7 +39,7 @@ public final class ModernUi {
     public static Context context(Context base) {
         if (isModern(base)) return base;
         Context themed = new ContextThemeWrapper(base, R.style.SmokyUiTheme);
-        return GlobalSettings.Display.getSettingsDynamicColor() ? DynamicColors.wrapContextIfAvailable(themed) : themed;
+        return themed;
     }
 
     public static boolean isModern(Context context) {
@@ -49,16 +48,11 @@ public final class ModernUi {
     }
 
     public static void applyTheme(Activity activity, Resources.Theme theme) {
-        theme.applyStyle(R.style.SmokyClassicSettingsOverlay, true);
-        if (GlobalSettings.Display.getModernSettings()) {
-            theme.applyStyle(R.style.SmokyUiTheme, true);
-            if (GlobalSettings.Display.getSettingsDynamicColor()) DynamicColors.applyToActivityIfAvailable(activity);
-        }
+        theme.applyStyle(R.style.SmokyUiTheme, true);
     }
 
     public static AlertDialog.Builder dialog(Context context) {
-        return GlobalSettings.Display.getModernSettings()
-                ? new MaterialAlertDialogBuilder(context(context)) : new AlertDialog.Builder(context);
+        return new MaterialAlertDialogBuilder(context(context));
     }
 
     public static int dp(View view, int value) {

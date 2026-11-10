@@ -92,7 +92,11 @@ public final class NotificationWorker {
         builder.setAutoCancel(true);
 
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(WkApplication.getInstance());
-        notificationManager.notify(1, builder.build());
+        if (Build.VERSION.SDK_INT >= 33 && androidx.core.content.ContextCompat.checkSelfPermission(
+                WkApplication.getInstance(), android.Manifest.permission.POST_NOTIFICATIONS)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) return;
+        try { notificationManager.notify(1, builder.build()); }
+        catch (SecurityException denied) { return; }
 
         final AppDatabase db = WkApplication.getDatabase();
         db.propertiesDao().setNotificationSet(true);

@@ -134,7 +134,7 @@ class CoverageProgressTest {
         } }
     }
 
-    @Test fun emptyHiddenAndClassicPanelsKeepTheirContracts() {
+    @Test fun emptyHiddenAndUnwrappedPanelsKeepMaterialContracts() {
         ActivityScenario.launch(AboutActivity::class.java).use { scenario -> scenario.onActivity { activity ->
             for (joyo in listOf(true, false)) {
                 val panel = if (joyo) JoyoProgressView(context(activity)) else JlptProgressView(context(activity))
@@ -154,9 +154,8 @@ class CoverageProgressTest {
                 val classic = if (joyo) JoyoProgressView(activity) else JlptProgressView(activity)
                 seed(data, intArrayOf(8, 0, 12, 3))
                 update(classic, data)
-                assertTrue(rows(classic).isEmpty())
-                assertEquals("8", classic.findViewById<TextView>(if (joyo) R.id.joyoGrade1Locked else R.id.jlptLevel1Locked).text.toString())
-                assertEquals("", classic.findViewById<TextView>(if (joyo) R.id.joyoGrade1PrePassed else R.id.jlptLevel1PrePassed).text.toString())
+                assertEquals(if (joyo) 7 else 5, rows(classic).size)
+                assertTrue(rows(classic).first().findViewById<TextView>(R.id.coverageSummary).text.isNotEmpty())
             }
         } }
     }

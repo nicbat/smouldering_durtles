@@ -91,8 +91,7 @@ public final class LessonReviewBreakdownView extends TableLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
-                ? R.layout.lesson_review_breakdown_modern : R.layout.lesson_review_breakdown, this);
+        inflate(getContext(), R.layout.lesson_review_breakdown_modern, this);
         setColumnStretchable(0, true);
         setBackgroundResource(R.drawable.main_activity_view_background);
 
@@ -118,16 +117,17 @@ public final class LessonReviewBreakdownView extends TableLayout {
 
         int[] fills = ActiveTheme.getSubjectTypeBackgroundColors().clone();
         int[] inks = ActiveTheme.getSubjectTypeTextColors().clone();
-        if (DashboardStyle.isModern(getContext())) {
-            for (int i = 0; i < fills.length; i++) {
-                fills[i] = LearningColors.fill(getContext(), fills[i]);
-                inks[i] = LearningColors.ink(getContext(), inks[i]);
-                int actualFill = ColorUtils.compositeColors(fills[i], MaterialColors.getColor(this,
-                        com.google.android.material.R.attr.colorSurfaceContainerLow));
-                if (ColorUtils.calculateContrast(inks[i], actualFill) < 4.5) {
-                    inks[i] = ColorUtils.calculateContrast(Color.BLACK, actualFill)
-                            >= ColorUtils.calculateContrast(Color.WHITE, actualFill) ? Color.BLACK : Color.WHITE;
-                }
+
+        for (int i = 0; i < fills.length; i++) {
+            fills[i] = LearningColors.fill(getContext(), fills[i]);
+            inks[i] = LearningColors.ink(getContext(), inks[i]);
+            int actualFill = ColorUtils.compositeColors(fills[i],
+                    MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow));
+            if (ColorUtils.calculateContrast(inks[i], actualFill) < 4.5) {
+                inks[i] = ColorUtils.calculateContrast(Color.BLACK, actualFill)
+                                >= ColorUtils.calculateContrast(Color.WHITE, actualFill)
+                        ? Color.BLACK
+                        : Color.WHITE;
             }
         }
 
@@ -190,8 +190,7 @@ public final class LessonReviewBreakdownView extends TableLayout {
         final int numLessons = timeLine.getNumAvailableLessons();
         final int numReviews = timeLine.getNumAvailableReviews();
 
-        if (numLessons == 0 && numReviews == 0
-                || LiveFirstTimeSetup.getInstance().get() == 0
+        if (numLessons == 0 && numReviews == 0 || LiveFirstTimeSetup.getInstance().get() == 0
                 || !GlobalSettings.Dashboard.getShowLessonReviewBreakdown()) {
             setVisibility(GONE);
             return;
@@ -208,7 +207,7 @@ public final class LessonReviewBreakdownView extends TableLayout {
         int lessonPastKanCount = 0;
         int lessonPastVocCount = 0;
 
-        for (final Subject subject: timeLine.getAvailableLessons()) {
+        for (final Subject subject : timeLine.getAvailableLessons()) {
             if (subject.getLevel() == userLevel && subject.getType().isRadical()) {
                 lessonCurrentRadCount++;
             }
@@ -235,7 +234,8 @@ public final class LessonReviewBreakdownView extends TableLayout {
             }
         }
 
-        lessonCurrent.setVisibility(lessonCurrentRadCount != 0 || lessonCurrentKanCount != 0 || lessonCurrentVocCount != 0);
+        lessonCurrent.setVisibility(
+                lessonCurrentRadCount != 0 || lessonCurrentKanCount != 0 || lessonCurrentVocCount != 0);
         lessonCurrentRad.setTextOrBlankIfZero(lessonCurrentRadCount);
         lessonCurrentKan.setTextOrBlankIfZero(lessonCurrentKanCount);
         lessonCurrentVoc.setTextOrBlankIfZero(lessonCurrentVocCount);
@@ -252,7 +252,7 @@ public final class LessonReviewBreakdownView extends TableLayout {
         int reviewPastKanCount = 0;
         int reviewPastVocCount = 0;
 
-        for (final Subject subject: timeLine.getAvailableReviews()) {
+        for (final Subject subject : timeLine.getAvailableReviews()) {
             if (subject.getLevel() == userLevel && subject.getType().isRadical()) {
                 reviewCurrentRadCount++;
             }
@@ -279,7 +279,8 @@ public final class LessonReviewBreakdownView extends TableLayout {
             }
         }
 
-        reviewCurrent.setVisibility(reviewCurrentRadCount != 0 || reviewCurrentKanCount != 0 || reviewCurrentVocCount != 0);
+        reviewCurrent.setVisibility(
+                reviewCurrentRadCount != 0 || reviewCurrentKanCount != 0 || reviewCurrentVocCount != 0);
         reviewCurrentRad.setTextOrBlankIfZero(reviewCurrentRadCount);
         reviewCurrentKan.setTextOrBlankIfZero(reviewCurrentKanCount);
         reviewCurrentVoc.setTextOrBlankIfZero(reviewCurrentVocCount);

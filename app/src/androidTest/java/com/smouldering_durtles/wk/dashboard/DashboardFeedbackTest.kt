@@ -28,7 +28,7 @@ import java.lang.reflect.Proxy
 class DashboardFeedbackTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val prefs = PreferenceManager.getDefaultSharedPreferences(instrumentation.targetContext)
-    private val panels = listOf(R.id.modernDashboard, R.id.timeLineBarChart, R.id.srsBreakDownView,
+    private val panels = listOf(R.id.modernDashboard, R.id.forecastPanel, R.id.srsBreakDownView,
         R.id.levelProgressView, R.id.post60ProgressView, R.id.joyoProgressView, R.id.jlptProgressView,
         R.id.lessonReviewBreakdownView, R.id.recentUnlocksView, R.id.criticalConditionView,
         R.id.burnedItemsView, R.id.keyboardHelpView, R.id.firstTimeSetupView, R.id.apiKeyRejectedView)

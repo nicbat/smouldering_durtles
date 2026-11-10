@@ -159,7 +159,7 @@ public final class AnkiSessionFragment extends AbstractSessionFragment {
         final @Nullable LinearLayout.LayoutParams qvparams = (LinearLayout.LayoutParams) questionView.getLayoutParams();
         if (qvparams != null) {
             final int height = GlobalSettings.Display.getQuizQuestionViewHeight();
-            qvparams.height = height > 0 ? dp2px(height): ViewGroup.LayoutParams.WRAP_CONTENT;
+            qvparams.height = com.smouldering_durtles.wk.study.StudyStyle.questionHeight(view, height);
             qvparams.weight = 0;
             questionView.setLayoutParams(qvparams);
         }
@@ -330,15 +330,15 @@ public final class AnkiSessionFragment extends AbstractSessionFragment {
 
         // Show the special button 1 if allowed and relevant
         specialButton1.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().canShow());
-        specialButton1.setText(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().getLabel());
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton1.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton1Behavior());
 
         // Show the special button 2 if allowed and relevant
         specialButton2.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().canShow());
-        specialButton2.setText(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().getLabel());
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton2.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton2Behavior());
 
         // Show the special button 3 if allowed and relevant
         specialButton3.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().canShow());
-        specialButton3.setText(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().getLabel());
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton3.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton3Behavior());
     }
 
     @Override

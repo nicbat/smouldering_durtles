@@ -42,10 +42,6 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  */
 public final class JoyoProgressView extends TableLayout {
     private final List<CoverageProgressRowView> modernRows = new ArrayList<>();
-    private final List<ViewProxy> locked = new ArrayList<>();
-    private final List<ViewProxy> prePassed = new ArrayList<>();
-    private final List<ViewProxy> passed = new ArrayList<>();
-    private final List<ViewProxy> burned = new ArrayList<>();
 
     /**
      * The constructor.
@@ -72,60 +68,16 @@ public final class JoyoProgressView extends TableLayout {
      * Initialize the view by observing the relevant LiveData instances.
      */
     private void init() {
-        inflate(getContext(), com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())
-                ? R.layout.joyo_progress_modern : R.layout.joyo_progress, this);
+        inflate(getContext(), R.layout.joyo_progress_modern, this);
 
-        if (com.smouldering_durtles.wk.dashboard.DashboardStyle.isModern(getContext())) {
-            int[] rows = {R.id.joyoGrade1Row, R.id.joyoGrade2Row, R.id.joyoGrade3Row, R.id.joyoGrade4Row, R.id.joyoGrade5Row, R.id.joyoGrade6Row, R.id.joyoGrade7Row};
-            for (int i = 0; i < rows.length; i++) {
-                CoverageProgressRowView row = findViewById(rows[i]);
-                row.setLabel(i == 6 ? getContext().getString(R.string.coverage_secondary_school)
-                        : getContext().getString(R.string.coverage_grade, i + 1));
-                modernRows.add(row);
-            }
-            return;
+        int[] rows = {R.id.joyoGrade1Row, R.id.joyoGrade2Row, R.id.joyoGrade3Row, R.id.joyoGrade4Row,
+                R.id.joyoGrade5Row, R.id.joyoGrade6Row, R.id.joyoGrade7Row};
+        for (int i = 0; i < rows.length; i++) {
+            CoverageProgressRowView row = findViewById(rows[i]);
+            row.setLabel(i == 6 ? getContext().getString(R.string.coverage_secondary_school)
+                                : getContext().getString(R.string.coverage_grade, i + 1));
+            modernRows.add(row);
         }
-
-        locked.add(new ViewProxy(this, R.id.joyoGrade1Locked));
-        locked.add(new ViewProxy(this, R.id.joyoGrade2Locked));
-        locked.add(new ViewProxy(this, R.id.joyoGrade3Locked));
-        locked.add(new ViewProxy(this, R.id.joyoGrade4Locked));
-        locked.add(new ViewProxy(this, R.id.joyoGrade5Locked));
-        locked.add(new ViewProxy(this, R.id.joyoGrade6Locked));
-        locked.add(new ViewProxy(this, R.id.joyoGrade7Locked));
-
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade1PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade2PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade3PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade4PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade5PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade6PrePassed));
-        prePassed.add(new ViewProxy(this, R.id.joyoGrade7PrePassed));
-
-        passed.add(new ViewProxy(this, R.id.joyoGrade1Passed));
-        passed.add(new ViewProxy(this, R.id.joyoGrade2Passed));
-        passed.add(new ViewProxy(this, R.id.joyoGrade3Passed));
-        passed.add(new ViewProxy(this, R.id.joyoGrade4Passed));
-        passed.add(new ViewProxy(this, R.id.joyoGrade5Passed));
-        passed.add(new ViewProxy(this, R.id.joyoGrade6Passed));
-        passed.add(new ViewProxy(this, R.id.joyoGrade7Passed));
-
-        burned.add(new ViewProxy(this, R.id.joyoGrade1Burned));
-        burned.add(new ViewProxy(this, R.id.joyoGrade2Burned));
-        burned.add(new ViewProxy(this, R.id.joyoGrade3Burned));
-        burned.add(new ViewProxy(this, R.id.joyoGrade4Burned));
-        burned.add(new ViewProxy(this, R.id.joyoGrade5Burned));
-        burned.add(new ViewProxy(this, R.id.joyoGrade6Burned));
-        burned.add(new ViewProxy(this, R.id.joyoGrade7Burned));
-
-        setColumnShrinkable(0, true);
-        setColumnShrinkable(1, true);
-        setColumnShrinkable(2, true);
-        setColumnShrinkable(3, true);
-        setColumnShrinkable(4, true);
-        setColumnStretchable(0, true);
-
-        setBackgroundResource(R.drawable.main_activity_view_background);
     }
 
     /**
@@ -143,27 +95,16 @@ public final class JoyoProgressView extends TableLayout {
      * @param joyoProgress the progress
      */
     private void update(final @Nullable JoyoProgress joyoProgress) {
-        if (joyoProgress == null || LiveFirstTimeSetup.getInstance().get() == 0 || !GlobalSettings.Dashboard.getShowJoyoProgress()) {
+        if (joyoProgress == null || LiveFirstTimeSetup.getInstance().get() == 0
+                || !GlobalSettings.Dashboard.getShowJoyoProgress()) {
             setVisibility(GONE);
             return;
         }
 
-        if (!modernRows.isEmpty()) {
-            for (int i = 0; i < modernRows.size(); i++) {
-                modernRows.get(i).setCounts(joyoProgress.getLocked(i + 1), joyoProgress.getPrePassed(i + 1),
-                        joyoProgress.getPassed(i + 1), joyoProgress.getBurned(i + 1));
-            }
-            setVisibility(VISIBLE);
-            return;
+        for (int i = 0; i < modernRows.size(); i++) {
+            modernRows.get(i).setCounts(joyoProgress.getLocked(i + 1), joyoProgress.getPrePassed(i + 1),
+                    joyoProgress.getPassed(i + 1), joyoProgress.getBurned(i + 1));
         }
-
-        for (int i=0; i<7; i++) {
-            locked.get(i).setTextOrBlankIfZero(joyoProgress.getLocked(i+1));
-            prePassed.get(i).setTextOrBlankIfZero(joyoProgress.getPrePassed(i+1));
-            passed.get(i).setTextOrBlankIfZero(joyoProgress.getPassed(i+1));
-            burned.get(i).setTextOrBlankIfZero(joyoProgress.getBurned(i+1));
-        }
-
         setVisibility(VISIBLE);
     }
 }

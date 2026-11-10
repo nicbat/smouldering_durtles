@@ -56,6 +56,30 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  * A tag handler for texts like mnemonics in the subject info. Used to translate a few WK-specific tags like '&lt;kanji&gt;'.
  */
 public final class WaniKaniTagHandler implements Html.TagHandler {
+    private final com.smouldering_durtles.wk.db.model.Subject subject;
+    public WaniKaniTagHandler() { subject = null; }
+    public WaniKaniTagHandler(com.smouldering_durtles.wk.db.model.Subject subject) { this.subject = subject; }
+    private ButtonStyleSpan subjectSpan(Editable output, Class<?> marker, int type) {
+        int original = ActiveTheme.getSubjectTypeBackgroundColors()[type];
+        Object start = getLast(output, marker);
+        if (subject != null && start != null && !subject.getType().isRadical()
+                && type == (subject.getType().isKanji() ? 1 : 2)) {
+            String marked = output.subSequence(output.getSpanStart(start), output.length()).toString().trim();
+            // Compare parsed tagged spans, never rewrite prose or color untagged substrings.
+            for (com.smouldering_durtles.wk.api.model.Meaning meaning : subject.getMeanings()) {
+                if (meaning.getMeaning() != null && meaning.getMeaning().equalsIgnoreCase(marked)) {
+                    original = com.smouldering_durtles.wk.ui.LearningColors.cue(WkApplication.getInstance(), false);
+                    break;
+                }
+            }
+        }
+        return semanticSpan(original);
+    }
+    private ButtonStyleSpan semanticSpan(int original) {
+        android.content.Context context = WkApplication.getInstance();
+        int fill = com.smouldering_durtles.wk.ui.LearningColors.fill(context, original);
+        return new ButtonStyleSpan((androidx.core.graphics.ColorUtils.calculateLuminance(fill) > 0.4 ? android.graphics.Color.BLACK : android.graphics.Color.WHITE), fill);
+    }
     @Override
     public void handleTag(final boolean opening, final String tag, final Editable output, final XMLReader xmlReader) {
         if (!(output instanceof SpannableStringBuilder)) {
@@ -84,7 +108,7 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
             else {
                 if (GlobalSettings.SubjectInfo.getHighlightSubjectTags()) {
                     end(output, Kanji.class,
-                            new ButtonStyleSpan(ActiveTheme.getSubjectTypeTextColors()[1], ActiveTheme.getSubjectTypeBackgroundColors()[1]));
+                            subjectSpan(output, Kanji.class, 1));
                 }
                 else {
                     end(output, Kanji.class, new StyleSpan(Typeface.BOLD));
@@ -98,7 +122,7 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
             else {
                 if (GlobalSettings.SubjectInfo.getHighlightSubjectTags()) {
                     end(output, Radical.class,
-                            new ButtonStyleSpan(ActiveTheme.getSubjectTypeTextColors()[0], ActiveTheme.getSubjectTypeBackgroundColors()[0]));
+                            subjectSpan(output, Radical.class, 0));
                 }
                 else {
                     end(output, Radical.class, new StyleSpan(Typeface.BOLD));
@@ -112,7 +136,7 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
             else {
                 if (GlobalSettings.SubjectInfo.getHighlightSubjectTags()) {
                     end(output, Vocabulary.class,
-                            new ButtonStyleSpan(ActiveTheme.getSubjectTypeTextColors()[2], ActiveTheme.getSubjectTypeBackgroundColors()[2]));
+                            subjectSpan(output, Vocabulary.class, 2));
                 }
                 else {
                     end(output, Vocabulary.class, new StyleSpan(Typeface.BOLD));
@@ -126,12 +150,19 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
             else {
                 if (GlobalSettings.SubjectInfo.getHighlightSubjectTags()) {
                     end(output, kanaVocabulary.class,
-                            new ButtonStyleSpan(ActiveTheme.getSubjectTypeTextColors()[3], ActiveTheme.getSubjectTypeBackgroundColors()[3]));
+                            subjectSpan(output, kanaVocabulary.class, 2));
                 }
                 else {
                     end(output, kanaVocabulary.class, new StyleSpan(Typeface.BOLD));
                 }
             }
+        }
+        else if (tag.equalsIgnoreCase("meaning")) {
+            if (opening) start(output, new Meaning());
+            else if (!GlobalSettings.SubjectInfo.getHighlightSubjectTags()) end(output, Meaning.class, new StyleSpan(Typeface.BOLD));
+            else end(output, Meaning.class, semanticSpan(subject != null && subject.getType().isRadical()
+                    ? ActiveTheme.getSubjectTypeBackgroundColors()[0]
+                    : com.smouldering_durtles.wk.ui.LearningColors.cue(WkApplication.getInstance(), false)));
         }
         else if (tag.equalsIgnoreCase("reading")) {
             if (opening) {
@@ -140,7 +171,7 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
             else {
                 if (GlobalSettings.SubjectInfo.getHighlightSubjectTags()) {
                     end(output, Reading.class,
-                            new ButtonStyleSpan(ThemeUtil.getColor(R.attr.colorPrimaryLight), ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimaryDark)));
+                            semanticSpan(com.smouldering_durtles.wk.ui.LearningColors.cue(WkApplication.getInstance(), true)));
                 }
                 else {
                     end(output, Reading.class, new StyleSpan(Typeface.BOLD));
@@ -320,6 +351,8 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
     /**
      * Dummy marker class.
      */
+    private static final class Meaning { }
+
     private static final class Reading {
         //
     }

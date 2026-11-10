@@ -41,7 +41,6 @@ import com.smouldering_durtles.wk.enums.SessionType;
 import com.smouldering_durtles.wk.enums.SpecialButtonBehavior;
 import com.smouldering_durtles.wk.enums.SubjectCardLayout;
 import com.smouldering_durtles.wk.enums.SubjectInfoDump;
-import com.smouldering_durtles.wk.enums.TimeLineBarChartGridStyle;
 import com.smouldering_durtles.wk.enums.TimeLineBarChartStyle;
 import com.smouldering_durtles.wk.enums.VoicePreference;
 import com.smouldering_durtles.wk.model.SubjectSelectionRules;
@@ -84,6 +83,7 @@ public final class GlobalSettings {
      */
     public static void setApplication(final WkApplication application) {
         GlobalSettings.application = application;
+        migrateUnifiedStudySettings();
     }
 
     /**
@@ -165,29 +165,117 @@ public final class GlobalSettings {
                 throw new IllegalArgumentException("Unsupported setting type: " + value.getClass().getName());
             }
         }
+        if (settings.containsKey("enable_advanced") && !settings.containsKey(UNIFIED_STUDY_SETTINGS))
+            editor.remove(UNIFIED_STUDY_SETTINGS);
         editor.apply();
+        migrateUnifiedStudySettings();
     }
 
 
 
-    /**
-     * Global unlock of all of the advanced settings.
-     *
-     * @return the value
-     */
-    public static boolean getAdvancedEnabled() {
-        return prefs().getBoolean("enable_advanced", false);
+    private static final String UNIFIED_STUDY_SETTINGS = "unified_study_settings_v1";
+
+    /** Remove the old global gate without activating previously disabled saved options. */
+    public static synchronized void migrateUnifiedStudySettings() {
+        if (prefs().getBoolean(UNIFIED_STUDY_SETTINGS, false)) return;
+        SharedPreferences.Editor edit = prefs().edit();
+        if (!prefs().getBoolean("enable_advanced", false)) {
+            edit.putString("lesson_order", "LEVEL_THEN_TYPE");
+            edit.putBoolean("lesson_order_reversed", false);
+            edit.putBoolean("lesson_shuffle_after_selection", false);
+            edit.putBoolean("lesson_back_to_back", false);
+            edit.putBoolean("lesson_reading_first", false);
+            edit.putBoolean("lesson_meaning_first", false);
+            edit.putBoolean("anki_mode_lesson", false);
+            edit.putBoolean("anki_mode_lesson_meaning", false);
+            edit.putBoolean("anki_mode_lesson_reading", false);
+            edit.putInt("lesson_subjects_current_min", -1);
+            edit.putInt("lesson_subjects_current_max", -1);
+            edit.putInt("lesson_subjects_earlier_min", -1);
+            edit.putInt("lesson_subjects_earlier_max", -1);
+            edit.putInt("lesson_subjects_radical_min", -1);
+            edit.putInt("lesson_subjects_radical_max", -1);
+            edit.putInt("lesson_subjects_kanji_min", -1);
+            edit.putInt("lesson_subjects_kanji_max", -1);
+            edit.putInt("lesson_subjects_vocabulary_min", -1);
+            edit.putInt("lesson_subjects_vocabulary_max", -1);
+            edit.putInt("lesson_subjects_Kana_vocabulary_min", -1);
+            edit.putInt("lesson_subjects_kana_vocabulary_max", -1);
+            edit.putString("review_order", "SHUFFLE");
+            edit.putBoolean("review_order_reversed", false);
+            edit.putBoolean("review_order_overdue_first", false);
+            edit.putBoolean("review_shuffle_after_selection", false);
+            edit.putBoolean("review_back_to_back", false);
+            edit.putBoolean("review_reading_first", false);
+            edit.putBoolean("review_meaning_first", false);
+            edit.putBoolean("anki_mode_review", false);
+            edit.putBoolean("anki_mode_review_meaning", false);
+            edit.putBoolean("anki_mode_review_reading", false);
+            edit.putInt("review_subjects_current_min", -1);
+            edit.putInt("review_subjects_current_max", -1);
+            edit.putInt("review_subjects_earlier_min", -1);
+            edit.putInt("review_subjects_earlier_max", -1);
+            edit.putInt("review_subjects_radical_min", -1);
+            edit.putInt("review_subjects_radical_max", -1);
+            edit.putInt("review_subjects_kanji_min", -1);
+            edit.putInt("review_subjects_kanji_max", -1);
+            edit.putInt("review_subjects_vocabulary_min", -1);
+            edit.putInt("review_subjects_vocabulary_max", -1);
+            edit.putInt("review_subjects_kana_vocabulary_min", -1);
+            edit.putInt("review_subjects_kana_vocabulary_max", -1);
+            edit.putBoolean("review_randomize_inflections", false);
+            edit.putString("self_study_order", "SHUFFLE");
+            edit.putBoolean("self_study_order_reversed", false);
+            edit.putString("self_study_order_priority", "NONE");
+            edit.putBoolean("self_study_order_overdue_first", false);
+            edit.putBoolean("self_study_shuffle_after_selection", false);
+            edit.putBoolean("self_study_back_to_back", false);
+            edit.putBoolean("self_study_reading_first", false);
+            edit.putBoolean("self_study_meaning_first", false);
+            edit.putBoolean("anki_mode_self_study", false);
+            edit.putBoolean("anki_mode_self_study_meaning", false);
+            edit.putBoolean("anki_mode_self_study_reading", false);
+            edit.putInt("self_study_subjects_current_min", -1);
+            edit.putInt("self_study_subjects_current_max", -1);
+            edit.putInt("self_study_subjects_earlier_min", -1);
+            edit.putInt("self_study_subjects_earlier_max", -1);
+            edit.putInt("self_study_subjects_radical_min", -1);
+            edit.putInt("self_study_subjects_radical_max", -1);
+            edit.putInt("self_study_subjects_kanji_min", -1);
+            edit.putInt("self_study_subjects_kanji_max", -1);
+            edit.putInt("self_study_subjects_vocabulary_min", -1);
+            edit.putInt("self_study_subjects_vocabulary_max", -1);
+            edit.putInt("self_study_subjects_kana_vocabulary_min", -1);
+            edit.putInt("self_study_subjects_kana_vocabulary_max", -1);
+            edit.putBoolean("self_study_randomize_inflections", false);
+            edit.putBoolean("kanji_mode_onkun", false);
+            edit.putString("overdue_threshold", Integer.toString(Math.round(DEFAULT_OVERDUE_THRESHOLD * 100)));
+            edit.putString("undo_button", "DISABLE");
+            edit.putString("ignore_button", "DISABLE");
+            edit.putString("special_button_3", "DISABLE");
+            edit.putString("dont_know_button", "ONLY_IF_IGNORE_HIDDEN");
+            edit.putBoolean("shake_on_matching_kanji", false);
+            edit.putBoolean("full_session_log", false);
+            edit.putBoolean("indicate_kanji_reading_type", false);
+        }
+        edit.remove("enable_advanced").putBoolean(UNIFIED_STUDY_SETTINGS, true).apply();
     }
 
-    /**
-     * Global unlock of all of the advanced settings.
-     *
-     * @param value the value
-     */
-    public static void setAdvancedEnabled(final boolean value) {
-        final SharedPreferences.Editor editor = prefs().edit();
-        editor.putBoolean("enable_advanced", value);
-        editor.apply();
+    /** The dropdown is a view over the existing boolean pair, preserving backup compatibility. */
+    public static String getQuestionOrder(String prefix) {
+        migrateUnifiedStudySettings();
+        boolean reading = prefs().getBoolean(prefix + "_reading_first", false);
+        boolean meaning = prefs().getBoolean(prefix + "_meaning_first", false);
+        return reading ? (meaning ? "COMBINED" : "READING_FIRST") : (meaning ? "MEANING_FIRST" : "ANY");
+    }
+
+    public static void setQuestionOrder(String prefix, String value) {
+        if (!"lesson".equals(prefix) && !"review".equals(prefix) && !"self_study".equals(prefix)) return;
+        if (!"ANY".equals(value) && !"READING_FIRST".equals(value)
+                && !"MEANING_FIRST".equals(value) && !"COMBINED".equals(value)) return;
+        migrateUnifiedStudySettings();
+        prefs().edit().putBoolean(prefix + "_reading_first", "READING_FIRST".equals(value) || "COMBINED".equals(value))
+                .putBoolean(prefix + "_meaning_first", "MEANING_FIRST".equals(value) || "COMBINED".equals(value)).apply();
     }
 
     /**
@@ -374,14 +462,17 @@ public final class GlobalSettings {
         }
     }
 
-    /** Dedicated level-up switch, with an explicit off also clearing the equivalent legacy choice. */
-    public static void setLevelUpPriority(SessionType type, boolean enabled) {
-        if (type != SessionType.LESSON && type != SessionType.REVIEW) return;
-        String prefix = type == SessionType.LESSON ? "lesson" : "review";
-        android.content.SharedPreferences.Editor edit = prefs().edit().putBoolean(prefix + "_level_up_first", enabled);
-        if (!enabled && "LEVEL_UP_FIRST".equals(prefs().getString(prefix + "_order_priority", null)))
-            edit.putString(prefix + "_order_priority", "NONE");
-        edit.apply();
+    /** Consolidate the former dashboard switches into the session priority preference. */
+    public static synchronized void migrateSessionPriorities() {
+        for (String prefix : new String[]{"lesson", "review"}) {
+            String oldKey = prefix + "_level_up_first";
+            if (!prefs().contains(oldKey)) continue;
+            android.content.SharedPreferences.Editor edit = prefs().edit().remove(oldKey);
+            // The old switch took precedence, so preserve the effective selection.
+            if (prefs().getBoolean(oldKey, false))
+                edit.putString(prefix + "_order_priority", SessionPriority.LEVEL_UP_FIRST.name());
+            edit.apply();
+        }
     }
 
     /**
@@ -791,23 +882,6 @@ public final class GlobalSettings {
             //
         }
 
-        /** Whether to show the Compose study overview instead of the Classic header. */
-        public static boolean getModernDashboard() {
-            return prefs().getBoolean("modern_dashboard", true);
-        }
-
-        public static boolean getDashboardDynamicColor() {
-            return prefs().getBoolean("dashboard_dynamic_color", true);
-        }
-
-        public static boolean getModernSettings() {
-            return prefs().getBoolean("modern_settings", true);
-        }
-
-        public static boolean getSettingsDynamicColor() {
-            return prefs().getBoolean("settings_dynamic_color", true);
-        }
-
         /** Modern learning surfaces; original custom palette values are never changed. */
         public static String getLearningColors() {
             String value = prefs().getString("learning_colors", "soft");
@@ -987,33 +1061,6 @@ public final class GlobalSettings {
         }
 
         /**
-         * Show the waterfall line for cumulative review count.
-         *
-         * @return the value
-         */
-        public static boolean getShowWaterfallLine() {
-            return prefs().getBoolean("show_waterfall_line", false);
-        }
-
-        /**
-         * The style of the Y-axis grid in the timeline bar chart.
-         *
-         * @return the value
-         */
-        public static TimeLineBarChartGridStyle getTimeLineChartGridStyle() {
-            final @Nullable String value = prefs().getString("timeline_chart_grid_style", null);
-            if (value != null) {
-                try {
-                    return TimeLineBarChartGridStyle.valueOf(value);
-                }
-                catch (final Exception e) {
-                    //
-                }
-            }
-            return TimeLineBarChartGridStyle.FOR_BARS;
-        }
-
-        /**
          * The size of the timeline bar chart.
          *
          * @return the value in hours
@@ -1022,21 +1069,6 @@ public final class GlobalSettings {
             final String value = prefs().getString("timeline_chart_size", "24");
             try {
                 return Integer.parseInt(value, 10);
-            }
-            catch (final Exception e) {
-                return 24;
-            }
-        }
-
-        /**
-         * The size of the shown part of the timeline bar chart.
-         *
-         * @return the value in hours
-         */
-        public static int getTimeLineChartSizeShown() {
-            final String value = prefs().getString("timeline_chart_size_shown", "24");
-            try {
-                return Math.min(Integer.parseInt(value, 10), getTimeLineChartSize());
             }
             catch (final Exception e) {
                 return 24;
@@ -2232,9 +2264,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static LessonOrder getOrder() {
-            if (!getAdvancedEnabled()) {
-                return LessonOrder.LEVEL_THEN_TYPE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("lesson_order", null);
             if (value != null) {
                 try {
@@ -2253,9 +2283,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getOrderReversed() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("lesson_order_reversed", false);
         }
 
@@ -2265,10 +2293,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SessionPriority getOrderPriority() {
-            if (prefs().getBoolean("lesson_level_up_first", false)) return SessionPriority.LEVEL_UP_FIRST;
-            if (!getAdvancedEnabled()) {
-                return SessionPriority.NONE;
-            }
+            migrateSessionPriorities();
             final @Nullable String value = prefs().getString("lesson_order_priority", null);
             if (value != null) {
                 try {
@@ -2287,9 +2312,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getShuffleAfterSelection() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("lesson_shuffle_after_selection", false);
         }
 
@@ -2299,9 +2322,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getBackToBack() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("lesson_back_to_back", false);
         }
 
@@ -2311,9 +2332,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getReadingFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("lesson_reading_first", false);
         }
 
@@ -2323,9 +2342,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getMeaningFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("lesson_meaning_first", false);
         }
 
@@ -2335,9 +2352,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getAnkiMode() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_lesson", false);
         }
 
@@ -2347,9 +2362,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getAnkiModeMeaning() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_lesson_meaning", false);
         }
 
@@ -2359,6 +2372,7 @@ public final class GlobalSettings {
          * @param value the value
          */
         public static void setAnkiModeMeaning(final boolean value) {
+            migrateUnifiedStudySettings();
             final SharedPreferences.Editor editor = prefs().edit();
             editor.putBoolean("anki_mode_lesson_meaning", value);
             editor.apply();
@@ -2370,9 +2384,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getAnkiModeReading() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_lesson_reading", false);
         }
 
@@ -2382,6 +2394,7 @@ public final class GlobalSettings {
          * @param value the value
          */
         public static void setAnkiModeReading(final boolean value) {
+            migrateUnifiedStudySettings();
             final SharedPreferences.Editor editor = prefs().edit();
             editor.putBoolean("anki_mode_lesson_reading", value);
             editor.apply();
@@ -2393,9 +2406,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsCurrentMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_current_min", -1);
         }
 
@@ -2405,9 +2416,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsCurrentMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_current_max", -1);
         }
 
@@ -2417,9 +2426,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsEarlierMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_earlier_min", -1);
         }
 
@@ -2429,9 +2436,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsEarlierMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_earlier_max", -1);
         }
 
@@ -2441,9 +2446,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsRadicalMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_radical_min", -1);
         }
 
@@ -2453,9 +2456,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsRadicalMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_radical_max", -1);
         }
 
@@ -2465,9 +2466,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanjiMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_kanji_min", -1);
         }
 
@@ -2477,9 +2476,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanjiMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_kanji_max", -1);
         }
 
@@ -2489,9 +2486,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsVocabularyMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_vocabulary_min", -1);
         }
 
@@ -2501,9 +2496,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsVocabularyMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_vocabulary_max", -1);
         }
         /**
@@ -2512,9 +2505,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanaVocabularyMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_Kana_vocabulary_min", -1);
         }
 
@@ -2524,9 +2515,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanaVocabularyMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("lesson_subjects_kana_vocabulary_max", -1);
         }
     }
@@ -2548,9 +2537,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static ReviewOrder getOrder() {
-            if (!getAdvancedEnabled()) {
-                return ReviewOrder.SHUFFLE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("review_order", null);
             if (value != null) {
                 try {
@@ -2569,9 +2556,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getOrderReversed() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_order_reversed", false);
         }
 
@@ -2581,10 +2566,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SessionPriority getOrderPriority() {
-            if (prefs().getBoolean("review_level_up_first", false)) return SessionPriority.LEVEL_UP_FIRST;
-            if (!getAdvancedEnabled()) {
-                return SessionPriority.NONE;
-            }
+            migrateSessionPriorities();
             final @Nullable String value = prefs().getString("review_order_priority", null);
             if (value != null) {
                 try {
@@ -2603,9 +2585,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getOrderOverdueFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_order_overdue_first", false);
         }
 
@@ -2615,9 +2595,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getShuffleAfterSelection() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_shuffle_after_selection", false);
         }
 
@@ -2627,9 +2605,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getBackToBack() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_back_to_back", false);
         }
 
@@ -2639,9 +2615,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getReadingFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_reading_first", false);
         }
 
@@ -2651,9 +2625,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getMeaningFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_meaning_first", false);
         }
 
@@ -2663,9 +2635,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getAnkiMode() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_review", false);
         }
 
@@ -2675,9 +2645,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getAnkiModeMeaning() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_review_meaning", false);
         }
 
@@ -2687,6 +2655,7 @@ public final class GlobalSettings {
          * @param value the value
          */
         public static void setAnkiModeMeaning(final boolean value) {
+            migrateUnifiedStudySettings();
             final SharedPreferences.Editor editor = prefs().edit();
             editor.putBoolean("anki_mode_review_meaning", value);
             editor.apply();
@@ -2698,9 +2667,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getAnkiModeReading() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_review_reading", false);
         }
 
@@ -2710,6 +2677,7 @@ public final class GlobalSettings {
          * @param value the value
          */
         public static void setAnkiModeReading(final boolean value) {
+            migrateUnifiedStudySettings();
             final SharedPreferences.Editor editor = prefs().edit();
             editor.putBoolean("anki_mode_review_reading", value);
             editor.apply();
@@ -2721,9 +2689,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsCurrentMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_current_min", -1);
         }
 
@@ -2733,9 +2699,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsCurrentMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_current_max", -1);
         }
 
@@ -2745,9 +2709,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsEarlierMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_earlier_min", -1);
         }
 
@@ -2757,9 +2719,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsEarlierMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_earlier_max", -1);
         }
 
@@ -2769,9 +2729,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsRadicalMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_radical_min", -1);
         }
 
@@ -2781,9 +2739,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsRadicalMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_radical_max", -1);
         }
 
@@ -2793,9 +2749,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanjiMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_kanji_min", -1);
         }
 
@@ -2805,9 +2759,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanjiMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_kanji_max", -1);
         }
 
@@ -2817,9 +2769,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsVocabularyMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_vocabulary_min", -1);
         }
 
@@ -2829,9 +2779,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsVocabularyMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_vocabulary_max", -1);
         }
         /**
@@ -2840,9 +2788,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanaVocabularyMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_kana_vocabulary_min", -1);
         }
 
@@ -2852,9 +2798,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanaVocabularyMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("review_subjects_kana_vocabulary_max", -1);
         }
 
@@ -2864,9 +2808,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getRandomizeInflections() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("review_randomize_inflections", false);
         }
 
@@ -2899,9 +2841,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static ReviewOrder getOrder() {
-            if (!getAdvancedEnabled()) {
-                return ReviewOrder.SHUFFLE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("self_study_order", null);
             if (value != null) {
                 try {
@@ -2920,9 +2860,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getOrderReversed() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_order_reversed", false);
         }
 
@@ -2932,9 +2870,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SessionPriority getOrderPriority() {
-            if (!getAdvancedEnabled()) {
-                return SessionPriority.NONE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("self_study_order_priority", null);
             if (value != null) {
                 try {
@@ -2953,9 +2889,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getOrderOverdueFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_order_overdue_first", false);
         }
 
@@ -2965,9 +2899,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getShuffleAfterSelection() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_shuffle_after_selection", false);
         }
 
@@ -2977,9 +2909,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getBackToBack() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_back_to_back", false);
         }
 
@@ -2989,9 +2919,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getReadingFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_reading_first", false);
         }
 
@@ -3001,9 +2929,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getMeaningFirst() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_meaning_first", false);
         }
 
@@ -3013,9 +2939,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getAnkiMode() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_self_study", false);
         }
 
@@ -3025,9 +2949,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getAnkiModeMeaning() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_self_study_meaning", false);
         }
 
@@ -3037,6 +2959,7 @@ public final class GlobalSettings {
          * @param value the value
          */
         public static void setAnkiModeMeaning(final boolean value) {
+            migrateUnifiedStudySettings();
             final SharedPreferences.Editor editor = prefs().edit();
             editor.putBoolean("anki_mode_self_study_meaning", value);
             editor.apply();
@@ -3048,9 +2971,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getAnkiModeReading() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("anki_mode_self_study_reading", false);
         }
 
@@ -3060,6 +2981,7 @@ public final class GlobalSettings {
          * @param value the value
          */
         public static void setAnkiModeReading(final boolean value) {
+            migrateUnifiedStudySettings();
             final SharedPreferences.Editor editor = prefs().edit();
             editor.putBoolean("anki_mode_self_study_reading", value);
             editor.apply();
@@ -3071,9 +2993,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsCurrentMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_current_min", -1);
         }
 
@@ -3083,9 +3003,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsCurrentMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_current_max", -1);
         }
 
@@ -3095,9 +3013,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsEarlierMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_earlier_min", -1);
         }
 
@@ -3107,9 +3023,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsEarlierMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_earlier_max", -1);
         }
 
@@ -3119,9 +3033,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsRadicalMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_radical_min", -1);
         }
 
@@ -3131,9 +3043,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsRadicalMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_radical_max", -1);
         }
 
@@ -3143,9 +3053,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanjiMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_kanji_min", -1);
         }
 
@@ -3155,9 +3063,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanjiMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_kanji_max", -1);
         }
 
@@ -3167,9 +3073,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsVocabularyMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_vocabulary_min", -1);
         }
 
@@ -3179,9 +3083,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsVocabularyMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_vocabulary_max", -1);
         }
         /**
@@ -3190,9 +3092,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanaVocabularyMin() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_kana_vocabulary_min", -1);
         }
 
@@ -3202,9 +3102,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static int getSubjectsKanaVocabularyMax() {
-            if (!getAdvancedEnabled()) {
-                return -1;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getInt("self_study_subjects_kana_vocabulary_max", -1);
         }
 
@@ -3214,9 +3112,7 @@ public final class GlobalSettings {
          * @return the value
          */
         private static boolean getRandomizeInflections() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("self_study_randomize_inflections", false);
         }
 
@@ -3249,9 +3145,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getKanjiModeOnKun() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("kanji_mode_onkun", false);
         }
 
@@ -3261,9 +3155,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static float getOverdueThreshold() {
-            if (!getAdvancedEnabled()) {
-                return DEFAULT_OVERDUE_THRESHOLD;
-            }
+            migrateUnifiedStudySettings();
             try {
                 final @Nullable String value = prefs().getString("overdue_threshold", null);
                 if (isEmpty(value)) {
@@ -3286,9 +3178,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SpecialButtonBehavior getSpecialButton1Behavior() {
-            if (!getAdvancedEnabled()) {
-                return SpecialButtonBehavior.DISABLE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("undo_button", null);
             if (value != null) {
                 try {
@@ -3307,9 +3197,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SpecialButtonBehavior getSpecialButton2Behavior() {
-            if (!getAdvancedEnabled()) {
-                return SpecialButtonBehavior.DISABLE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("ignore_button", null);
             if (value != null) {
                 try {
@@ -3328,9 +3216,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static SpecialButtonBehavior getSpecialButton3Behavior() {
-            if (!getAdvancedEnabled()) {
-                return SpecialButtonBehavior.DISABLE;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("special_button_3", null);
             if (value != null) {
                 try {
@@ -3349,9 +3235,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static DontKnowButtonBehavior getDontKnowButtonBehavior() {
-            if (!getAdvancedEnabled()) {
-                return DontKnowButtonBehavior.ONLY_IF_IGNORE_HIDDEN;
-            }
+            migrateUnifiedStudySettings();
             final @Nullable String value = prefs().getString("dont_know_button", null);
             if (value != null) {
                 try {
@@ -3371,9 +3255,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getShakeOnMatchingKanji() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("shake_on_matching_kanji", true);
         }
 
@@ -3383,9 +3265,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getFullSessionLog() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("full_session_log", false);
         }
 
@@ -3395,9 +3275,7 @@ public final class GlobalSettings {
          * @return the value
          */
         public static boolean getIndicateKanjiReadingType() {
-            if (!getAdvancedEnabled()) {
-                return false;
-            }
+            migrateUnifiedStudySettings();
             return prefs().getBoolean("indicate_kanji_reading_type", false);
         }
     }

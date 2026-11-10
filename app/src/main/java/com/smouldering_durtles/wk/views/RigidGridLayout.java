@@ -192,8 +192,11 @@ public class RigidGridLayout extends ViewGroup {
         gridAssigned = true;
     }
 
+    protected void prepareMeasurement(int widthMeasureSpec) { }
+
     @Override
     protected final void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        prepareMeasurement(widthMeasureSpec);
         // This does all of the measurement in two passes.
         safe(() -> {
             setMeasuredDimension(100, 100);

@@ -134,7 +134,7 @@ public final class LessonSessionFragment extends AbstractSessionFragment impleme
             }
             disableInteraction();
             if (session.isOnLastLessonItem()) {
-                session.startQuiz();
+                showReadyBatch();
             }
             else {
                 session.moveToNextLessonItem();
@@ -237,12 +237,34 @@ public final class LessonSessionFragment extends AbstractSessionFragment impleme
             }
             disableInteraction();
             if (session.isOnLastLessonItem()) {
-                session.startQuiz();
+                showReadyBatch();
             }
             else {
                 session.moveToNextLessonItem();
             }
         });
+    }
+
+    private void showReadyBatch() {
+        enableInteraction();
+        android.widget.LinearLayout rows = new android.widget.LinearLayout(requireContext()); rows.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = com.smouldering_durtles.wk.ui.ModernUi.dp(rows, 16); rows.setPadding(pad, 0, pad, pad);
+        android.widget.ScrollView scroll = new android.widget.ScrollView(requireContext()); scroll.addView(rows);
+        androidx.appcompat.app.AlertDialog dialog = com.smouldering_durtles.wk.ui.ModernUi.dialog(requireContext())
+                .setTitle("Ready for the quiz · " + session.getItems().size() + " items").setView(scroll)
+                .setNegativeButton("Keep studying", null).setPositiveButton("Start quiz", (d, w) -> { disableInteraction(); session.startQuiz(); }).create();
+        for (int i = 0; i < session.getItems().size(); i++) {
+            final int index = i; com.smouldering_durtles.wk.db.model.Subject entry = session.getItems().get(i).getSubject();
+            if (entry == null) continue;
+            android.widget.LinearLayout row = new android.widget.LinearLayout(requireContext()); row.setPadding(0, pad / 2, 0, pad / 2); row.setMinimumHeight(pad * 3);
+            android.widget.TextView japanese = new android.widget.TextView(requireContext()); japanese.setText(entry.getCharacters() == null ? entry.getSlug() : entry.getCharacters());
+            japanese.setTextColor(com.smouldering_durtles.wk.ui.LearningColors.accent(requireContext(), entry.getBackgroundColor()));
+            android.widget.TextView english = new android.widget.TextView(requireContext()); english.setText(entry.getOneMeaning()); english.setGravity(android.view.Gravity.END);
+            row.addView(japanese, new android.widget.LinearLayout.LayoutParams(0, -2, 1)); row.addView(english, new android.widget.LinearLayout.LayoutParams(0, -2, 1));
+            row.setFocusable(true); row.setContentDescription("Revisit " + japanese.getText() + ", " + english.getText());
+            row.setOnClickListener(v -> { dialog.dismiss(); session.revisitLessonItem(index); }); rows.addView(row);
+        }
+        dialog.show();
     }
 
     private void playAudio() {

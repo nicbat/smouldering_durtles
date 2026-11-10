@@ -97,6 +97,31 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
      */
     protected final void onViewCreatedCommon(final View view, final Question question, final Subject subject,
                                             final boolean ankiMode) {
+        if (!ankiMode) {
+            View input = view.findViewById(R.id.questionEdit);
+            android.view.ViewGroup parent = (android.view.ViewGroup) input.getParent();
+            int index = parent.indexOfChild(input);
+            android.view.ViewGroup.LayoutParams original = input.getLayoutParams();
+            parent.removeView(input);
+            android.widget.LinearLayout row = new android.widget.LinearLayout(requireContext());
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            parent.addView(row, index, original);
+            row.addView(input, new android.widget.LinearLayout.LayoutParams(0, -2, 1));
+            android.widget.ImageButton undo = new android.widget.ImageButton(requireContext());
+            undo.setImageResource(R.drawable.ic_undo_24);
+            undo.setContentDescription("Undo incorrect answer");
+            undo.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            undo.setImageTintList(android.content.res.ColorStateList.valueOf(
+                    com.google.android.material.color.MaterialColors.getColor(view, androidx.appcompat.R.attr.colorPrimary)));
+            int size = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 48);
+            row.addView(undo, new android.widget.LinearLayout.LayoutParams(size, size));
+            undo.setVisibility(session.canUndoIncorrect() ? View.VISIBLE : View.GONE);
+            undo.setOnClickListener(v -> safe(() -> {
+                if (!interactionEnabled || !session.canUndoIncorrect()) return;
+                disableInteraction();
+                session.undoAndRetry();
+            }));
+        }
         questionView.setDelegate(view, R.id.questionView);
         progress.setDelegate(view, R.id.progress);
         srsIndicator.setDelegate(view, R.id.srsIndicator);
@@ -123,24 +148,26 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
         srsIndicator.setVisibility(GlobalSettings.Review.getEnableSrsIndicator() && !subject.getSrsStage().isInitial());
 
         // Show the special button 1 if allowed and relevant
-        specialButton1.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().canShow());
-        specialButton1.setText(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().getLabel());
+        specialButton1.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().canShow()
+                && (ankiMode || GlobalSettings.AdvancedOther.getSpecialButton1Behavior() != com.smouldering_durtles.wk.enums.SpecialButtonBehavior.UNDO_AND_RETRY_NOW));
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton1.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton1Behavior());
 
         // Show the special button 2 if allowed and relevant
-        specialButton2.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().canShow());
-        specialButton2.setText(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().getLabel());
+        specialButton2.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().canShow()
+                && (ankiMode || GlobalSettings.AdvancedOther.getSpecialButton2Behavior() != com.smouldering_durtles.wk.enums.SpecialButtonBehavior.UNDO_AND_RETRY_NOW));
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton2.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton2Behavior());
 
         // Show the special button 3 if allowed and relevant
-        specialButton3.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().canShow());
-        specialButton3.setText(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().getLabel());
+        specialButton3.setVisibility(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().canShow()
+                && (ankiMode || GlobalSettings.AdvancedOther.getSpecialButton3Behavior() != com.smouldering_durtles.wk.enums.SpecialButtonBehavior.UNDO_AND_RETRY_NOW));
+        com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton3.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton3Behavior());
 
         // The main display of the text of the subject being quizzed
         final TypefaceConfiguration typefaceConfiguration =
                 session.getCurrentTypefaceConfiguration(orElse(subject.getCharacters(), ""));
         final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        final boolean saveSpaceForToast = GlobalSettings.Review.getShowAnswerToast() && !ankiMode;
-        final int maxWidth = displayMetrics.widthPixels - dp2px(saveSpaceForToast ? 140 : 10);
-        final int maxHeight = dp2px(GlobalSettings.Font.getMaxFontSizeQuizText());
+        final int maxWidth = displayMetrics.widthPixels - dp2px(32);
+        final int maxHeight = Math.round(GlobalSettings.Font.getMaxFontSizeQuizText() * displayMetrics.scaledDensity);
         questionText.setTransparent(true);
         questionText.setTypefaceConfiguration(typefaceConfiguration);
         questionText.setSubject(subject, question, session.getType());
@@ -160,9 +187,10 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
         questionType.setText(question.getTitle());
         questionType.setBackgroundColor(question.getType().getHintColor());
         questionType.setTextColor(question.getType().getHintContrastColor());
-        questionType.setVisibility(!isLandscape() || !(this instanceof UnansweredSessionFragment)
-                || com.smouldering_durtles.wk.ui.ModernUi.isModern(view.getContext()));
+        questionType.setVisibility(true);
         com.smouldering_durtles.wk.study.StudyStyle.question(view, subject.getBackgroundColor());
+        int bucket = subject.getSrsStage().getSrsBreakdownBucket();
+        if (bucket >= 0) srsIndicator.setTextColor(com.smouldering_durtles.wk.ui.LearningColors.stage(requireContext(), bucket));
 
         specialButton1.setOnClickListener(v -> safe(() -> {
             if (!interactionEnabled) {
@@ -170,7 +198,7 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
             }
             disableInteraction();
             GlobalSettings.AdvancedOther.getSpecialButton1Behavior().perform();
-            specialButton1.setText(GlobalSettings.AdvancedOther.getSpecialButton1Behavior().getLabel());
+            com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton1.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton1Behavior());
         }));
 
         specialButton2.setOnClickListener(v -> safe(() -> {
@@ -179,7 +207,7 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
             }
             disableInteraction();
             GlobalSettings.AdvancedOther.getSpecialButton2Behavior().perform();
-            specialButton2.setText(GlobalSettings.AdvancedOther.getSpecialButton2Behavior().getLabel());
+            com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton2.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton2Behavior());
         }));
 
         specialButton3.setOnClickListener(v -> safe(() -> {
@@ -188,7 +216,7 @@ public abstract class AbstractSessionFragment extends AbstractFragment implement
             }
             disableInteraction();
             GlobalSettings.AdvancedOther.getSpecialButton3Behavior().perform();
-            specialButton3.setText(GlobalSettings.AdvancedOther.getSpecialButton3Behavior().getLabel());
+            com.smouldering_durtles.wk.study.StudyStyle.specialAction(specialButton3.getDelegate(), GlobalSettings.AdvancedOther.getSpecialButton3Behavior());
         }));
     }
 

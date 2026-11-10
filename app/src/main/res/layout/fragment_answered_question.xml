@@ -225,7 +225,10 @@
                 style="@style/WK.TextView.Normal"
                 tools:ignore="UnusedAttribute"/>
 
-            <TextView
+            <EditText
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:inputType="none"
                 android:id="@+id/questionEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

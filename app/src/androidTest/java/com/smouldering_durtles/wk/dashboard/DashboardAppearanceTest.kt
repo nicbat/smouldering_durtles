@@ -75,7 +75,7 @@ class DashboardAppearanceTest {
             scenario.onActivity { activity ->
                 assertEquals("232", activity.findViewById<TextView>(R.id.breakdownBucket0Count).text.toString())
                 val swatch = activity.findViewById<View>(R.id.stageSwatch0)
-                assertEquals(LearningColors.accent(swatch.context, ActiveTheme.getShallowStageBucketColors5()[0]),
+                assertEquals(LearningColors.stage(swatch.context, 0),
                     (swatch.background as ColorDrawable).color)
                 activity.findViewById<View>(R.id.breakdownBucket2View).performClick()
                 assertTrue(search!!.srsStages.contains("master"))
@@ -89,7 +89,7 @@ class DashboardAppearanceTest {
                 assertEquals(1, search!!.itemTypes.size)
             }
             capture(scenario, "dashboard-populated", R.id.modernDashboard)
-            capture(scenario, "dashboard-forecast", R.id.timeLineBarChart)
+            capture(scenario, "dashboard-forecast", R.id.forecastPanel)
             capture(scenario, "dashboard-levels", R.id.levelProgressView)
         }
     }
@@ -101,7 +101,7 @@ class DashboardAppearanceTest {
             LiveSrsBreakDown.getInstance().ping()
             instrumentation.waitForIdleSync()
             scenario.onActivity { activity ->
-                for (id in listOf(R.id.timeLineBarChart, R.id.srsBreakDownView)) {
+                for (id in listOf(R.id.forecastPanel, R.id.srsBreakDownView)) {
                     val chart = activity.findViewById<View>(id)
                     assertEquals(View.GONE, chart.visibility)
                     val panel = chart.parent.parent as View
@@ -114,14 +114,14 @@ class DashboardAppearanceTest {
             LiveTimeLine.getInstance().ping()
             LiveSrsBreakDown.getInstance().ping()
             instrumentation.waitForIdleSync()
-            scenario.onActivity { activity -> assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.timeLineBarChart).visibility) }
+            scenario.onActivity { activity -> assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.forecastPanel).visibility) }
         }
     }
 
     @Test fun largeTextAndDarkChartsRemainReadable() {
         fixture(dark = true, fontScale = 2f).use { scenario ->
             capture(scenario, "dashboard-large-dark-overview", R.id.modernDashboard)
-            capture(scenario, "dashboard-large-dark-forecast", R.id.timeLineBarChart)
+            capture(scenario, "dashboard-large-dark-forecast", R.id.forecastPanel)
             capture(scenario, "dashboard-large-dark-levels", R.id.levelProgressView)
             scenario.onActivity { activity ->
                 val chart = activity.findViewById<TimeLineBarChart>(R.id.timeLineBarChart)
@@ -133,12 +133,12 @@ class DashboardAppearanceTest {
         }
     }
 
-    @Test fun classicKeepsOriginalChartLayouts() {
+    @Test fun obsoleteThemeFlagKeepsMaterialLayouts() {
         ActivityScenario.launch(AboutActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                assertFalse(DashboardStyle.isModern(activity))
-                assertNull(SrsBreakDownView(activity).findViewById<View>(R.id.stageSwatch0))
-                assertNull(LevelProgressRowView(activity).findViewById<View>(R.id.levelProgressCount))
+                assertTrue(com.smouldering_durtles.wk.ui.ModernUi.isModern(activity))
+                assertNotNull(SrsBreakDownView(activity).findViewById<View>(R.id.stageSwatch0))
+                assertNotNull(LevelProgressRowView(activity).findViewById<View>(R.id.levelProgressCount))
             }
         }
     }
@@ -155,16 +155,16 @@ class DashboardAppearanceTest {
             // The legacy custom attributes still exist alongside the scoped Material ones.
             context.theme.applyStyle(ActiveTheme.getCurrentTheme().styleId, false)
             activity.setContentView(LayoutInflater.from(activity).cloneInContext(context).inflate(R.layout.activity_main, null))
-            for (id in listOf(R.id.classicDashboardHeader, R.id.keyboardHelpView, R.id.firstTimeSetupView,
+            for (id in listOf(R.id.keyboardHelpView, R.id.firstTimeSetupView,
                 R.id.joyoProgressView, R.id.jlptProgressView, R.id.post60ProgressView, R.id.recentUnlocksView,
                 R.id.criticalConditionView, R.id.burnedItemsView)) activity.findViewById<View>(id).visibility = View.GONE
             DashboardStyle.apply(activity)
             val overview = activity.findViewById<ComposeView>(R.id.modernDashboard)
             overview.visibility = View.VISIBLE
             overview.setContent {
-                DashboardTheme(false, dark) {
+                DashboardTheme(dark) {
                     DashboardOverview(DashboardState(ready = true, level = 8, daysAtLevel = 4.5,
-                        reviews = 42, lessons = 12), true, {}, {}, {}, {}, showTitle = false)
+                        reviews = 42, lessons = 12), true, {}, {}, {}, showTitle = false)
                 }
             }
             actment = Proxy.newProxyInstance(Actment::class.java.classLoader, arrayOf(Actment::class.java)) { _, method, args ->
@@ -202,7 +202,7 @@ class DashboardAppearanceTest {
         scenario.onActivity { activity ->
             val view = activity.findViewById<View>(id)
             val scroll = activity.findViewById<NestedScrollView>(R.id.mainScrollView)
-            val target = if (id == R.id.timeLineBarChart) view.parent as View else view
+            val target = if (id == R.id.forecastPanel) view.parent as View else view
             scroll.scrollTo(0, target.top)
 
         }

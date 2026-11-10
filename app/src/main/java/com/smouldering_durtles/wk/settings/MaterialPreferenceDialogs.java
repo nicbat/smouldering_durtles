@@ -81,7 +81,6 @@ public final class MaterialPreferenceDialogs {
     public abstract static class CustomDialog extends PreferenceDialogFragmentCompat {
         @Override
         public Dialog onCreateDialog(@Nullable Bundle state) {
-            if (!GlobalSettings.Display.getModernSettings()) return super.onCreateDialog(state);
             View view = onCreateDialogView(requireContext());
             if (view != null) onBindDialogView(view);
             AlertDialog.Builder builder = builder(this, view);

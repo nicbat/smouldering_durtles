@@ -74,19 +74,23 @@ public final class FontSelectionRowView extends ConstraintLayout {
      */
     private void init() {
         safe(() -> {
-            inflate(getContext(), com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())
-                    ? R.layout.font_selection_row_modern : R.layout.font_selection_row_view, this);
-            if (com.smouldering_durtles.wk.ui.ModernUi.isModern(getContext())) {
-                int padding = com.smouldering_durtles.wk.ui.ModernUi.dp(this, 12);
-                setPadding(padding, padding, padding, padding);
-                setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
-                        com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerLow), 16));
-            }
+            inflate(getContext(), R.layout.font_selection_row_modern, this);
+
+            setPadding(com.smouldering_durtles.wk.ui.ModernUi.dp(this, 12),
+                    com.smouldering_durtles.wk.ui.ModernUi.dp(this, 6),
+                    com.smouldering_durtles.wk.ui.ModernUi.dp(this, 12),
+                    com.smouldering_durtles.wk.ui.ModernUi.dp(this, 6));
+            setMinimumHeight(com.smouldering_durtles.wk.ui.ModernUi.dp(this, 64));
+            setBackground(com.smouldering_durtles.wk.ui.ModernUi.surface(this,
+                    com.google.android.material.color.MaterialColors.getColor(this,
+                            com.google.android.material.R.attr.colorSurfaceContainerLow), 12));
+
             fontName.setDelegate(this, R.id.fontName);
             fontSample.setDelegate(this, R.id.fontSample);
             fontSwitch.setDelegate(this, R.id.fontSwitch);
 
             fontSample.setJapaneseLocale();
+            setOnClickListener(v -> ((android.widget.CompoundButton) findViewById(R.id.fontSwitch)).toggle());
         });
     }
 

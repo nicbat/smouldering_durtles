@@ -31,7 +31,6 @@ import androidx.preference.PreferenceScreen;
 
 import com.smouldering_durtles.wk.R;
 import com.smouldering_durtles.wk.GlobalSettings;
-import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.MaterialColors;
 import com.smouldering_durtles.wk.fragments.PreferencesFragment;
 
@@ -53,18 +52,12 @@ public final class PreferencesActivity extends AbstractActivity implements Prefe
 
     @Override
     protected void customizeActivityTheme(final Resources.Theme theme) {
-        theme.applyStyle(R.style.SmokyClassicSettingsOverlay, true);
-        if (GlobalSettings.Display.getModernSettings()) {
-            theme.applyStyle(R.style.SmokySettingsTheme, true);
-            if (GlobalSettings.Display.getSettingsDynamicColor()) {
-                DynamicColors.applyToActivityIfAvailable(this);
-            }
-        }
+        theme.applyStyle(R.style.SmokySettingsTheme, true);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
-        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
+        {
             final int color = MaterialColors.getColor(this,
                     com.google.android.material.R.attr.colorOnSurface, "settings toolbar");
             for (int i = 0; i < menu.size(); i++) {
@@ -77,7 +70,7 @@ public final class PreferencesActivity extends AbstractActivity implements Prefe
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
-        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this) && getToolbar() != null) {
+        if (getToolbar() != null) {
             getToolbar().setElevation(0);
             final int surface = MaterialColors.getColor(this,
                     com.google.android.material.R.attr.colorSurface, "settings surface");

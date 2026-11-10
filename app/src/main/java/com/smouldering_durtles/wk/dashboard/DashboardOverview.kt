@@ -4,8 +4,6 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.ui.semantics.Role
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,82 +22,73 @@ data class DashboardState(
     val lessons: Int = 0,
     val levelUpLessons: Int = 0,
     val levelUpReviews: Int = 0,
-    val prioritizeLessons: Boolean = false,
-    val prioritizeReviews: Boolean = false,
     val reviews: Int = 0,
     val activeSession: Boolean = false,
     val vacation: Boolean = false,
     val level: Int = 0,
-    val upcoming: String = "",
     val daysAtLevel: Double? = null,
     val syncing: Boolean = false,
     val syncError: Boolean = false
 )
 
 @Composable
-fun DashboardTheme(dynamicColor: Boolean, dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val context = LocalContext.current
+fun DashboardTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    val context = androidx.appcompat.view.ContextThemeWrapper(LocalContext.current, R.style.SmokyDashboardTheme)
     val colors = when {
-        dynamicColor && Build.VERSION.SDK_INT >= 31 -> if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         dark -> darkColorScheme(primary = colorResource(R.color.smoky_primary_dark), secondary = colorResource(R.color.smoky_secondary_dark), tertiary = colorResource(R.color.smoky_tertiary_dark))
         else -> lightColorScheme(primary = colorResource(R.color.smoky_primary_light), secondary = colorResource(R.color.smoky_secondary_light), tertiary = colorResource(R.color.smoky_tertiary_light))
     }
-    MaterialTheme(colorScheme = colors, content = content)
+    fun themeColor(attribute: Int) = androidx.compose.ui.graphics.Color(
+        com.google.android.material.color.MaterialColors.getColor(context, attribute, "DashboardTheme"))
+    val sharedColors = colors.copy(
+        primary = themeColor(androidx.appcompat.R.attr.colorPrimary),
+        onPrimary = themeColor(com.google.android.material.R.attr.colorOnPrimary),
+        primaryContainer = themeColor(com.google.android.material.R.attr.colorPrimaryContainer),
+        onPrimaryContainer = themeColor(com.google.android.material.R.attr.colorOnPrimaryContainer),
+        secondary = themeColor(com.google.android.material.R.attr.colorSecondary),
+        onSecondary = themeColor(com.google.android.material.R.attr.colorOnSecondary),
+        secondaryContainer = themeColor(com.google.android.material.R.attr.colorSecondaryContainer),
+        onSecondaryContainer = themeColor(com.google.android.material.R.attr.colorOnSecondaryContainer),
+        tertiary = themeColor(com.google.android.material.R.attr.colorTertiary),
+        onTertiary = themeColor(com.google.android.material.R.attr.colorOnTertiary),
+        tertiaryContainer = themeColor(com.google.android.material.R.attr.colorTertiaryContainer),
+        onTertiaryContainer = themeColor(com.google.android.material.R.attr.colorOnTertiaryContainer),
+        surface = themeColor(com.google.android.material.R.attr.colorSurface),
+        onSurface = themeColor(com.google.android.material.R.attr.colorOnSurface),
+        surfaceVariant = themeColor(com.google.android.material.R.attr.colorSurfaceVariant),
+        onSurfaceVariant = themeColor(com.google.android.material.R.attr.colorOnSurfaceVariant),
+        surfaceContainerLow = themeColor(com.google.android.material.R.attr.colorSurfaceContainerLow),
+        surfaceContainer = themeColor(com.google.android.material.R.attr.colorSurfaceContainer),
+        surfaceContainerHigh = themeColor(com.google.android.material.R.attr.colorSurfaceContainerHigh),
+        surfaceContainerHighest = themeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest),
+        outline = themeColor(com.google.android.material.R.attr.colorOutline),
+        outlineVariant = themeColor(com.google.android.material.R.attr.colorOutlineVariant),
+        error = themeColor(androidx.appcompat.R.attr.colorError),
+        onError = themeColor(com.google.android.material.R.attr.colorOnError)
+    )
+    MaterialTheme(colorScheme = sharedColors, content = content)
 }
 
 @Composable
 fun DashboardOverview(state: DashboardState, enabled: Boolean,
                       onReviews: () -> Unit, onLessons: () -> Unit,
-                      onResume: () -> Unit, onBrowse: () -> Unit,
-                      onPriorityChange: (Boolean, Boolean) -> Unit = { _, _ -> },
+                      onResume: () -> Unit,
                       showTitle: Boolean = true) {
-    var showPriority by remember { mutableStateOf(false) }
-    if (showPriority) {
-        AlertDialog(onDismissRequest = { showPriority = false },
-            title = { Text(stringResource(R.string.level_up_priority_title)) },
-            text = {
-                Column {
-                    Text(stringResource(R.string.level_up_path_explanation), style = MaterialTheme.typography.bodyMedium)
-                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(state.prioritizeLessons, role = Role.Switch, onValueChange = { onPriorityChange(it, state.prioritizeReviews) }), verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.level_up_priority_lessons), Modifier.weight(1f))
-                        Switch(checked = state.prioritizeLessons, onCheckedChange = null)
-                    }
-                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(state.prioritizeReviews, role = Role.Switch, onValueChange = { onPriorityChange(state.prioritizeLessons, it) }), verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.level_up_priority_reviews), Modifier.weight(1f))
-                        Switch(checked = state.prioritizeReviews, onCheckedChange = null)
-                    }
-                }
-            }, confirmButton = { TextButton(onClick = { showPriority = false }) { Text(stringResource(android.R.string.ok)) } })
-    }
     Surface(shape = RoundedCornerShape(16.dp),
         color = if (showTitle) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface) {
-        Column(Modifier.fillMaxWidth().padding(if (showTitle) 16.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(if (showTitle) 16.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (showTitle) Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold)
             if (state.level > 0) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(stringResource(R.string.dashboard_level, state.level),
-                        style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                    state.daysAtLevel?.let { days ->
-                        Text(stringResource(R.string.dashboard_days_at_level, days),
-                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
+                Text(buildString {
+                    append(stringResource(R.string.dashboard_level, state.level))
+                    state.daysAtLevel?.let { append(" · "); append(stringResource(R.string.dashboard_days_at_level, it)) }
+                }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (!state.ready) {
                 Text(stringResource(R.string.dashboard_loading))
             } else {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Count(state.reviews, stringResource(R.string.dashboard_reviews), Modifier.weight(1f), state.levelUpReviews)
-                    Count(state.lessons, stringResource(R.string.dashboard_lessons), Modifier.weight(1f), state.levelUpLessons)
-                }
-                if (!state.vacation) {
-                    TextButton(onClick = { showPriority = true }, enabled = enabled,
-                        modifier = Modifier.heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.level_up_priority_title))
-                    }
-                }
                 when {
                     state.activeSession -> {
                         Text(stringResource(R.string.dashboard_session_waiting))
@@ -110,35 +99,33 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                     }
                     state.vacation -> Text(stringResource(R.string.dashboard_vacation))
                     else -> {
-                        if (state.reviews > 0) {
-                            Button(onClick = onReviews, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                                shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.dashboard_start_reviews))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(onClick = onReviews, enabled = enabled && state.reviews > 0,
+                                modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
+                                Text("${state.reviews} reviews")
+                            }
+                            FilledTonalButton(onClick = onLessons, enabled = enabled && state.lessons > 0,
+                                modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
+                                Text("${state.lessons} lessons")
                             }
                         }
-                        if (state.lessons > 0) {
-                            Button(onClick = onLessons, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                                colors = if (state.reviews > 0) ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                ) else ButtonDefaults.buttonColors(),
-                                shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.dashboard_start_lessons))
+                        if (state.levelUpReviews > 0 || state.levelUpLessons > 0) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                if (state.levelUpReviews > 0) Text(stringResource(R.string.level_up_available_count, state.levelUpReviews),
+                                    modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                if (state.levelUpLessons > 0) Text(stringResource(R.string.level_up_available_count, state.levelUpLessons),
+                                    modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
                             }
                         }
                         if (state.reviews == 0 && state.lessons == 0) Text(stringResource(R.string.dashboard_caught_up))
                     }
                 }
-                if (state.upcoming.isNotEmpty()) Text(state.upcoming, style = MaterialTheme.typography.bodyMedium)
             }
             if (state.syncing && !state.syncError) {
                 Text(stringResource(R.string.dashboard_syncing), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            TextButton(onClick = onBrowse, enabled = enabled,
-                modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.dashboard_browse))
-            }
+
         }
     }
 }

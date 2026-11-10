@@ -197,46 +197,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"/>
-            <LinearLayout
-                android:id="@+id/classicDashboardHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-            <com.smouldering_durtles.wk.views.LevelDurationView
-                android:id="@+id/levelDurationView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal" />
-
-            <com.smouldering_durtles.wk.views.AvailableSessionsView
-                android:id="@+id/availableSessionsView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
-
-            <com.smouldering_durtles.wk.views.UpcomingReviewsView
-                android:id="@+id/upcomingReviewsView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:gravity="center_horizontal"
-                android:text="" />
-
-            <com.smouldering_durtles.wk.views.SyncProgressView
-                android:id="@+id/syncProgressView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:gravity="center_horizontal"/>
-
-            <com.smouldering_durtles.wk.views.SessionButtonsView
-                android:id="@+id/sessionButtonsView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
-
-            </LinearLayout>
-
             <com.smouldering_durtles.wk.views.LessonReviewBreakdownView
                 android:id="@+id/lessonReviewBreakdownView"
                 android:layout_width="match_parent"

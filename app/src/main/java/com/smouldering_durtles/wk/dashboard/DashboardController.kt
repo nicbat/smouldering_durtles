@@ -24,35 +24,24 @@ class DashboardController private constructor() {
     companion object {
         @JvmStatic
         fun attach(view: ComposeView, owner: LifecycleOwner, reviews: Runnable, lessons: Runnable,
-                   resume: Runnable, browse: Runnable, dynamicColor: Boolean, showTitle: Boolean = true): DashboardController {
+                   resume: Runnable, showTitle: Boolean = true): DashboardController {
             val controller = DashboardController()
             val context = view.context
             fun refresh() {
                 val timeline = LiveTimeLine.getInstance().get()
                 val session = Session.getInstance()
                 val ready = GlobalSettings.getFirstTimeSetup() != 0 && session.isLoaded
-                val next = when {
-                    timeline.hasUpcomingReviews() -> timeline.upcomingReviewDate
-                    timeline.hasLongTermUpcomingReviews() -> timeline.longTermUpcomingReviewDate
-                    else -> 0L
-                }
-                val upcoming = if (next > 0) context.getString(R.string.dashboard_next_review,
-                    DateFormat.getMediumDateFormat(context).format(Date(next)),
-                    DateFormat.getTimeFormat(context).format(Date(next))) else ""
                 controller.state = DashboardState(
                     ready = ready,
                     lessons = timeline.numAvailableLessons,
                     reviews = timeline.numAvailableReviews,
                     levelUpLessons = timeline.numLevelUpLessons,
                     levelUpReviews = timeline.numLevelUpReviews,
-                    prioritizeLessons = GlobalSettings.AdvancedLesson.getOrderPriority() == com.smouldering_durtles.wk.enums.SessionPriority.LEVEL_UP_FIRST,
-                    prioritizeReviews = GlobalSettings.AdvancedReview.getOrderPriority() == com.smouldering_durtles.wk.enums.SessionPriority.LEVEL_UP_FIRST,
                     activeSession = !session.isInactive,
                     vacation = LiveVacationMode.getInstance().get(),
                     level = LiveLevelDuration.getInstance().get().level,
                     daysAtLevel = LiveLevelDuration.getInstance().get().daysAtCurrentLevel.toDouble()
                         .takeIf { GlobalSettings.getFirstTimeSetup() != 0 && it.isFinite() && it >= 0 },
-                    upcoming = upcoming,
                     syncing = !LiveTaskCounts.getInstance().get().isEmpty,
                     syncError = LiveApiState.getInstance().get() in listOf(ApiState.ERROR, ApiState.API_KEY_REJECTED)
                 )
@@ -67,14 +56,10 @@ class DashboardController private constructor() {
             refresh()
             view.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             view.setContent {
-                DashboardTheme(dynamicColor) {
+                DashboardTheme() {
                     DashboardOverview(controller.state, controller.actionsEnabled,
-                        { reviews.run() }, { lessons.run() }, { resume.run() }, { browse.run() },
-                        { lessonFirst, reviewFirst ->
-                            GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.LESSON, lessonFirst)
-                            GlobalSettings.setLevelUpPriority(com.smouldering_durtles.wk.enums.SessionType.REVIEW, reviewFirst)
-                            refresh()
-                        }, showTitle = showTitle)
+                        { reviews.run() }, { lessons.run() }, { resume.run() },
+                        showTitle = showTitle)
                 }
             }
             return controller

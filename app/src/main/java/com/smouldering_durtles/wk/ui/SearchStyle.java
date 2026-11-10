@@ -10,7 +10,6 @@ import com.smouldering_durtles.wk.adapter.search.SearchResultAdapter;
 import com.smouldering_durtles.wk.enums.SubjectCardLayout;
 import android.util.TypedValue;
 import androidx.appcompat.view.ContextThemeWrapper;
-import com.google.android.material.color.DynamicColors;
 import com.smouldering_durtles.wk.GlobalSettings;
 import com.smouldering_durtles.wk.R;
 
@@ -20,8 +19,7 @@ public final class SearchStyle {
 
     public static Context context(Context base) {
         Context context = new ContextThemeWrapper(base, R.style.SmokySearchTheme);
-        return GlobalSettings.Display.getSettingsDynamicColor()
-                ? DynamicColors.wrapContextIfAvailable(context) : context;
+        return context;
     }
 
     /** Full-width group/form rows with readable subject cards that adapt to the actual viewport. */

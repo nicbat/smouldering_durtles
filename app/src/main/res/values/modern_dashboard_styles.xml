@@ -4,9 +4,6 @@
         <item name="smokyModernUi">true</item>
         <item name="wkTextColorPrimary">?attr/colorOnSurface</item>
         <item name="smokyModernDashboard">true</item>
-        <!-- Keep legacy button saved-state types stable when switching back to Classic. -->
-        <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
-        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="colorBackground">?attr/colorSurface</item>
         <item name="tileColorBackground">?attr/colorSurfaceContainerLow</item>
         <item name="toolbarColorBackground">?attr/colorSurface</item>
@@ -18,17 +15,6 @@
 
     <!-- A complete popup theme also works above legacy AppCompat activities. -->
     <style name="SmokyOverflowTheme" parent="SmokyMaterialTheme">
-        <item name="popupMenuStyle">@style/SmokyOverflowMenu</item>
-        <item name="actionOverflowMenuStyle">@style/SmokyOverflowMenu</item>
-        <item name="listPopupWindowStyle">@style/SmokyOverflowMenu</item>
-        <item name="dropDownListViewStyle">@style/SmokyOverflowList</item>
-        <item name="textAppearanceLargePopupMenu">@style/SmokyOverflowText</item>
-        <item name="textAppearanceSmallPopupMenu">@style/SmokyOverflowText</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemPaddingLeft">16dp</item>
-        <item name="listPreferredItemPaddingRight">16dp</item>
-    </style>
-    <style name="SmokyOverflowDynamicTheme" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="popupMenuStyle">@style/SmokyOverflowMenu</item>
         <item name="actionOverflowMenuStyle">@style/SmokyOverflowMenu</item>
         <item name="listPopupWindowStyle">@style/SmokyOverflowMenu</item>

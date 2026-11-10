@@ -1,5 +1,10 @@
 # Smoky Durtles agent handoff
 
+## 2026-11-09 — study UI overhaul
+
+Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order is static on entry with explicit controls; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
+
+
 ## Start a new session
 
 1. Read this file, [TASKS.md](TASKS.md), [UI_GUIDE.md](UI_GUIDE.md), and the current milestone in [FORK_PLAN.md](FORK_PLAN.md).
@@ -564,3 +569,71 @@ commit `b36c696`; never fabricate migration fixtures.
 - Stop only task-owned emulators and note any remaining processes.
 - Update TASKS and this file, commit, push to the fork branch and verify remote HEAD.
 - Link the branch/commit and current APK; distinguish built from phone-installed versions.
+
+
+## Material-only consolidation — 2026-11-06
+
+User clarified that “expressive” meant wallpaper-derived dynamic colors. Removed all
+production dynamic-color calls and both independent appearance switches. The entire
+interface now uses fixed Material 3 colors with system light/dark mode. Compose's
+embedded dashboard resolves its colors from the same Material View theme. Obsolete
+saved appearance flags have no effect. Kept subject/SRS palette data compatibility.
+
+Removed Classic dashboard/header classes, alternate search/utility layouts, theme
+customization activity and unused Pikolo dependency. Undo uses a curved arrow, tonal
+button treatment and distinct retry-now/review-later accessibility descriptions.
+Lesson/review priority lists are now normal session settings; old dashboard switches
+migrate once into the established canonical priority keys. Other advanced settings
+remain gated, and eligibility/due-date/path logic remains unchanged.
+
+Sync & audio is accessible from Settings and the overflow menu. It contains connection
+and pending-work status, sync action, audio management, network/background controls and
+confirmed recovery-task discard. About includes an explicit Smouldering Durtles thanks;
+removed the separate support page while retaining credits and WaniKani help links.
+Forecast has a themed stepped cumulative waterfall including due-now reviews, an exact
+end-time caption and an explicit no-reviews-completed assumption; daily/hourly details
+and DST-aware aggregation remain.
+
+Validation: Android 16 isolated read-only emulator, 140 instrumentation tests passed
+(`/tmp/smoky-unified-tests-final.log`). Debug/release/test APK builds and release vital
+lint passed after final unused-dependency cleanup (`/tmp/smoky-unified-build-verified.log`). UI screenshots inspected in
+`captures/smoky-unified/`. No phone or account-bearing device was modified.
+
+Final cleanup verification: 32 focused settings/study/forecast tests passed on the rebuilt APK (`/tmp/smoky-unified-cleanup-tests.log`). Task-owned emulator-5580 stopped without saving its read-only snapshot.
+
+
+## Compact dashboard, unified study settings and font sizing — 2026-11-06
+
+Replaced forecast strips and drilldowns with one hourly bar/cumulative-line timeline,
+horizontally scrollable with bottom time/date labels, exact tap counts and accessible
+paging. New-arrival bars exclude overdue backlog; cumulative line includes it and
+labels its independent scale. Refresh preserves the viewed time range. Removed Browse
+and future-schedule duplication from Your next session, aligned Reviews/Lessons actions
+on one row, compacted level metadata, and removed the SRS split toggle (five stages).
+
+Merged regular/advanced settings into Study sessions with logical per-session groups;
+all Anki controls have one destination. A one-time migration preserves every old
+advanced-disabled effective value (77 gated reads audited), and enabled users keep
+saved choices. Old backups rerun migration appropriately. Reading/meaning order is a
+single dropdown backed by the original booleans. Question panel height uses presets
+backed by the original integer setting.
+
+Read ONLY relevant font/layout preferences on the connected phone to diagnose tiny
+kanji: main glyph cap was still 100, but fixed panel height was 7dp. No settings or
+account state were changed on the phone. Fixed the glyph/padding calculation and safe
+minimum panel height without rewriting saved values. Live font previews use the real
+renderer; selection/import rows are denser. Added Android serif/bold and bundled-font
+bold variants, plus unmodified Zen Kaku Gothic New and Zen Maru Gothic regular from
+the official google/fonts repository, with OFL texts in res/raw and About attribution.
+
+Validation: all 144 instrumentation tests passed on Android 16
+(`/tmp/smoky-compact-tests-final.log`, 91.904s), including selected-font loadability,
+unified-settings migration/backup import, actual7dp review rendering, scroll/refresh
+and accessibility. Targeted glyph/preview checks also passed3/3. Debug/release/test
+APKs and release vital lint pass; build log: /tmp/smoky-compact-build-verified.log.
+Screenshots inspected in captures/smoky-compact/. No phone install was performed.
+
+Final UI cleanup verification:13/13 dashboard/settings tests passed on the final APK (`/tmp/smoky-compact-final-ui.log`). Task-owned read-only emulator-5580 stopped without saving snapshots.
+
+### Flat settings navigation (2026-11-06)
+Moved Lessons, Reviews and Self-study to the root settings list. Shared study settings holds common behavior; Anki remains a sibling. No nested PreferenceScreen pages remain. Existing preference keys and values are unchanged. XML hierarchy verification, git diff --check, assembleDebug and assembleRelease passed. Build log: /tmp/smoky-flat-settings-build.log. No device installation.

@@ -17,14 +17,15 @@ public final class DashboardLegendLayout extends ViewGroup {
         float density = getResources().getDisplayMetrics().density;
         gap = Math.round(8 * density);
         int minCell = Math.round(48 * density * Math.max(1, getResources().getConfiguration().fontScale));
-        columns = Math.max(1, Math.min(Math.max(1, getChildCount()), (available + gap) / (minCell + gap)));
+        columns = available >= getChildCount() * minCell + Math.max(0, getChildCount() - 1) * gap
+                ? Math.max(1, getChildCount()) : available >= 2 * minCell + gap ? 2 : 1;
         int cellWidth = Math.max(0, (available - gap * (columns - 1)) / columns);
         int height = getPaddingTop() + getPaddingBottom();
         for (int i = 0; i < getChildCount(); i += columns) {
             int rowHeight = 0;
             for (int j = i; j < Math.min(i + columns, getChildCount()); j++) {
                 View child = getChildAt(j);
-                child.measure(MeasureSpec.makeMeasureSpec(cellWidth, MeasureSpec.EXACTLY),
+                child.measure(MeasureSpec.makeMeasureSpec(columns == 2 && j == getChildCount() - 1 && getChildCount() % 2 == 1 ? available : cellWidth, MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
                 rowHeight = Math.max(rowHeight, child.getMeasuredHeight());
             }

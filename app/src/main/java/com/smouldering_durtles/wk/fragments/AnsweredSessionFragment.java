@@ -49,6 +49,8 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  * Fragment for an answered non-Anki mode question.
  */
 public final class AnsweredSessionFragment extends AbstractSessionFragment implements SwipingScrollView.OnSwipeListener {
+    private int revealStage = 0;
+    private android.widget.Button revealAction;
     private @Nullable Question question;
     private @Nullable Subject subject;
 
@@ -105,7 +107,8 @@ public final class AnsweredSessionFragment extends AbstractSessionFragment imple
     @Override
     protected void onResumeLocal() {
         nextButton.enableInteraction();
-        nextButton.requestFocus();
+        nextButton2.enableInteraction();
+        nextButton2.requestFocus();
     }
 
     @Override
@@ -132,7 +135,7 @@ public final class AnsweredSessionFragment extends AbstractSessionFragment imple
         final @Nullable LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) questionView.getLayoutParams();
         if (params != null) {
             final int height = GlobalSettings.Display.getQuizQuestionViewHeight();
-            params.height = height > 0 ? dp2px(height): ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.height = com.smouldering_durtles.wk.study.StudyStyle.questionHeight(view, height);
             params.weight = 0;
             questionView.setLayoutParams(params);
         }
@@ -149,6 +152,7 @@ public final class AnsweredSessionFragment extends AbstractSessionFragment imple
         }
 
         com.smouldering_durtles.wk.study.StudyStyle.roundCurrentColor(view.findViewById(R.id.questionEdit), 16, false);
+        ((android.widget.EditText) view.findViewById(R.id.questionEdit)).setKeyListener(null);
         questionEdit.setSingleLine();
         questionEdit.setText(FloatingUiState.getCurrentAnswer());
         questionEdit.setTextSize(GlobalSettings.Font.getFontSizeQuestionEdit());
@@ -166,7 +170,23 @@ public final class AnsweredSessionFragment extends AbstractSessionFragment imple
         subjectInfo.setToolbar(null);
         subjectInfo.setMaxFontSize(GlobalSettings.Font.getMaxFontSizeQuiz());
         subjectInfo.setContainerType(SubjectInfoView.ContainerType.ANSWERED_QUESTION);
-        subjectInfo.setSubject(this, subject);
+        revealStage = savedInstanceState == null ? 0 : savedInstanceState.getInt("answerReveal", 0);
+        bindReveal(view);
+        android.widget.LinearLayout footer = (android.widget.LinearLayout) view;
+        revealAction = new android.widget.Button(requireContext());
+        com.smouldering_durtles.wk.ui.ModernUi.button(revealAction, com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.SECONDARY);
+        revealAction.setSingleLine(false);
+        android.widget.LinearLayout.LayoutParams revealParams = new android.widget.LinearLayout.LayoutParams(-1, -2);
+        int gutter = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 16);
+        revealParams.setMargins(gutter, 0, gutter, 0);
+        footer.addView(revealAction, footer.indexOfChild(view.findViewById(R.id.nextButton2)), revealParams);
+        revealAction.setOnClickListener(v -> {
+            if (!interactionEnabled) return;
+            revealStage = Math.min(2, revealStage + 1);
+            bindReveal(view);
+        });
+        bindReveal(view);
+        view.findViewById(R.id.nextButton).setVisibility(View.GONE);
 
         final View.OnClickListener listener = this::advanceNext;
         nextButton.setOnClickListener(listener);
@@ -189,6 +209,28 @@ public final class AnsweredSessionFragment extends AbstractSessionFragment imple
                 digraphMatchText.setVisibility(false);
             }
         }
+    }
+
+    private void bindReveal(View root) {
+        SubjectInfoView info = root.findViewById(R.id.subjectInfo);
+        FloatingUiState.showDumpStage = revealStage >= 2
+                ? com.smouldering_durtles.wk.enums.SubjectInfoDump.ALL
+                : com.smouldering_durtles.wk.enums.SubjectInfoDump.CURRENT_ANSWER;
+        info.setVisibility(revealStage == 0 ? View.GONE : View.VISIBLE);
+        if (revealStage > 0) {
+            info.setSubject(this, subject);
+            View innerReveal = info.findViewById(R.id.revealButton);
+            if (innerReveal != null) innerReveal.setVisibility(View.GONE);
+        }
+        if (revealAction != null) {
+            revealAction.setText(revealStage == 0 ? (question.getType().isMeaning() ? "Show meaning" : "Show reading") : "Show all details");
+            revealAction.setVisibility(revealStage >= 2 ? View.INVISIBLE : View.VISIBLE);
+        }
+    }
+
+    @Override public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putInt("answerReveal", revealStage);
     }
 
     @Override

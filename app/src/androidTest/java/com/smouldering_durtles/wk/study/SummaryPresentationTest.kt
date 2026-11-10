@@ -3,7 +3,6 @@ package com.smouldering_durtles.wk.study
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -169,16 +168,16 @@ class SummaryPresentationTest {
         } }
     }
 
-    @Test fun classicKeepsBothOriginalPanels() {
+    @Test fun obsoleteAppearanceFlagKeepsConsolidatedMaterialSummary() {
         prefs.edit().putBoolean("modern_settings", false).commit()
         fixture().use { scenario -> scenario.onActivity { activity ->
             write("items", items(listOf(0, 1, 0, 1)))
             val root = mount(activity).requireView()
-            assertNull(root.findViewById<View>(R.id.summaryAccuracyBar))
-            for (id in listOf(R.id.correctSummary, R.id.incorrectSummary)) {
-                assertTrue(root.findViewById<View>(id).background is ColorDrawable)
-                assertEquals(View.VISIBLE, root.findViewById<View>(id).visibility)
-            }
+            assertNotNull(root.findViewById<View>(R.id.summaryAccuracyBar))
+            assertEquals(View.VISIBLE, root.findViewById<View>(R.id.summaryAccuracyBar).visibility)
+            assertEquals(View.VISIBLE, root.findViewById<View>(R.id.correctSummary).visibility)
+            assertEquals(View.GONE, root.findViewById<View>(R.id.incorrectSummary).visibility)
+            assertEquals("2 of 4 items · 2 with errors", root.findViewById<TextView>(R.id.summaryItemCount).text.toString())
         } }
     }
 
@@ -194,6 +193,7 @@ class SummaryPresentationTest {
             readings = "[{\"reading\":\"いち\",\"type\":\"onyomi\",\"primary\":true,\"accepted_answer\":true}]"
         })
         srsStageId = 1; question1Incorrect = errors
+        setQuestion1Done(true); setQuestion2Done(true); setQuestion3Done(true); setQuestion4Done(true)
     }
     private fun fixture() = ActivityScenario.launch(AboutActivity::class.java).also { scenario ->
         scenario.onActivity { it.setContentView(FrameLayout(it).apply { id = R.id.fragment }) }

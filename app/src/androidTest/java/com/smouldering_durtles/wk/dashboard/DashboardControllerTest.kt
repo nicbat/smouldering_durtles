@@ -19,12 +19,16 @@ class DashboardControllerTest {
         compose.activityRule.scenario.onActivity { activity ->
             val view = ComposeView(activity)
             activity.setContentView(view)
-            controller = DashboardController.attach(view, activity, Runnable {}, Runnable {}, Runnable {}, Runnable {}, false)
+            controller = DashboardController.attach(view, activity, Runnable {}, Runnable {}, Runnable {})
+            @Suppress("UNCHECKED_CAST")
+            val state = DashboardController::class.java.getDeclaredField("state\$delegate").apply { isAccessible = true }
+                .get(controller) as androidx.compose.runtime.MutableState<DashboardState>
+            state.value = DashboardState(ready = true, reviews = 1, lessons = 1)
             controller.setInteractionEnabled(true)
         }
         compose.onNodeWithText("Your next session").assertIsDisplayed()
-        compose.onNodeWithText("Browse subjects").assertIsEnabled()
+        compose.onNodeWithText("1 reviews").assertIsEnabled()
         compose.runOnIdle { controller.setInteractionEnabled(false) }
-        compose.onNodeWithText("Browse subjects").assertIsNotEnabled()
+        compose.onNodeWithText("1 reviews").assertIsNotEnabled()
     }
 }

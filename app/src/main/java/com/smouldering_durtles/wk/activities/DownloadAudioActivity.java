@@ -61,20 +61,19 @@ public final class DownloadAudioActivity extends ModernActivity {
      * The constructor.
      */
     public DownloadAudioActivity() {
-        super(com.smouldering_durtles.wk.GlobalSettings.Display.getModernSettings()
-                ? R.layout.activity_download_audio_modern : R.layout.activity_download_audio, R.menu.generic_options_menu);
+        super(R.layout.activity_download_audio_modern, R.menu.generic_options_menu);
     }
 
     @Override
     protected void onCreateLocal(final @Nullable Bundle savedInstanceState) {
-        if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) {
+
             com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.moveButton),
                     com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.PRIMARY);
             com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.abortMoveButton),
                     com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
             com.smouldering_durtles.wk.ui.ModernUi.button(findViewById(R.id.deleteButton),
                     com.smouldering_durtles.wk.ui.ModernUi.ButtonRole.TEXT);
-        }
+
         moveProgressBar.setDelegate(this, R.id.moveProgressBar);
         cancelButton.setDelegate(this, R.id.cancelButton);
         deleteButton.setDelegate(this, R.id.deleteButton);
@@ -162,9 +161,8 @@ public final class DownloadAudioActivity extends ModernActivity {
                 final DownloadAudioBracketView view = new DownloadAudioBracketView(this);
                 final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, 0);
                 layoutParams.setMargins(0, 0, 0, 0);
-                layoutParams.width = com.smouldering_durtles.wk.ui.ModernUi.isModern(this)
-                        ? android.view.ViewGroup.LayoutParams.MATCH_PARENT : WRAP_CONTENT;
-                if (com.smouldering_durtles.wk.ui.ModernUi.isModern(this)) layoutParams.topMargin = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 12);
+                layoutParams.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+                layoutParams.topMargin = com.smouldering_durtles.wk.ui.ModernUi.dp(view, 12);
                 layoutParams.height = WRAP_CONTENT;
                 downloadAudioView.addView(view, layoutParams);
             }

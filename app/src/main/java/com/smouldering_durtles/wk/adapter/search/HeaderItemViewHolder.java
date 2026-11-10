@@ -98,14 +98,11 @@ public abstract class HeaderItemViewHolder extends ResultItemViewHolder implemen
             }
         });
 
-        final boolean modern = com.smouldering_durtles.wk.ui.SearchStyle.isModern(itemView.getContext());
-        final boolean pointDown = modern == item.isCollapsed();
+        final boolean pointDown = item.isCollapsed();
         final int icon = pointDown ? R.drawable.ic_expand_more : R.drawable.ic_expand_less;
         final @Nullable Drawable drawable = ContextCompat.getDrawable(itemView.getContext(), icon);
         if (drawable != null) {
-            drawable.setColorFilter(new SimpleColorFilter(modern
-                    ? com.google.android.material.color.MaterialColors.getColor(itemView, com.google.android.material.R.attr.colorOnSurfaceVariant)
-                    : ThemeUtil.getColor(androidx.appcompat.R.attr.colorPrimary)));
+            drawable.setColorFilter(new SimpleColorFilter(com.google.android.material.color.MaterialColors.getColor(itemView, com.google.android.material.R.attr.colorOnSurfaceVariant)));
             arrowHead.setImageDrawable(drawable);
         }
 
