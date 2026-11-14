@@ -1,5 +1,30 @@
 # Smoky Durtles agent handoff
 
+## November 14 sync optimization pass
+
+Automatic sync on open now requests assignments and summary immediately; existing
+housekeeping still refreshes stale supporting data and validates account state.
+Manual Sync now and post-level-up refresh retain the full core refresh. Neither sync
+button/job forces an audio rescan; subject changes still invalidate the audio scan.
+For a fresh account cache this reduces the core sync-on-open requests from five to two.
+
+Collection pages are parsed before a single Room transaction. Subject notifications
+are deferred until commit and discarded on rollback, and progress advances after commit.
+Successful HTTP requests log response type/count instead of pretty-printing full payloads.
+The existing one-hour overlap and API pacing are unchanged in this pass.
+
+Dashboard status separates API sync, persisted uploads, and media downloads. Offline
+uploads remain visibly saved on-device; media downloads no longer keep sync busy.
+Existing apiCount/setup-completion semantics are preserved with separate sync/upload counts.
+
+Validation: 13 focused Android 16 emulator tests pass (26.648s), including page rollback
+and retry, malformed page rejection, queue classification, dashboard states and sync
+settings. Debug, release and test APK builds pass; git diff --check passes.
+Logs: `/tmp/smoky-sync-tests-final.log`, `/tmp/smoky-sync-build-final.log`.
+Tests used only an isolated offline emulator; no phone install or real API submissions.
+Real-account wall-clock speed measurements remain pending.
+
+
 ## 2026-11-14 — delivery snapshot
 
 The delivery includes all accumulated source, resource, test and documentation changes

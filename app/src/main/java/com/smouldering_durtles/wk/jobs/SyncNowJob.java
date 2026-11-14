@@ -36,7 +36,6 @@ public final class SyncNowJob extends Job {
     public void runLocal() {
         final AppDatabase db = WkApplication.getDatabase();
         db.assertRefreshForAllModels();
-        db.propertiesDao().setLastAudioScanDate(0);
         houseKeeping();
     }
 }

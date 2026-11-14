@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.LifecycleOwner
+import com.smouldering_durtles.wk.WkApplication
 import com.smouldering_durtles.wk.GlobalSettings
 import com.smouldering_durtles.wk.R
 import com.smouldering_durtles.wk.api.ApiState
@@ -31,6 +32,8 @@ class DashboardController private constructor() {
                 val timeline = LiveTimeLine.getInstance().get()
                 val session = Session.getInstance()
                 val ready = GlobalSettings.getFirstTimeSetup() != 0 && session.isLoaded
+                val counts = LiveTaskCounts.getInstance().get()
+                val apiState = LiveApiState.getInstance().get()
                 controller.state = DashboardState(
                     ready = ready,
                     lessons = timeline.numAvailableLessons,
@@ -42,8 +45,13 @@ class DashboardController private constructor() {
                     level = LiveLevelDuration.getInstance().get().level,
                     daysAtLevel = LiveLevelDuration.getInstance().get().daysAtCurrentLevel.toDouble()
                         .takeIf { GlobalSettings.getFirstTimeSetup() != 0 && it.isFinite() && it >= 0 },
-                    syncing = !LiveTaskCounts.getInstance().get().isEmpty,
-                    syncError = LiveApiState.getInstance().get() in listOf(ApiState.ERROR, ApiState.API_KEY_REJECTED)
+                    syncing = counts.syncCount > 0,
+                    pendingUploads = counts.uploadCount,
+                    audioDownloads = counts.audioCount,
+                    pitchDownloads = counts.pitchInfoCount,
+                    offline = !WkApplication.getInstance().onlineStatus.canCallApi(),
+                    synced = apiState == ApiState.OK && counts.syncCount == 0,
+                    syncError = apiState in listOf(ApiState.ERROR, ApiState.API_KEY_REJECTED, ApiState.API_KEY_MISSING)
                 )
             }
             LiveTimeLine.getInstance().observe(owner) { refresh() }

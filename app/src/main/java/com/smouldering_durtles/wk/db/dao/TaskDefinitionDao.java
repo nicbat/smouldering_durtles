@@ -66,13 +66,21 @@ public abstract class TaskDefinitionDao {
      *
      * @return the LiveData instance
      */
-    @Query("SELECT apiCount, audioCount, pitchInfoCount FROM "
+    @Query("SELECT apiCount, audioCount, pitchInfoCount, syncCount, uploadCount FROM "
             + "(SELECT COUNT(*) AS apiCount FROM task_definition "
             + "WHERE taskClass!='com.smouldering_durtles.wk.tasks.DownloadAudioTask' AND taskClass!='com.smouldering_durtles.wk.tasks.DownloadPitchInfoTask'), "
             + "(SELECT count(*) AS audioCount FROM task_definition "
             + "WHERE taskClass='com.smouldering_durtles.wk.tasks.DownloadAudioTask'), "
             + "(SELECT count(*) AS pitchInfoCount FROM task_definition "
-            + "WHERE taskClass='com.smouldering_durtles.wk.tasks.DownloadPitchInfoTask');")
+            + "WHERE taskClass='com.smouldering_durtles.wk.tasks.DownloadPitchInfoTask'), "
+            + "(SELECT COUNT(*) AS syncCount FROM task_definition WHERE taskClass NOT IN ("
+            + "'com.smouldering_durtles.wk.tasks.DownloadAudioTask',"
+            + "'com.smouldering_durtles.wk.tasks.DownloadPitchInfoTask',"
+            + "'com.smouldering_durtles.wk.tasks.ScanAudioDownloadStatusTask',"
+            + "'com.smouldering_durtles.wk.tasks.LoadReferenceDataTask')), "
+            + "(SELECT COUNT(*) AS uploadCount FROM task_definition WHERE taskClass IN ("
+            + "'com.smouldering_durtles.wk.tasks.ReportSessionItemTask',"
+            + "'com.smouldering_durtles.wk.tasks.SubmitStudyMaterialTask'));")
     public abstract LiveData<TaskCounts> getLiveCounts();
 
     /**

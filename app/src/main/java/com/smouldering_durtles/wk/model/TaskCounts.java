@@ -23,6 +23,8 @@ public final class TaskCounts {
     private final int apiCount;
     private final int audioCount;
     private final int pitchInfoCount;
+    private final int syncCount;
+    private final int uploadCount;
 
     /**
      * The constructor.
@@ -31,10 +33,13 @@ public final class TaskCounts {
      * @param audioCount the total number of audio download tasks
      * @param pitchInfoCount the total number of pitch info download tasks
      */
-    public TaskCounts(final int apiCount, final int audioCount, final int pitchInfoCount) {
+    public TaskCounts(final int apiCount, final int audioCount, final int pitchInfoCount,
+                      final int syncCount, final int uploadCount) {
         this.apiCount = apiCount;
         this.audioCount = audioCount;
         this.pitchInfoCount = pitchInfoCount;
+        this.syncCount = syncCount;
+        this.uploadCount = uploadCount;
     }
 
     /**
@@ -61,6 +66,12 @@ public final class TaskCounts {
         return pitchInfoCount;
     }
 
+    /** Network sync tasks only, excluding local maintenance and media downloads. */
+    public int getSyncCount() { return syncCount; }
+
+    /** Persisted session results and study-material edits awaiting acknowledgement. */
+    public int getUploadCount() { return uploadCount; }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -70,12 +81,13 @@ public final class TaskCounts {
             return false;
         }
         final TaskCounts other = (TaskCounts) obj;
-        return apiCount == other.apiCount && audioCount == other.audioCount && pitchInfoCount == other.pitchInfoCount;
+        return apiCount == other.apiCount && audioCount == other.audioCount && pitchInfoCount == other.pitchInfoCount
+                && syncCount == other.syncCount && uploadCount == other.uploadCount;
     }
 
     @Override
     public int hashCode() {
-        return apiCount + audioCount + pitchInfoCount;
+        return apiCount + audioCount + pitchInfoCount + syncCount + uploadCount;
     }
 
     /**

@@ -35,8 +35,9 @@ public final class AutoSyncNowJob extends Job {
     @Override
     public void runLocal() {
         final AppDatabase db = WkApplication.getDatabase();
-        db.assertRefreshForAllModels();
-        db.propertiesDao().setLastAudioScanDate(0);
+        // Refresh availability immediately; housekeeping schedules stale supporting data.
+        db.assertGetAssignmentsTask();
+        db.assertGetSummaryTask();
         houseKeeping();
     }
 }

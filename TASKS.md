@@ -1,5 +1,15 @@
 # Smoky Durtles working tasks
 
+## Sync optimization first pass (November 14)
+
+- [x] Make sync-on-open refresh availability first; keep stale-data housekeeping and full manual sync.
+- [x] Apply collection pages in transactions with notifications/progress after commit.
+- [x] Remove full successful request/response logging and unnecessary sync-triggered audio rescans.
+- [x] Separate dashboard sync, uploads, offline queue and media download status.
+- [x] Verify rollback/retry, malformed pages, queue counts and UI behavior (13 focused emulator tests).
+- [ ] Measure real-account refresh timings; consider durable server watermarks and header-aware pacing next.
+
+
 ## Current study UI overhaul
 
 - [x] Replace lesson/review popups with full-screen selection, saved choices and a pinned Start action.

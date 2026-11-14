@@ -87,7 +87,7 @@ public final class LiveTaskCounts extends LiveData<TaskCounts> {
      */
     public TaskCounts get() {
         if (getValue() == null) {
-            return new TaskCounts(0, 0, 0);
+            return new TaskCounts(0, 0, 0, 0, 0);
         }
         return getValue();
     }

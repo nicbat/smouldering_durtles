@@ -26,6 +26,8 @@ import com.smouldering_durtles.wk.db.model.Subject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
@@ -41,6 +43,8 @@ import static com.smouldering_durtles.wk.util.ObjectSupport.safe;
  */
 public final class SubjectChangeWatcher {
     private static final SubjectChangeWatcher instance = new SubjectChangeWatcher();
+    private final ThreadLocal<Set<Long>> deferredChanges = new ThreadLocal<>();
+
     private static final Object MARK = new Object();
     private final Map<SubjectChangeListener, Object> map = Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -66,12 +70,35 @@ public final class SubjectChangeWatcher {
         map.put(listener, MARK);
     }
 
+    /** Publish changes only after the supplied database transaction commits. */
+    public void withDeferredChanges(final Runnable transaction) {
+        if (deferredChanges.get() != null) {
+            throw new IllegalStateException("Nested change batches are not supported");
+        }
+        final Set<Long> changed = new LinkedHashSet<>();
+        deferredChanges.set(changed);
+        try {
+            transaction.run();
+        } finally {
+            deferredChanges.remove();
+        }
+        // Exceptions skip this loop: rolled-back data must never reach a subject screen.
+        for (final long id : changed) {
+            reportChange(id);
+        }
+    }
+
     /**
      * Report a change to a subject.
      *
      * @param subjectId the ID of the subject that has been changed
      */
     public void reportChange(final long subjectId) {
+        final Set<Long> changed = deferredChanges.get();
+        if (changed != null) {
+            changed.add(subjectId);
+            return;
+        }
         safe(() -> {
             @Nullable Subject subject = null;
             final Iterable<SubjectChangeListener> listeners = new ArrayList<>(map.keySet());

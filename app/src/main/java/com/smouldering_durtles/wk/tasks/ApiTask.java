@@ -34,6 +34,7 @@ import com.smouldering_durtles.wk.db.Converters;
 import com.smouldering_durtles.wk.db.model.TaskDefinition;
 import com.smouldering_durtles.wk.livedata.LiveApiProgress;
 import com.smouldering_durtles.wk.livedata.LiveApiState;
+import com.smouldering_durtles.wk.livedata.SubjectChangeWatcher;
 import com.smouldering_durtles.wk.util.DbLogger;
 import com.smouldering_durtles.wk.util.Logger;
 import com.smouldering_durtles.wk.util.StreamUtil;
@@ -44,6 +45,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nullable;
@@ -116,7 +119,8 @@ public abstract class ApiTask {
             LOGGER.info("Response code: %d %s", connection.getResponseCode(), connection.getResponseMessage());
             try (final InputStream is = connection.getInputStream()) {
                 final JsonNode value = mapper.readTree(is);
-                LOGGER.info("Response body: %s", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(value));
+                LOGGER.info("Response: object=%s, records=%d", value.path("object").asText(),
+                        value.path("data").isArray() ? value.path("data").size() : 1);
                 return value;
             }
         }
@@ -221,7 +225,7 @@ public abstract class ApiTask {
             }
             final URL url = new URL(urlString);
             LOGGER.info("Posting: %s", url);
-            LOGGER.info("Request body: %s", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestBody));
+            // Successful requests log metadata only; avoid serializing full account payloads.
             connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestProperty("Authorization", "Bearer " + GlobalSettings.Api.getApiKey());
             connection.setRequestProperty("Wanikani-Revision", Constants.API_VERSION);
@@ -240,7 +244,8 @@ public abstract class ApiTask {
             LOGGER.info("Response code: %d %s", connection.getResponseCode(), connection.getResponseMessage());
             try (final InputStream is = connection.getInputStream()) {
                 final JsonNode value = mapper.readTree(is);
-                LOGGER.info("Response body: %s", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(value));
+                LOGGER.info("Response: object=%s, records=%d", value.path("object").asText(),
+                        value.path("data").isArray() ? value.path("data").size() : 1);
                 return value;
             }
         }
@@ -446,16 +451,40 @@ public abstract class ApiTask {
                 }
                 final JsonNode data = body.get("data");
                 LiveApiProgress.addEntities(data.size());
-                for (final JsonNode element: data) {
-                    consumer.accept(parseEntity(element, cls));
-                    LiveApiProgress.addProcessedEntity();
-                }
+                applyCollectionPage(db, data, cls, consumer);
                 nextUrl = getNextUrl(body);
             }
             return true;
         } catch (final Exception e) {
             LOGGER.error(e, "API data error");
             return false;
+        }
+    }
+
+    /** Parse before opening the transaction, then commit one page atomically. */
+    static <T extends WaniKaniEntity> void applyCollectionPage(final AppDatabase db, final JsonNode data,
+            final Class<? extends T> cls, final Consumer<T> consumer) throws IOException {
+        if (!data.isArray()) {
+            throw new IOException("Expected a collection array");
+        }
+        final List<T> entities = new ArrayList<>();
+        for (final JsonNode element : data) {
+            final T entity = parseEntity(element, cls);
+            if (entity == null) {
+                throw new IOException("Invalid collection entity");
+            }
+            entities.add(entity);
+        }
+        if (entities.isEmpty()) {
+            return;
+        }
+        SubjectChangeWatcher.getInstance().withDeferredChanges(() -> db.runInTransaction(() -> {
+            for (final T entity : entities) {
+                consumer.accept(entity);
+            }
+        }));
+        for (int i = 0; i < entities.size(); i++) {
+            LiveApiProgress.addProcessedEntity();
         }
     }
 

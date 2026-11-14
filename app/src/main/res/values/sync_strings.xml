@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sync_saved_offline">Saved on this device · %1$d updates waiting for connection</string>
+    <string name="sync_waiting_network">Sync waiting for connection</string>
+    <string name="sync_needs_attention">Sync needs attention · check Sync &amp; downloads</string>
+    <string name="sync_uploading">Uploading saved updates · %1$d remaining</string>
+    <string name="sync_complete">Sync complete</string>
+    <string name="sync_media_queued">Downloads remaining · %1$d audio · %2$d pitch</string>
+</resources>
