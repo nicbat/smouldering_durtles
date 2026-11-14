@@ -16,6 +16,8 @@
   -->
 
 <resources>
+    <item type="id" name="choiceColor"/>
+    <item type="id" name="choiceToggle"/>
     <item type="id" name="audioAction"/>
     <item type="id" name="srsLegend"/>
     <item type="id" name="srsSplitLegend"/>

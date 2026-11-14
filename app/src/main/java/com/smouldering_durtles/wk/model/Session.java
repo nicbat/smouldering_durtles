@@ -945,7 +945,7 @@ s     *
         answered = false;
         correct = false;
         FloatingUiState.showDumpStage = null;
-        FloatingUiState.setCurrentAnswer(currentQuestion.getSubmittedAnswer());
+        FloatingUiState.setCurrentAnswer("");
 
         if (state == FINISHING) {
             state = ACTIVE;

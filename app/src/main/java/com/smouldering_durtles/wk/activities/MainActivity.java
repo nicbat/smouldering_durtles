@@ -315,7 +315,7 @@ public final class MainActivity extends AbstractActivity {
      * Handler for the start lessons button.
      */
     private void startLessonSession() {
-        if (interactionEnabled) com.smouldering_durtles.wk.study.SessionSelectionDialog.show(this, true);
+        if (interactionEnabled) SessionSelectionActivity.show(this, true);
     }
 
     /**

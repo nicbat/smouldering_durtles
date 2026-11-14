@@ -82,7 +82,7 @@
                     style="@style/WK.Button.Normal"/>
 
                 <Button
-                    android:id="@+id/keyboardSettingsButton2"
+                    android:id="@+id/keyboardSettingsButton2" android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Keyboard settings"
@@ -111,7 +111,7 @@
                     style="@style/WK.Button.Normal"/>
 
                 <Button
-                    android:id="@+id/keyboardSettingsButton3"
+                    android:id="@+id/keyboardSettingsButton3" android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Keyboard settings"
@@ -140,7 +140,7 @@
                     style="@style/WK.Button.Normal"/>
 
                 <Button
-                    android:id="@+id/keyboardSettingsButton4"
+                    android:id="@+id/keyboardSettingsButton4" android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Keyboard settings"
@@ -169,7 +169,7 @@
                     style="@style/WK.Button.Normal"/>
 
                 <Button
-                    android:id="@+id/keyboardSettingsButton5"
+                    android:id="@+id/keyboardSettingsButton5" android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Keyboard settings"

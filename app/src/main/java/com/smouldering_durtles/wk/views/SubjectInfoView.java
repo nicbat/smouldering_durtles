@@ -597,7 +597,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
         final boolean showStrokeOrder = showMeaningRelated && GlobalSettings.SubjectInfo.getShowStrokeOrder() && subject.hasStrokeData();
         strokeOrderDivider.setVisibility(showStrokeOrder);
         strokeOrderDiagram.setSize(dp2px(GlobalSettings.SubjectInfo.getStrokeOrderSize()));
-        strokeOrderDiagram.setAnimated(false);
+        strokeOrderDiagram.setAnimated(showStrokeOrder && GlobalSettings.SubjectInfo.getStrokeOrderAnimated());
         strokeOrderDiagram.setStrokeData(subject.getParsedStrokeData());
         strokeOrderDiagram.setVisibility(showStrokeOrder);
         android.widget.LinearLayout writing = findViewById(R.id.writingControls);
@@ -617,7 +617,7 @@ public final class SubjectInfoView extends LinearLayout implements SubjectChange
             writing.addView(controls);
             addView(writing, indexOfChild(diagram) + 1);
         }
-        writing.setVisibility(showStrokeOrder ? VISIBLE : GONE);
+        writing.setVisibility(showStrokeOrder && GlobalSettings.SubjectInfo.getStrokeOrderControls() ? VISIBLE : GONE);
 
         // Context sentences
         final boolean hasContextSentences = showMeaningRelated && subject.hasContextSentences();

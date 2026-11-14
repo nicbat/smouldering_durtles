@@ -126,6 +126,12 @@
             android:parentActivityName=".activities.MainActivity">
             <meta-data android:name="android.app.default_searchable" android:value="com.smouldering_durtles.wk.activities.BrowseActivity"/>
         </activity>
+        <activity android:name=".activities.SessionSelectionActivity"
+            android:label="Custom reviews"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data android:name="android.app.default_searchable" android:value="com.smouldering_durtles.wk.activities.BrowseActivity"/>
+        </activity>
         <activity android:name=".activities.FontSelectionActivity"
             android:label="Font selection"
             android:parentActivityName=".activities.MainActivity">

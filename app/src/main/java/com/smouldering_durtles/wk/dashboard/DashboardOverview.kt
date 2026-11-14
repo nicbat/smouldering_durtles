@@ -74,7 +74,7 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                       onReviews: () -> Unit, onLessons: () -> Unit,
                       onResume: () -> Unit,
                       showTitle: Boolean = true) {
-    Surface(shape = RoundedCornerShape(16.dp),
+    Surface(shape = if (showTitle) RoundedCornerShape(16.dp) else androidx.compose.ui.graphics.RectangleShape,
         color = if (showTitle) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface) {
         Column(Modifier.fillMaxWidth().padding(if (showTitle) 16.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

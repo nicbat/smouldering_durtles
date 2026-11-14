@@ -12,6 +12,14 @@ import com.smouldering_durtles.wk.GlobalSettings;
 public final class LearningColors {
     private LearningColors() { }
 
+    public static int subject(Context context, int type) {
+        if ("original".equals(GlobalSettings.Display.getLearningColors()))
+            return com.smouldering_durtles.wk.enums.ActiveTheme.getSubjectTypeButtonBackgroundColors()[type];
+        // The legacy dark palettes use neutral panel/button backgrounds. Soft identity
+        // controls keep the planned blue/pink/purple hues across system theme changes.
+        return new int[]{0xff467bc1, 0xffbd4e7d, 0xff8b5ac2}[Math.max(0, Math.min(2, type))];
+    }
+
     public static int stage(Context context, int bucket) {
         int[] defaults = {0xffbd4e7d, 0xff8b5ac2, 0xff467bc1, 0xff248b80, 0xff70777d};
         if ("original".equals(GlobalSettings.Display.getLearningColors()))

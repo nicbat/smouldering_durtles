@@ -1437,6 +1437,10 @@ public final class GlobalSettings {
          *
          * @return the value
          */
+        public static boolean getStrokeOrderControls() {
+            return prefs().getBoolean("stroke_order_controls", false);
+        }
+
         public static boolean getStrokeOrderAnimated() {
             return prefs().getBoolean("stroke_order_animated", true);
         }

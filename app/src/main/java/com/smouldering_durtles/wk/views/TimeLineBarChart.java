@@ -59,17 +59,23 @@ public final class TimeLineBarChart extends View {
         controls = wrapper;
         wrapper.setVisibility(getVisibility());
         wrapper.setOrientation(android.widget.LinearLayout.VERTICAL);
-        com.smouldering_durtles.wk.ui.ChoiceGrid choices = new com.smouldering_durtles.wk.ui.ChoiceGrid(getContext());
-        final android.widget.Button[] buttons = new android.widget.Button[3];
-        String[] names = {"Next 24 hours", "7 days", "Extended"}; int[] hours = {24, 168, 0};
-        for (int i = 0; i < 3; i++) {
-            final int n = i;
-            buttons[i] = choices.addChoice(names[i], accent, () -> {
-                setHorizon(hours[n]);
-                for (int j = 0; j < 3; j++) com.smouldering_durtles.wk.ui.ChoiceGrid.selected(buttons[j], j == n);
+        com.google.android.material.button.MaterialButtonToggleGroup choices = new com.google.android.material.button.MaterialButtonToggleGroup(getContext());
+        choices.setSingleSelection(true);
+        choices.setSelectionRequired(true);
+        String[] names = {"24 hours", "7 days"}; int[] hours = {24, 168};
+        for (int i = 0; i < names.length; i++) {
+            final int span = hours[i];
+            com.google.android.material.button.MaterialButton button = new com.google.android.material.button.MaterialButton(
+                    getContext(), null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+            button.setId(View.generateViewId()); button.setText(names[i]); button.setTextSize(14);
+            button.setMinWidth(0); button.setMinimumWidth(0); button.setSingleLine(false);
+            button.setMinimumHeight(com.smouldering_durtles.wk.ui.ModernUi.dp(this, 48));
+            choices.addView(button, new android.widget.LinearLayout.LayoutParams(0, -2, 1));
+            if (horizon == span) choices.check(button.getId());
+            choices.addOnButtonCheckedListener((group, id, checked) -> {
+                if (checked && id == button.getId()) setHorizon(span);
             });
         }
-        com.smouldering_durtles.wk.ui.ChoiceGrid.selected(buttons[0], true);
         wrapper.addView(choices, new android.widget.LinearLayout.LayoutParams(-1, -2));
         wrapper.addView(this, new android.widget.LinearLayout.LayoutParams(-1, -2));
         return wrapper;
@@ -168,10 +174,8 @@ public final class TimeLineBarChart extends View {
     }
 
     private String captionFor(int slot) {
-        String legend = "Bars · left: 0–" + maxBarCount + " arrivals/" + (horizon == 24 ? "hour" : "day")
-                + " · Line · right: 0–" + totalCount + " waiting. Includes " + availableNow + " due now; assumes no reviews completed.";
-        return legend + "\n"
-                + (slot >= 0 ? slotDetails(slot) : getContext().getString(R.string.forecast_timeline_hint));
+        return "Arrivals (left) · Waiting (right)"
+                + (slot >= 0 ? "\n" + slotDetails(slot) : "");
     }
 
     private String slotDetails(int slot) {
@@ -183,7 +187,7 @@ public final class TimeLineBarChart extends View {
     }
 
     private void updateDescription() {
-        StringBuilder text = new StringBuilder(counts.length + (horizon == 24 ? " hourly" : " daily") + " buckets. " + totalCount + " waiting including " + availableNow + " due now.");
+        StringBuilder text = new StringBuilder(counts.length + (horizon == 24 ? " hourly" : " daily") + " buckets. " + totalCount + " waiting including " + availableNow + " due now. Assumes no reviews completed. Tap to choose a forecast date.");
         int first = Math.max(0, (int) (scrollOffset / Math.max(1, barAdvance)));
         int last =
                 Math.min(counts.length, first + Math.max(1, (int) ((plotRight - plotLeft) / Math.max(1, barAdvance))));
@@ -223,7 +227,7 @@ public final class TimeLineBarChart extends View {
         prepareCaptions(width);
         int captionHeight = maximumCaptionHeight;
         setMeasuredDimension(
-                width, resolveSize(captionHeight + (int) (228 * density + 48 * scaledDensity), heightSpec));
+                width, resolveSize(captionHeight + (int) (224 * density + 48 * scaledDensity), heightSpec));
     }
 
     @Override
@@ -231,7 +235,7 @@ public final class TimeLineBarChart extends View {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         plotLeft = 34 * scaledDensity;
         plotRight = width - 34 * scaledDensity;
-        barAdvance = Math.max(horizon == 24 ? 28 * density : (plotRight - plotLeft) / Math.max(1, counts.length), 22 * scaledDensity);
+        barAdvance = Math.max(horizon == 24 ? 24 * density : (plotRight - plotLeft) / Math.max(1, counts.length), 22 * scaledDensity);
         scrollOffset = Math.min(scrollOffset, maxScroll());
         updateDescription();
     }
@@ -251,7 +255,7 @@ public final class TimeLineBarChart extends View {
         plotRight = getWidth() - 34 * scaledDensity;
         plotTop = getHeight() - 204 * density - 48 * scaledDensity;
         plotBottom = plotTop + 180 * density;
-        barAdvance = Math.max(horizon == 24 ? 28 * density : (plotRight - plotLeft) / Math.max(1, counts.length), 22 * scaledDensity);
+        barAdvance = Math.max(horizon == 24 ? 24 * density : (plotRight - plotLeft) / Math.max(1, counts.length), 22 * scaledDensity);
         scrollOffset = Math.min(scrollOffset, maxScroll());
         paint.setColor(outline);
         paint.setStrokeWidth(density);
@@ -276,7 +280,7 @@ public final class TimeLineBarChart extends View {
             paint.setColor(i == selected ? accent : fill);
             paint.setStyle(Paint.Style.FILL);
             if (counts[i] > 0)
-                canvas.drawRoundRect(center - barAdvance * .14f, top, center + barAdvance * .14f, plotBottom,
+                canvas.drawRoundRect(center - barAdvance * .35f, top, center + barAdvance * .35f, plotBottom,
                         3 * density, 3 * density, paint);
             float cy = plotBottom - cumulative[i] * (plotBottom - plotTop) / Math.max(1, totalCount);
             if (i == firstVisible)

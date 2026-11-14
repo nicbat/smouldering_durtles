@@ -64,7 +64,7 @@
                 tools:ignore="UnusedIds"/>
 
             <Button
-                android:id="@+id/generatePitchInfoButton"
+                android:id="@+id/generatePitchInfoButton" android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Generate pitch info"
@@ -72,7 +72,7 @@
                 tools:ignore="UnusedIds"/>
 
             <Button
-                android:id="@+id/checkPitchInfoButton"
+                android:id="@+id/checkPitchInfoButton" android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Check pitch info"
@@ -80,7 +80,7 @@
                 tools:ignore="UnusedIds"/>
 
             <Button
-                android:id="@+id/testButton"
+                android:id="@+id/testButton" android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Test"
@@ -88,7 +88,7 @@
                 tools:ignore="UnusedIds"/>
 
             <Button
-                android:id="@+id/testButton2"
+                android:id="@+id/testButton2" android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Test 2"

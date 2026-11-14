@@ -76,9 +76,7 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
         return semanticSpan(original);
     }
     private ButtonStyleSpan semanticSpan(int original) {
-        android.content.Context context = WkApplication.getInstance();
-        int fill = com.smouldering_durtles.wk.ui.LearningColors.fill(context, original);
-        return new ButtonStyleSpan((androidx.core.graphics.ColorUtils.calculateLuminance(fill) > 0.4 ? android.graphics.Color.BLACK : android.graphics.Color.WHITE), fill);
+        return new ButtonStyleSpan(original);
     }
     @Override
     public void handleTag(final boolean opening, final String tag, final Editable output, final XMLReader xmlReader) {
@@ -239,31 +237,26 @@ public final class WaniKaniTagHandler implements Html.TagHandler {
      * Replacement span that draws contained text with a button-style background.
      */
     private static final class ButtonStyleSpan extends CharacterStyle implements UpdateAppearance {
-        /**
-         * Theme text color.
-         */
-        private final int textColor;
-
-        /**
-         * Theme background color.
-         */
-        private final int bgColor;
-
-        /**
-         * The constructor.
-         *
-         * @param textColor Theme text color.
-         * @param bgColor Theme background color.
-         */
-        private ButtonStyleSpan(final int textColor, final int bgColor) {
-            this.textColor = textColor;
-            this.bgColor = bgColor;
-        }
+        private final int semanticColor;
+        private ButtonStyleSpan(final int semanticColor) { this.semanticColor = semanticColor; }
 
         @Override
         public void updateDrawState(final TextPaint tp) {
-            tp.bgColor = bgColor;
-            tp.setColor(textColor);
+            // Resolve against the actual text being drawn, including app-selected dark mode.
+            // Application context theme colors can disagree with the activity's theme.
+            boolean dark = androidx.core.graphics.ColorUtils.calculateLuminance(tp.getColor()) > 0.45;
+            int surface = dark ? 0xff18151d : 0xfffffbff;
+            int edge = dark ? Color.WHITE : Color.BLACK;
+            int color = "neutral".equals(GlobalSettings.Display.getLearningColors()) ? tp.getColor() : semanticColor;
+            int background = androidx.core.graphics.ColorUtils.blendARGB(surface, color, dark ? .20f : .10f);
+            int foreground = color;
+            for (int i = 0; i <= 20; i++) {
+                foreground = androidx.core.graphics.ColorUtils.blendARGB(color, edge, i / 20f);
+                if (androidx.core.graphics.ColorUtils.calculateContrast(foreground, background) >= 4.5) break;
+            }
+            tp.bgColor = background;
+            tp.setColor(foreground);
+            tp.setFakeBoldText(true);
         }
     }
 

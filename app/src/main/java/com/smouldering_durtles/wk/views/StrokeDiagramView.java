@@ -72,22 +72,27 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
     private List<Float> strokeLengths = Collections.emptyList();
     private int numStrokes = 0;
     private boolean animated = false;
+    private boolean animationRequested;
     private boolean stepping;
     private Runnable positionChanged;
     public void setOnPositionChanged(Runnable listener) { positionChanged = listener; listener.run(); }
     public String getPositionLabel() { return (!animated && !stepping ? strokeData.size() : finishedStrokes) + " / " + strokeData.size(); }
     public void step() {
-        animated = false; animator.cancel(); lingering = false;
+        animationRequested = false; animated = false; animator.cancel(); lingering = false;
         if (!stepping) finishedStrokes = 0;
         stepping = true;
         finishedStrokes = Math.min(strokeData.size(), finishedStrokes + 1);
         if (positionChanged != null) positionChanged.run(); invalidate();
     }
     public void reset() {
-        animated = false; animator.cancel(); lingering = false; stepping = true; finishedStrokes = 0;
+        animationRequested = false; animated = false; animator.cancel(); lingering = false; stepping = true; finishedStrokes = 0;
         if (positionChanged != null) positionChanged.run(); invalidate();
     }
     public void showSequence() { stepping = false; setAnimated(false); }
+    @Override protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        setAnimated(animationRequested);
+    }
     @Override protected void onDetachedFromWindow() {
         animated = false; lingering = false; animator.cancel(); super.onDetachedFromWindow();
     }
@@ -343,6 +348,7 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
      * @param animated true if it should
      */
     public void setAnimated(final boolean animated) {
+        animationRequested = animated;
         if (animator.isStarted()) {
             animator.cancel();
         }
@@ -436,14 +442,16 @@ public final class StrokeDiagramView extends View implements Animator.AnimatorLi
         paint.setStrokeCap(Paint.Cap.ROUND);
         textPaint.setTextSize(dp2px(10));
 
-        paint.setColor(ThemeUtil.getColor(R.attr.strokeDiagramGhostColor));
+        int ghost = androidx.core.graphics.ColorUtils.setAlphaComponent(
+                com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface), 64);
+        paint.setColor(ghost);
         textPaint.setColor(paint.getColor());
         strokes.stream().skip(finishedStrokes).forEach(stroke -> canvas.drawPath(stroke.path, paint));
         paint.setColor((com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)));
         textPaint.setColor(paint.getColor());
         strokes.stream().limit(finishedStrokes).forEach(stroke -> canvas.drawPath(stroke.path, paint));
 
-        textPaint.setColor(ThemeUtil.getColor(R.attr.strokeDiagramGhostColor));
+        textPaint.setColor(ghost);
         strokes.stream().skip(finishedStrokes+1)
                 .forEach(stroke -> canvas.drawText(Integer.toString(stroke.strokeNumber), stroke.labelX, stroke.labelY, textPaint));
         textPaint.setColor((com.google.android.material.color.MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)));

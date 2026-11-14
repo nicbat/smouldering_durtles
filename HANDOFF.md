@@ -1,8 +1,121 @@
 # Smoky Durtles agent handoff
 
+## 2026-11-14 — delivery snapshot
+
+The delivery includes all accumulated source, resource, test and documentation changes
+on `smoky-durtles/foundation`, along with the earlier study-overhaul commit. Current behavior:
+full-page lesson/review selection, semantic spaced buttons, taller Start actions, clearer
+text, spoiler-free reviews, inline stage counts and immediate filter updates. Earlier phone
+feedback fixes cover dashboard clipping, forecast controls/bars, stroke playback and
+mnemonic contrast; review undo clears the answer field.
+
+Current validation: debug/test builds and 18 focused tests pass; light/dark and 2× text
+were inspected on an isolated emulator. The earlier broad run was 149/150: the stale
+`SessionPrioritySettingsTest` still needs its settings destinations updated (see TASKS).
+Physical-device acceptance remains pending. Captures and logs referenced below are local,
+ignored evidence and are not included in Git. Historical entries below describe the state
+at each earlier checkpoint, including their then-uncommitted status.
+
+
+## 2026-11-14 — stable custom-review toggles and inline stage counts
+
+Review filter toggles now synchronously filter the loaded due snapshot, avoiding the
+Loading/empty-summary/disabled-Start transition on each tap. Resume reloads eligibility;
+Start still rechecks fresh due items and reloads on a mismatch. Unchanged ChoiceGrid
+selection states keep their existing backgrounds instead of rebuilding every button.
+Stage filters include a second-line “N due” count scoped to type/level, even when the
+stage is off. Removed the duplicate button-shaped breakdown below the summary.
+Debug/test builds pass; 18/18 focused tests pass (17.689s), including repeated-toggle
+regression, rotation, narrow/large labels, browse and search. Logs:
+`/tmp/review-counts-build.log`, `/tmp/review-counts-tests.log`.
+Light/dark and 2× text captures plus repeated-toggle recording: `captures/review-counts/`.
+Normal-text bounds stay fixed on/off; at 2× the checkmark changes Apprentice height by
+3px, while subsequent controls, summary and pinned Start stay fixed. No loading flash.
+Isolated emulator stopped; no phone install or real submissions.
+
+
+## 2026-11-14 — selection spacing, typography and spoiler prevention
+
+Choice groups now have 20dp trailing separation (8dp within each group). Selection Start
+buttons are 56dp minimum with 16sp labels and 14dp vertical padding. Counts use a heading
+plus smaller supporting totals; lesson previews separate glyph, level and right-aligned
+meaning. Maximum lessons has a persistent field label.
+
+Custom reviews hides all individual item previews to avoid spoiling upcoming subjects
+and answers. Aggregate type/SRS counts remain; lesson previews remain available.
+Debug/test builds and `git diff --check` pass. **17 focused tests pass** (15.661s), including
+an explicit review-vs-lesson spoiler guard, action height, shared spacing, browse and search.
+Log: `/tmp/smoky-selection-polish-tests.log`; build: `/tmp/smoky-selection-polish-build.log`.
+Screenshot evidence: `captures/selection-polish/`. Existing broader-suite stale settings
+failure is documented below; this follow-up did not repeat the full suite.
+Visual checks passed in light/dark themes and at 2× text size. The isolated emulator is
+stopped; no phone install or real answer submission was performed.
+
+
+## 2026-11-14 — shared button spacing and semantic fills
+
+Fixed touching choice groups across lesson/review selection, library/custom-quiz filters
+and stroke controls: `ChoiceGrid` owns 8dp internal and 12dp trailing group gaps, with gaps
+included in column fitting. Added explicit 8dp spacing to keyboard-help pairs, saved-preset
+actions, subject paging and debug utility button stacks. Primary action/footer layouts
+retain their existing roles and touch targets.
+
+Choice buttons now have semantic tinted fills and outlines, with stronger selected states
+plus checkmarks/accessibility state. Shared restyling preserves them. `LearningColors.subject`
+keeps Soft mode blue/pink/purple in both system themes, rather than inheriting legacy dark
+panel/button grays. Original retains stored palette values and Neutral uses the interface
+accent. Contrast uses the actual fill and adjusts ink toward black/white while retaining hue.
+Removed the earlier selection-page monochrome button fallback. Stateful shape backgrounds
+receive the current view state after ripple wrapping, so toggling does not paint stale gray.
+
+Regression coverage includes rendered fill, selected/unselected contrast, restyling, group
+spacing, narrow/large-text geometry and selection recreation. Debug/test APK builds and
+`git diff --check` pass. Broad emulator run: **149/150 passed**; the sole failure is the
+pre-existing `SessionPrioritySettingsTest` expecting retired `review_settings` contents.
+Its lesson/review priority settings now live on separate root pages. See TASKS.md.
+Final **16 focused tests pass** (13.964s), including browse/search and rendered button
+color checks. Actual screens were inspected in light/dark, with selected/unselected choices
+and 2× text: gaps remain clear and selection content scrolls above pinned Start.
+Evidence: `captures/button-spacing/`, `/tmp/smoky-buttons-final-focused-tests.log`,
+`/tmp/smoky-buttons-final-tests.log`, `/tmp/smoky-buttons-render-test.log`.
+Testing used offline synthetic emulator data only; no real session submissions.
+Task-owned emulator-5580 was stopped without saving its snapshot.
+
+No phone installation, commit or push; preserve the other unfinished changes in this tree.
+
+
+## 2026-11-14 — full-page session selection validation
+
+Lessons from the dashboard and Custom reviews from overflow now open
+`SessionSelectionActivity`, replacing `SessionSelectionDialog`. Each page has a toolbar,
+scrolling choices/preview and a pinned primary Start action. The `lessons` intent extra
+selects mode; type/stage/scope/size choices are saved across recreation. Successful Start
+opens `SessionActivity` and finishes selection. Returning to selection after another
+session starts closes it; that background-session edge case is code-inspected, not device-tested.
+
+Fixed validation issues: the rotation test now suppresses the API-token redirect using
+an instrumentation monitor, matching existing account-free tests. The new page bypasses
+the generic utility recoloring pass and uses themed foregrounds when semantic text falls
+below 4.5:1 contrast against its surface (including dark-mode preview text).
+
+Validation: `assembleDebug assembleDebugAndroidTest` and `git diff --check` pass.
+All four `StudyOverhaulTest` tests pass in light mode (2.712s) and dark mode (2.464s),
+including recreation and a choice-text contrast assertion. Manually entered both pages
+through their dashboard/overflow entry points, inspected titles, pinned primary Start
+buttons and previews in both themes, then started each synthetic session. Activity-stack
+inspection confirmed `SessionActivity` with no selection page left behind.
+Evidence: `captures/selection-page/`, `/tmp/smoky-selection-test-{light,dark}.log`,
+`/tmp/smoky-selection-{lesson,review}-stack.txt` and `/tmp/smoky-selection-build.log`.
+
+Used only synthetic subjects and a dummy token on offline, read-only unsaved emulator-5580;
+no real account or phone was touched. The emulator was stopped after checks. Full regression
+suite and physical-device acceptance were not repeated. Existing working-tree changes remain
+uncommitted and unpushed.
+
+
 ## 2026-11-09 — study UI overhaul
 
-Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order is static on entry with explicit controls; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
+Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order loops with faded upcoming strokes and optional playback controls in settings; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
 
 
 ## Start a new session

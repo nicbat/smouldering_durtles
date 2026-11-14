@@ -2,7 +2,7 @@
 
 ## Study UI update — 2026-11-09
 
-Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order is static on entry with explicit controls; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
+Native implementation and the November 14 selection refinements are implemented on `smoky-durtles/foundation`. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order loops with faded upcoming strokes and optional playback controls in settings; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Physical-device acceptance remains pending.
 
 
 ## Current direction — 2026-11-06
@@ -327,3 +327,26 @@ controls and utility forms. Settings rows and the color editor are retained afte
 Record final test/capture evidence in HANDOFF rather than treating this guide as evidence
 of completion. Real-phone feedback, TalkBack, actual wallpaper changes and extended study
 sessions still require validation. Widgets and performance claims remain separate work.
+
+
+### Shared choice buttons (2026-11-14)
+
+Use `ChoiceGrid` for subject, SRS, scope and preset choices. It owns 8dp gaps inside
+rows and 20dp trailing space between groups, counts gaps when selecting columns,
+and retains 48dp minimum touch targets. Selected choices have a semantic tinted fill,
+stronger outline and checkmark; unselected choices have a faint fill and lighter outline.
+Soft subject controls use stable blue/pink/purple hues across themes; Original retains
+the stored subject button palette. Legacy dark panel/button grays must not erase Soft identity colors. SRS choices retain their stage colors; Neutral uses
+one interface accent. Ink moves toward black/white only as far as needed for 4.5:1 contrast
+against the actual fill. Shared utility restyling must preserve these semantic states.
+Standard adjacent actions use an explicit 8dp layout gap, rather than relying on native
+button drawable insets that disappear when Material styling replaces the background.
+
+Selection pages use a 56dp-minimum pinned primary action with 16sp labels and 14dp vertical
+padding. Selection counts have an 18sp heading with 14sp supporting details. Lessons retain
+item previews with separate 22sp glyph, 12sp level and 16sp meaning text. Custom reviews
+must never display upcoming subjects or answers. Put each stage’s available count on a second
+line in its filter button (for example, “Apprentice / 12 due”); do not duplicate these as
+button-shaped indicators below. Counts respect subject type and level scope, and remain
+visible when a stage is off so users know what enabling it will add. Review filter toggles
+update the loaded selection without blanking the summary or restyling unchanged buttons.

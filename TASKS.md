@@ -2,7 +2,12 @@
 
 ## Current study UI overhaul
 
-Native implementation is in the working tree. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order is static on entry with explicit controls; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Preserve existing unrelated edits. Physical-device acceptance remains pending.
+- [x] Replace lesson/review popups with full-screen selection, saved choices and a pinned Start action.
+- [x] Remove review spoilers, integrate due counts into stage filters, and eliminate loading flashes on toggles.
+- [x] Restore semantic colored choice buttons and deliberate gaps across selection, library/custom quiz and utility action pairs.
+- [ ] Update `SessionPrioritySettingsTest` to follow the already-flattened Lessons/Reviews settings destinations; its old `review_settings` lookup fails independently of button changes.
+
+Native implementation and the November 14 selection refinements are implemented on `smoky-durtles/foundation`. See [implementation notes](design/plans/study-ui-overhaul-implementation.md) and [behavior plan](design/plans/study-ui-overhaul.md). These supersede older screen descriptions below. Stroke order loops with faded upcoming strokes and optional playback controls in settings; review answers reveal in two deliberate steps, with mnemonics/writing only in full details. Physical-device acceptance remains pending.
 
 
 Start here for current work. Read [HANDOFF.md](HANDOFF.md) for setup and session handoff;

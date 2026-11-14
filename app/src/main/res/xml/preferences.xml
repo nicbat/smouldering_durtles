@@ -299,6 +299,12 @@
             app:singleLineTitle="false"
             app:defaultValue="true"
             app:summary="Tap the diagram to toggle animation"/>
+        <SwitchPreferenceCompat
+            app:key="stroke_order_controls"
+            app:title="Show stroke playback controls"
+            app:singleLineTitle="false"
+            app:defaultValue="false"
+            app:summary="Show Play, Step, Reset and All strokes below the diagram"/>
         <com.smouldering_durtles.wk.components.MaterialSliderPreference
             app:key="stroke_order_size"
             app:title="Size of the stroke order diagrams"

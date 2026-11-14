@@ -294,7 +294,7 @@ public final class AdvancedSearchFormView extends TableLayout {
         String[] names = {"Radicals", "Kanji", "Vocabulary"};
         for (int i = 0; i < 3; i++) {
             final int index = i;
-            android.widget.Button button = types.addChoice(names[i], com.smouldering_durtles.wk.enums.ActiveTheme.getSubjectTypeBackgroundColors()[i], () -> {
+            android.widget.Button button = types.addChoice(names[i], com.smouldering_durtles.wk.ui.LearningColors.subject(getContext(), i), () -> {
                 boolean selected = !itemTypeSwitches.get(index).isChecked();
                 itemTypeSwitches.get(index).setChecked(selected);
                 if (index == 2) itemTypeSwitches.get(3).setChecked(selected);

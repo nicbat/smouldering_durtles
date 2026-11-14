@@ -119,6 +119,7 @@ public final class ModernUi {
     }
 
     public static void button(Button button, ButtonRole role) {
+        if (button.getTag(R.id.choiceColor) instanceof Integer) { ChoiceGrid.styleChoice(button); return; }
         if (!isModern(button.getContext())) return;
         button.setTag(R.id.modernActionRole, role);
         int foreground = MaterialColors.getColor(button, role == ButtonRole.PRIMARY

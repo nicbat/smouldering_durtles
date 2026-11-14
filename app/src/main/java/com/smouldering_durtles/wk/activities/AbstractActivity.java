@@ -493,7 +493,7 @@ public abstract class AbstractActivity extends AppCompatActivity implements Shar
             return true;
         }
         if (itemId == R.id.action_custom_reviews) {
-            com.smouldering_durtles.wk.study.SessionSelectionDialog.show(this, false);
+            SessionSelectionActivity.show(this, false);
             return true;
         }
         if (itemId == R.id.action_browse) {
