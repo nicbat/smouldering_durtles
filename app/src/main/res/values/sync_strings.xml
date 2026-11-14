@@ -2,8 +2,8 @@
 <resources>
     <string name="sync_saved_offline">Saved on this device · %1$d updates waiting for connection</string>
     <string name="sync_waiting_network">Sync waiting for connection</string>
-    <string name="sync_needs_attention">Sync needs attention · check Sync &amp; downloads</string>
     <string name="sync_uploading">Uploading saved updates · %1$d remaining</string>
-    <string name="sync_complete">Sync complete</string>
-    <string name="sync_media_queued">Downloads remaining · %1$d audio · %2$d pitch</string>
+    <string name="sync_last_success">Last sync succeeded</string>
+    <string name="sync_waiting_wifi">Sync waiting for Wi-Fi · check your network preference</string>
+    <string name="sync_queue_details">%1$d saved updates · %2$d refresh tasks · %3$d audio files · %4$d pitch files · %5$d local tasks remaining</string>
 </resources>

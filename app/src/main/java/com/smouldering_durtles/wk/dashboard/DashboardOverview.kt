@@ -26,14 +26,7 @@ data class DashboardState(
     val activeSession: Boolean = false,
     val vacation: Boolean = false,
     val level: Int = 0,
-    val daysAtLevel: Double? = null,
-    val syncing: Boolean = false,
-    val syncError: Boolean = false,
-    val pendingUploads: Int = 0,
-    val audioDownloads: Int = 0,
-    val pitchDownloads: Int = 0,
-    val offline: Boolean = false,
-    val synced: Boolean = false
+    val daysAtLevel: Double? = null
 )
 
 @Composable
@@ -126,24 +119,7 @@ fun DashboardOverview(state: DashboardState, enabled: Boolean,
                     }
                 }
             }
-            val syncMessage = when {
-                state.offline && state.pendingUploads > 0 -> stringResource(R.string.sync_saved_offline, state.pendingUploads)
-                state.offline && state.syncing -> stringResource(R.string.sync_waiting_network)
-                state.syncError -> stringResource(R.string.sync_needs_attention)
-                state.pendingUploads > 0 -> stringResource(R.string.sync_uploading, state.pendingUploads)
-                state.syncing -> stringResource(R.string.dashboard_syncing)
-                state.ready && state.synced && !state.offline -> stringResource(R.string.sync_complete)
-                else -> null
-            }
-            syncMessage?.let {
-                Text(it, style = MaterialTheme.typography.bodySmall,
-                    color = if (state.syncError && !state.offline) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            if (state.audioDownloads > 0 || state.pitchDownloads > 0) {
-                Text(stringResource(R.string.sync_media_queued, state.audioDownloads, state.pitchDownloads),
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+
 
         }
     }

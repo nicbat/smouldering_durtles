@@ -31,6 +31,7 @@ public final class NetworkStateChangedJob extends Job {
 
     @Override
     public void runLocal() {
+        com.smouldering_durtles.wk.livedata.LiveOnlineStatus.getInstance().forceUpdate();
         houseKeeping();
     }
 }

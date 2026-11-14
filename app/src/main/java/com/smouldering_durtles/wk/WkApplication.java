@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 
 import androidx.core.net.ConnectivityManagerCompat;
@@ -177,6 +178,18 @@ public final class WkApplication extends MultiDexApplication {
                 safe(() -> {
                     onlineStatus = connectivityManager.isActiveNetworkMetered() ? METERED : UNMETERED;
                     JobRunnerService.schedule(NetworkStateChangedJob.class, onlineStatus.name());
+                });
+            }
+
+            @Override
+            public void onCapabilitiesChanged(final Network network, final NetworkCapabilities capabilities) {
+                safe(() -> {
+                    final OnlineStatus status = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                            ? UNMETERED : METERED;
+                    if (onlineStatus != status) {
+                        onlineStatus = status;
+                        JobRunnerService.schedule(NetworkStateChangedJob.class, onlineStatus.name());
+                    }
                 });
             }
 

@@ -1,5 +1,13 @@
 # Smoky Durtles working tasks
 
+## Sync status follow-up (November 14)
+
+- [x] Remove sync details and subscriptions from Next Session.
+- [x] Move status/queue details to Sync & downloads with live connectivity and queue updates.
+- [x] Verify status transitions without reopening settings, dashboard rendering, and debug/release builds (11 tests).
+- Current delivery branch: `main`; user runs `./install-phone.sh` to install.
+
+
 ## Sync optimization first pass (November 14)
 
 - [x] Make sync-on-open refresh availability first; keep stale-data housekeeping and full manual sync.

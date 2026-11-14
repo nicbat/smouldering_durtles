@@ -48,6 +48,9 @@ public final class SettingChangedJob extends Job {
     public void runLocal() {
         final AppDatabase db = WkApplication.getDatabase();
         switch (data) {
+            case "network_rule":
+                com.smouldering_durtles.wk.livedata.LiveOnlineStatus.getInstance().forceUpdate();
+                break;
             case "api_key":
                 db.propertiesDao().setApiKeyRejected(false);
                 db.propertiesDao().setApiInError(false);

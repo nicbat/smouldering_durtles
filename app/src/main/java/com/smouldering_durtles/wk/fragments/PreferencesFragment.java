@@ -63,6 +63,10 @@ import com.smouldering_durtles.wk.components.TaggedUrlPreference;
 import com.smouldering_durtles.wk.components.TaggedUrlPreferenceDialogFragment;
 import com.smouldering_durtles.wk.jobs.ResetDatabaseJob;
 import com.smouldering_durtles.wk.livedata.LiveApiState;
+import com.smouldering_durtles.wk.livedata.LiveOnlineStatus;
+import com.smouldering_durtles.wk.livedata.LiveTaskCounts;
+import com.smouldering_durtles.wk.model.TaskCounts;
+import com.smouldering_durtles.wk.enums.OnlineStatus;
 import com.smouldering_durtles.wk.services.JobRunnerService;
 import com.smouldering_durtles.wk.util.AudioUtil;
 import com.smouldering_durtles.wk.util.DbLogger;
@@ -308,32 +312,54 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
             Toast.makeText(requireContext(), "Sync requested", Toast.LENGTH_SHORT).show();
             return true;
         });
-        com.smouldering_durtles.wk.livedata.LiveTaskCounts.getInstance().observe(getViewLifecycleOwner(), counts -> {
-            Preference queue = findPreference("sync_queue");
-            if (queue != null && counts != null) queue.setSummary(counts.isEmpty()
-                    ? "No pending sync or download tasks"
-                    : counts.getApiCount() + " API tasks · " + counts.getAudioCount()
-                    + " audio files · " + counts.getPitchInfoCount() + " pitch files pending");
-        });
-        LiveApiState.getInstance().observe(getViewLifecycleOwner(), state -> {
-            Preference status = findPreference("sync_status");
-            if (status != null) {
-                String message;
-                switch (state) {
-                    case OK: message = "Connected to WaniKani"; break;
-                    case API_KEY_MISSING: message = "Add your WaniKani API token to connect"; break;
-                    case API_KEY_REJECTED: message = "Token rejected — check the token and its permissions"; break;
-                    case ERROR: message = "Connection failed — check your network, then tap Sync now"; break;
-                    default: message = "Ready to refresh — tap Sync now";
-                }
-                status.setSummary(message);
-            }
-            setVisibility("api_key_help", state != ApiState.OK);
-        });
+        LiveTaskCounts.getInstance().observe(getViewLifecycleOwner(), counts -> updateSyncStatus());
+        LiveApiState.getInstance().observe(getViewLifecycleOwner(), state -> updateSyncStatus());
+        LiveOnlineStatus.getInstance().observe(getViewLifecycleOwner(), state -> updateSyncStatus());
+        updateSyncStatus();
         setOnClickGoToActivity("font_selection", FontSelectionActivity.class);
         setOnClickGoToActivity("font_import", FontImportActivity.class);
         setOnClickGoToActivity("keyboard_help", KeyboardHelpActivity.class);
         setOnClickGoToActivity("data_import_export", DataImportExportActivity.class);
+    }
+
+    private void updateSyncStatus() {
+        final Preference status = findPreference("sync_status");
+        final Preference queue = findPreference("sync_queue");
+        if (status == null && queue == null) return;
+        final TaskCounts counts = LiveTaskCounts.getInstance().get();
+        final ApiState api = LiveApiState.getInstance().get();
+        final OnlineStatus network = LiveOnlineStatus.getInstance().get();
+        if (queue != null) {
+            queue.setSummary(counts.isEmpty() ? "No pending sync or download tasks"
+                    : getString(R.string.sync_queue_details, counts.getUploadCount(),
+                            counts.getSyncCount() - counts.getUploadCount(), counts.getAudioCount(),
+                            counts.getPitchInfoCount(), counts.getApiCount() - counts.getSyncCount()));
+        }
+        if (status != null) {
+            final String message;
+            if (api == ApiState.API_KEY_MISSING) {
+                message = "Add your WaniKani API token to connect";
+            } else if (api == ApiState.API_KEY_REJECTED) {
+                message = "Token rejected — check the token and its permissions";
+            } else if (!network.canCallApi()) {
+                message = network == OnlineStatus.NO_CONNECTION
+                        ? getString(counts.getUploadCount() > 0 ? R.string.sync_saved_offline : R.string.sync_waiting_network,
+                                counts.getUploadCount())
+                        : getString(R.string.sync_waiting_wifi);
+            } else if (api == ApiState.ERROR) {
+                message = "Connection failed — check your network, then tap Sync now";
+            } else if (counts.getUploadCount() > 0) {
+                message = getString(R.string.sync_uploading, counts.getUploadCount());
+            } else if (counts.getSyncCount() > 0) {
+                message = getString(R.string.dashboard_syncing);
+            } else if (api == ApiState.OK) {
+                message = getString(R.string.sync_last_success);
+            } else {
+                message = "Ready to refresh — tap Sync now";
+            }
+            status.setSummary(message);
+        }
+        setVisibility("api_key_help", api != ApiState.OK);
     }
 
     @Override
@@ -345,6 +371,11 @@ public final class PreferencesFragment extends PreferenceFragmentCompat {
     public void onResume() {
         safe(() -> {
             super.onResume();
+            if (findPreference("sync_status") != null) {
+                LiveOnlineStatus.getInstance().forceUpdate();
+                LiveApiState.getInstance().forceUpdate();
+                updateSyncStatus();
+            }
             final @Nullable Bundle args = getArguments();
             @Nullable CharSequence title = null;
             if (args != null) {

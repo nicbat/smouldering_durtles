@@ -1,5 +1,23 @@
 # Smoky Durtles agent handoff
 
+## November 14 sync status placement correction
+
+User requested removing all sync information from Next Session. Dashboard state,
+controller subscriptions and the status block no longer carry sync details. These
+now live in Settings → Sync & downloads, with separate upload/refresh/media/local counts.
+Status observes queue, API and connectivity events; network-rule changes and screen
+resume refresh it too. Metered capability changes now trigger connectivity updates.
+Use “Last sync succeeded” rather than inferring “Sync complete” from old API success.
+The backend optimization from the previous pass is retained.
+
+Debug/release/test APK builds pass. All 11 focused tests pass (35.802s), including
+queue and connectivity transitions while the settings screen remains open. Clean
+Next Session screenshot inspected: `/tmp/smoky-next-session-clean.png`.
+Logs: `/tmp/smoky-sync-location-build.log`, `/tmp/smoky-sync-location-tests.log`.
+Only an isolated offline emulator was used; phone installation remains user-triggered.
+Current delivery branch is `main` following the user's merge instruction.
+
+
 ## November 14 sync optimization pass
 
 Automatic sync on open now requests assignments and summary immediately; existing
